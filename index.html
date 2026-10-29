@@ -146,6 +146,12 @@
   #toast.show { opacity: 1; transform: none; pointer-events: auto; }
   #toastMsg { flex: 1; font-weight: 600; font-size: 15px; }
   #toast button { border: 0; background: rgba(255,255,255,.15); color: #fff; border-radius: 10px; min-height: 38px; padding: 0 12px; font-size: 15px; font-weight: 600; }
+  /* Sprache */
+  .langs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .langs .btn { flex: 1 1 0; min-width: 56px; text-align: center; padding: 0 4px; margin: 0; font-size: 15px; }
+  #sheet .langs .btn.on { background: var(--accent); color: #fff; }
+  .langlist .btn { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 0 14px; }
+  #sheet .langlist .btn.on { background: var(--accent); color: #fff; }
 </style>
 </head>
 <body>
@@ -153,20 +159,20 @@
 <!-- Startseite -->
 <main id="home">
   <div class="top">
-    <span></span>
-    <button class="iconbtn" id="menuBtn" type="button" aria-label="Menü">⚙︎ Daten</button>
+    <button class="iconbtn" id="langBtn" type="button"></button>
+    <button class="iconbtn" id="menuBtn" type="button" data-i18n="menuBtn" data-i18n-aria="menuAria"></button>
   </div>
-  <h1>Zähler</h1>
+  <h1 data-i18n="appTitle"></h1>
   <div id="list"></div>
-  <div class="empty-state" id="emptyState" hidden><div>🔢</div><p>Noch keine Zähler.<br>Leg deinen ersten an – egal was du zählen willst.</p></div>
-  <button id="newBtn" type="button">＋ Neuer Zähler</button>
+  <div class="empty-state" id="emptyState" hidden><div>🔢</div><p data-i18n-html="emptyState"></p></div>
+  <button id="newBtn" type="button" data-i18n="newBtn"></button>
 </main>
 
 <!-- Detailansicht -->
 <main id="detail" hidden>
   <div class="top">
-    <button class="iconbtn" id="backBtn" type="button">‹ Zähler</button>
-    <button class="iconbtn" id="editBtn" type="button">Bearbeiten</button>
+    <button class="iconbtn" id="backBtn" type="button" data-i18n="back"></button>
+    <button class="iconbtn" id="editBtn" type="button" data-i18n="edit"></button>
   </div>
   <div class="d-head">
     <div class="emoji" id="dEmoji"></div>
@@ -174,32 +180,32 @@
   </div>
   <button id="dPlus" type="button">+1</button>
   <div class="stats">
-    <div class="stat"><b id="sToday">0</b><span>Heute</span></div>
-    <div class="stat"><b id="sWeek">0</b><span>Woche</span></div>
-    <div class="stat"><b id="sMonth">0</b><span>Monat</span></div>
-    <div class="stat"><b id="sTotal">0</b><span>Gesamt</span></div>
+    <div class="stat"><b id="sToday">0</b><span data-i18n="statToday"></span></div>
+    <div class="stat"><b id="sWeek">0</b><span data-i18n="statWeek"></span></div>
+    <div class="stat"><b id="sMonth">0</b><span data-i18n="statMonth"></span></div>
+    <div class="stat"><b id="sTotal">0</b><span data-i18n="statTotal"></span></div>
   </div>
   <div class="since" id="sSince"></div>
 
   <section class="card" id="roundCard">
-    <h2 id="roundTitle">Aktuelle Runde</h2>
+    <h2 id="roundTitle"></h2>
     <ol class="rows" id="roundList"></ol>
   </section>
   <details class="card" id="pastCard">
-    <summary id="pastSummary">Frühere Runden</summary>
+    <summary id="pastSummary"></summary>
     <div id="pastList"></div>
   </details>
 
   <div class="row">
-    <button class="btn danger" id="undoBtn" type="button">↩︎ Rückgängig</button>
-    <button class="btn" id="backdateBtn" type="button">🕒 Nachtragen</button>
+    <button class="btn danger" id="undoBtn" type="button" data-i18n="undoBtn"></button>
+    <button class="btn" id="backdateBtn" type="button" data-i18n="backdateBtn"></button>
   </div>
   <div class="row">
-    <button class="btn" id="copyOneBtn" type="button">📋 Als Text kopieren</button>
+    <button class="btn" id="copyOneBtn" type="button" data-i18n="copyOneBtn"></button>
   </div>
 
   <section class="card">
-    <h2 id="entriesTitle">Alle Einträge</h2>
+    <h2 id="entriesTitle"></h2>
     <ol class="rows" id="entryList"></ol>
   </section>
 </main>
@@ -208,6 +214,282 @@
 <div id="toast" role="status"><span id="toastMsg"></span><span id="toastBtns"></span></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
+<script>
+/* =========================================================================
+   Übersetzungen. Werte: String mit {platzhalter} oder Pluralobjekt
+   { one, other } (Auswahl über Intl.PluralRules mit Parameter n).
+   Schlüssel mit Endung "Html" enthalten Markup; Parameter darin werden vom Aufrufer escaped.
+   ========================================================================= */
+const I18N = {
+de: {
+  langName: 'Deutsch', flag: '🇩🇪', locale: 'de-DE',
+  appTitle: 'Zähler', menuBtn: '⚙︎ Daten', menuAria: 'Menü', languageAria: 'Sprache',
+  emptyState: 'Noch keine Zähler.<br>Leg deinen ersten an – egal was du zählen willst.',
+  newBtn: '＋ Neuer Zähler', back: '‹ Zähler', edit: 'Bearbeiten',
+  statToday: 'Heute', statWeek: 'Woche', statMonth: 'Monat', statTotal: 'Gesamt',
+  undoBtn: '↩︎ Rückgängig', backdateBtn: '🕒 Nachtragen', copyOneBtn: '📋 Als Text kopieren',
+  roundAbbr: 'R{r}',
+  relToday: 'heute', relYesterday: 'gestern', relDayBefore: 'vorgestern', relDaysAgo: 'vor {n} Tagen',
+  noEntryYet: 'noch kein Eintrag', lastLabel: 'zuletzt: {t}',
+  justNow: 'gerade eben', durMin: '{n} Min.', durHours: '{n} Std.', durDays: { one: '{n} Tag', other: '{n} Tagen' },
+  tileRoundFull: 'Runde {r} voll · nächste: Nr. 1', tileRound: 'Runde {r} · nächste Nr. {next}',
+  detailRound: '{i}/{n} in Runde {r} · nächste Nr. {next}', detailNewRound: ' (neue Runde)',
+  entriesCount: { one: '{n} Eintrag', other: '{n} Einträge' },
+  plusNr: '+1  ·  Nr. {n}',
+  sinceLast: 'Seit dem letzten Eintrag', avgGap: 'Ø Abstand', noEntryTap: 'Noch kein Eintrag – tippe auf +1.',
+  roundTitle: 'Runde {r} · {i}/{n}', roundFullRow: '✓ Runde voll – der nächste Eintrag startet wieder bei 1.',
+  pastSummary: 'Frühere Runden ({n})', pastItem: 'Runde {r} · {a} – {b}', noPastRound: 'Noch keine abgeschlossene Runde.',
+  allEntries: 'Alle Einträge ({n})', noEntries: 'Noch keine Einträge.', editAria: 'Bearbeiten', deleteAria: 'Löschen',
+  saveFailed: '⚠️ Speichern fehlgeschlagen – Speicher voll?',
+  toastNr: '{name}: Nr. {n}', toastRoundFull: ' – Runde voll! 🎉', toastLogged: '{msg} eingetragen',
+  noteBtn: '📝 Notiz', undo: 'Rückgängig', entryRemoved: 'Eintrag entfernt',
+  noteTitle: 'Notiz zum Eintrag', notePh: 'z. B. Menge, Ort, Details … (optional)', withoutNote: 'Ohne Notiz', save: 'Speichern',
+  backdateTitle: 'Eintrag nachtragen', editEntryTitle: 'Eintrag bearbeiten', dateTime: 'Datum & Uhrzeit', noteOptional: 'Notiz (optional)',
+  delete: 'Löschen', cancel: 'Abbrechen', ok: 'OK', backdated: 'Eintrag nachgetragen',
+  deleteEntryQ: 'Eintrag vom {d} löschen?\nDie Nummern danach rücken nach.', entryDeleted: 'Eintrag gelöscht',
+  undoQ: 'Letzten Eintrag (Nr. {n} vom {d}) entfernen?', remove: 'Entfernen', undone: 'Rückgängig gemacht',
+  editCounterTitle: 'Zähler bearbeiten', newCounterTitle: 'Neuer Zähler', fieldName: 'Name', namePh: 'z. B. Kaffee, Tanken, Training',
+  fieldSymbol: 'Symbol', fieldColor: 'Farbe', colorAria: 'Farbe {c}', fieldRound: 'Rundengröße (optional)', roundPh: 'keine – einfach weiterzählen',
+  roundHelp: 'z. B. 10 → nach 10 Einträgen startet der nächste wieder bei 1 (wie eine Schachtel/Packung). Frühere Runden bleiben in der Historie.',
+  askNote: 'Bei jedem +1 nach einer Notiz fragen', askNoteHelp: 'Aus: +1 bleibt ein einziger Tipp – Notiz geht trotzdem jederzeit über die Meldung oder den Eintrag.',
+  errName: 'Bitte einen Namen eingeben.', errRound: 'Rundengröße: ganze Zahl von 2 bis 999 oder leer lassen.', deleteCounter: 'Zähler löschen',
+  entriesWith: { one: '{n} Eintrag', other: '{n} Einträgen' },
+  deleteCounterQ: 'Zähler „{name}“ mit {entries} wirklich löschen?\nDas kann nicht rückgängig gemacht werden.', deleteForever: 'Endgültig löschen',
+  counterDeleted: '„{name}“ gelöscht', saved: 'Gespeichert', created: '{name} angelegt',
+  backupTitle: 'Zähler-Backup', exported: 'Backup exportiert',
+  errBackupFile: 'Keine gültige Zähler-Backup-Datei.', errBackupCounter: 'Ungültiger Zähler in der Datei.',
+  importFailed: '⚠️ Import fehlgeschlagen: {msg}', fileUnreadable: 'Datei unlesbar',
+  importTitle: 'Backup importieren',
+  importBodyHtml: 'Die Datei enthält {c} Zähler und {e} Einträge.\n\n<b>Ersetzen</b>: alle aktuellen Daten werden durch das Backup ersetzt.\n<b>Zusammenführen</b>: Backup wird ergänzt, gleiche Einträge nicht doppelt.',
+  merge: 'Zusammenführen', replace: 'Ersetzen', importDone: 'Import fertig: {n} Zähler',
+  txtNoEntries: '(keine Einträge)', txtRound: 'Runde {r}:', txtRoundFull: 'Runde {r} (voll):', txtRoundPart: 'Runde {r} ({i}/{n}):', txtTotal: 'Gesamt: {n}', txtNoCounters: '(keine Zähler)',
+  copied: '📋 In die Zwischenablage kopiert', textTitle: 'Text', close: 'Schließen',
+  menuTitle: 'Daten', language: 'Sprache', mExport: '💾 Backup exportieren (JSON)', mImport: '📂 Backup importieren', mCopy: '📋 Alles als Text kopieren',
+  mSeed: '🥚 Beispielzähler „{name}“ hinzufügen', mWipe: '🗑 Alle Daten löschen',
+  menuNoteHtml: 'Deine Daten liegen nur auf diesem Gerät (im Browser-Speicher). Mach ab und zu ein Backup.<br>{app} · Version {v}',
+  seedAdded: '🥚 {name} hinzugefügt', wipeQ: 'Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', wipeAll: 'Alles löschen', wiped: 'Alle Daten gelöscht',
+  seedName: 'Eier',
+  welcomeTitle: 'Willkommen bei Zähler 👋',
+  welcomeBodyHtml: 'Hier kannst du alles zählen – mit einem Tipp auf <b>+1</b>.\n\nSoll ich gleich deinen Zähler <b>🥚 {name}</b> (Runde à 10) anlegen{old}?',
+  welcomeOld: ' – mit den Daten aus deiner Eier-App', startEmpty: 'Leer starten', takeOver: '{name} übernehmen',
+  seedTaken: '🥚 {name} übernommen – nächste Lieferung: Nr. {n}', langChanged: 'Sprache: Deutsch',
+},
+en: {
+  langName: 'English', flag: '🇬🇧', locale: 'en-GB',
+  appTitle: 'Counter', menuBtn: '⚙︎ Data', menuAria: 'Menu', languageAria: 'Language',
+  emptyState: 'No counters yet.<br>Create your first one – whatever you want to count.',
+  newBtn: '＋ New counter', back: '‹ Counters', edit: 'Edit',
+  statToday: 'Today', statWeek: 'Week', statMonth: 'Month', statTotal: 'Total',
+  undoBtn: '↩︎ Undo', backdateBtn: '🕒 Add past entry', copyOneBtn: '📋 Copy as text',
+  roundAbbr: 'R{r}',
+  relToday: 'today', relYesterday: 'yesterday', relDayBefore: '2 days ago', relDaysAgo: '{n} days ago',
+  noEntryYet: 'no entry yet', lastLabel: 'last: {t}',
+  justNow: 'just now', durMin: '{n} min', durHours: '{n} h', durDays: { one: '{n} day', other: '{n} days' },
+  tileRoundFull: 'Round {r} full · next: No. 1', tileRound: 'Round {r} · next No. {next}',
+  detailRound: '{i}/{n} in round {r} · next No. {next}', detailNewRound: ' (new round)',
+  entriesCount: { one: '{n} entry', other: '{n} entries' },
+  plusNr: '+1  ·  No. {n}',
+  sinceLast: 'Since last entry', avgGap: 'Ø interval', noEntryTap: 'No entry yet – tap +1.',
+  roundTitle: 'Round {r} · {i}/{n}', roundFullRow: '✓ Round full – the next entry starts again at 1.',
+  pastSummary: 'Previous rounds ({n})', pastItem: 'Round {r} · {a} – {b}', noPastRound: 'No completed round yet.',
+  allEntries: 'All entries ({n})', noEntries: 'No entries yet.', editAria: 'Edit', deleteAria: 'Delete',
+  saveFailed: '⚠️ Saving failed – storage full?',
+  toastNr: '{name}: No. {n}', toastRoundFull: ' – round full! 🎉', toastLogged: '{msg} logged',
+  noteBtn: '📝 Note', undo: 'Undo', entryRemoved: 'Entry removed',
+  noteTitle: 'Note for this entry', notePh: 'e.g. amount, place, details … (optional)', withoutNote: 'No note', save: 'Save',
+  backdateTitle: 'Add past entry', editEntryTitle: 'Edit entry', dateTime: 'Date & time', noteOptional: 'Note (optional)',
+  delete: 'Delete', cancel: 'Cancel', ok: 'OK', backdated: 'Past entry added',
+  deleteEntryQ: 'Delete the entry from {d}?\nLater numbers will move up.', entryDeleted: 'Entry deleted',
+  undoQ: 'Remove the last entry (No. {n} from {d})?', remove: 'Remove', undone: 'Undone',
+  editCounterTitle: 'Edit counter', newCounterTitle: 'New counter', fieldName: 'Name', namePh: 'e.g. coffee, fuel, workout',
+  fieldSymbol: 'Symbol', fieldColor: 'Colour', colorAria: 'Colour {c}', fieldRound: 'Round size (optional)', roundPh: 'none – just keep counting',
+  roundHelp: 'e.g. 10 → after 10 entries the next one starts again at 1 (like a box or pack). Previous rounds stay in the history.',
+  askNote: 'Ask for a note on every +1', askNoteHelp: 'Off: +1 stays a single tap – you can still add a note any time via the message or the entry.',
+  errName: 'Please enter a name.', errRound: 'Round size: whole number from 2 to 999, or leave empty.', deleteCounter: 'Delete counter',
+  entriesWith: { one: '{n} entry', other: '{n} entries' },
+  deleteCounterQ: 'Really delete counter “{name}” with {entries}?\nThis cannot be undone.', deleteForever: 'Delete permanently',
+  counterDeleted: '“{name}” deleted', saved: 'Saved', created: '{name} created',
+  backupTitle: 'Counter backup', exported: 'Backup exported',
+  errBackupFile: 'Not a valid counter backup file.', errBackupCounter: 'Invalid counter in the file.',
+  importFailed: '⚠️ Import failed: {msg}', fileUnreadable: 'file unreadable',
+  importTitle: 'Import backup',
+  importBodyHtml: 'The file contains {c} counters and {e} entries.\n\n<b>Replace</b>: all current data is replaced by the backup.\n<b>Merge</b>: the backup is added, identical entries are not duplicated.',
+  merge: 'Merge', replace: 'Replace', importDone: 'Import done: {n} counters',
+  txtNoEntries: '(no entries)', txtRound: 'Round {r}:', txtRoundFull: 'Round {r} (full):', txtRoundPart: 'Round {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(no counters)',
+  copied: '📋 Copied to clipboard', textTitle: 'Text', close: 'Close',
+  menuTitle: 'Data', language: 'Language', mExport: '💾 Export backup (JSON)', mImport: '📂 Import backup', mCopy: '📋 Copy everything as text',
+  mSeed: '🥚 Add example counter “{name}”', mWipe: '🗑 Delete all data',
+  menuNoteHtml: 'Your data is stored only on this device (in the browser storage). Make a backup now and then.<br>{app} · Version {v}',
+  seedAdded: '🥚 {name} added', wipeQ: 'Really delete ALL counters and entries?\nTip: export a backup first.', wipeAll: 'Delete everything', wiped: 'All data deleted',
+  seedName: 'Eggs',
+  welcomeTitle: 'Welcome to Counter 👋',
+  welcomeBodyHtml: 'Count anything here – with a single tap on <b>+1</b>.\n\nShall I set up your counter <b>🥚 {name}</b> (rounds of 10) right away{old}?',
+  welcomeOld: ' – with the data from your egg app', startEmpty: 'Start empty', takeOver: 'Add {name}',
+  seedTaken: '🥚 {name} added – next delivery: No. {n}', langChanged: 'Language: English',
+},
+it: {
+  langName: 'Italiano', flag: '🇮🇹', locale: 'it-IT',
+  appTitle: 'Contatore', menuBtn: '⚙︎ Dati', menuAria: 'Menu', languageAria: 'Lingua',
+  emptyState: 'Ancora nessun contatore.<br>Crea il primo – qualunque cosa tu voglia contare.',
+  newBtn: '＋ Nuovo contatore', back: '‹ Contatori', edit: 'Modifica',
+  statToday: 'Oggi', statWeek: 'Settimana', statMonth: 'Mese', statTotal: 'Totale',
+  undoBtn: '↩︎ Annulla', backdateBtn: '🕒 Voce passata', copyOneBtn: '📋 Copia come testo',
+  roundAbbr: 'C{r}',
+  relToday: 'oggi', relYesterday: 'ieri', relDayBefore: 'l’altro ieri', relDaysAgo: '{n} giorni fa',
+  noEntryYet: 'ancora nessuna voce', lastLabel: 'ultima: {t}',
+  justNow: 'proprio ora', durMin: '{n} min', durHours: '{n} h', durDays: { one: '{n} giorno', other: '{n} giorni' },
+  tileRoundFull: 'Ciclo {r} completo · prossimo: N. 1', tileRound: 'Ciclo {r} · prossimo N. {next}',
+  detailRound: '{i}/{n} nel ciclo {r} · prossimo N. {next}', detailNewRound: ' (nuovo ciclo)',
+  entriesCount: { one: '{n} voce', other: '{n} voci' },
+  plusNr: '+1  ·  N. {n}',
+  sinceLast: 'Dall’ultima voce', avgGap: 'Ø intervallo', noEntryTap: 'Ancora nessuna voce – tocca +1.',
+  roundTitle: 'Ciclo {r} · {i}/{n}', roundFullRow: '✓ Ciclo completo – la prossima voce riparte da 1.',
+  pastSummary: 'Cicli precedenti ({n})', pastItem: 'Ciclo {r} · {a} – {b}', noPastRound: 'Ancora nessun ciclo completato.',
+  allEntries: 'Tutte le voci ({n})', noEntries: 'Ancora nessuna voce.', editAria: 'Modifica', deleteAria: 'Elimina',
+  saveFailed: '⚠️ Salvataggio non riuscito – memoria piena?',
+  toastNr: '{name}: N. {n}', toastRoundFull: ' – ciclo completo! 🎉', toastLogged: '{msg} registrato',
+  noteBtn: '📝 Nota', undo: 'Annulla', entryRemoved: 'Voce rimossa',
+  noteTitle: 'Nota per questa voce', notePh: 'es. quantità, luogo, dettagli … (facoltativo)', withoutNote: 'Senza nota', save: 'Salva',
+  backdateTitle: 'Aggiungi voce passata', editEntryTitle: 'Modifica voce', dateTime: 'Data e ora', noteOptional: 'Nota (facoltativa)',
+  delete: 'Elimina', cancel: 'Annulla', ok: 'OK', backdated: 'Voce passata aggiunta',
+  deleteEntryQ: 'Eliminare la voce del {d}?\nI numeri successivi scaleranno.', entryDeleted: 'Voce eliminata',
+  undoQ: 'Rimuovere l’ultima voce (N. {n} del {d})?', remove: 'Rimuovi', undone: 'Annullato',
+  editCounterTitle: 'Modifica contatore', newCounterTitle: 'Nuovo contatore', fieldName: 'Nome', namePh: 'es. caffè, benzina, allenamento',
+  fieldSymbol: 'Simbolo', fieldColor: 'Colore', colorAria: 'Colore {c}', fieldRound: 'Dimensione ciclo (facoltativa)', roundPh: 'nessuna – continua a contare',
+  roundHelp: 'es. 10 → dopo 10 voci la successiva riparte da 1 (come una scatola o confezione). I cicli precedenti restano nella cronologia.',
+  askNote: 'Chiedi una nota a ogni +1', askNoteHelp: 'Disattivato: +1 resta un solo tocco – puoi comunque aggiungere una nota dal messaggio o dalla voce.',
+  errName: 'Inserisci un nome.', errRound: 'Dimensione ciclo: numero intero da 2 a 999, oppure lascia vuoto.', deleteCounter: 'Elimina contatore',
+  entriesWith: { one: '{n} voce', other: '{n} voci' },
+  deleteCounterQ: 'Eliminare davvero il contatore «{name}» con {entries}?\nL’operazione non può essere annullata.', deleteForever: 'Elimina definitivamente',
+  counterDeleted: '«{name}» eliminato', saved: 'Salvato', created: '{name} creato',
+  backupTitle: 'Backup contatore', exported: 'Backup esportato',
+  errBackupFile: 'File di backup non valido.', errBackupCounter: 'Contatore non valido nel file.',
+  importFailed: '⚠️ Importazione non riuscita: {msg}', fileUnreadable: 'file illeggibile',
+  importTitle: 'Importa backup',
+  importBodyHtml: 'Il file contiene {c} contatori e {e} voci.\n\n<b>Sostituisci</b>: tutti i dati attuali vengono sostituiti dal backup.\n<b>Unisci</b>: il backup viene aggiunto, le voci uguali non vengono duplicate.',
+  merge: 'Unisci', replace: 'Sostituisci', importDone: 'Importazione completata: {n} contatori',
+  txtNoEntries: '(nessuna voce)', txtRound: 'Ciclo {r}:', txtRoundFull: 'Ciclo {r} (completo):', txtRoundPart: 'Ciclo {r} ({i}/{n}):', txtTotal: 'Totale: {n}', txtNoCounters: '(nessun contatore)',
+  copied: '📋 Copiato negli appunti', textTitle: 'Testo', close: 'Chiudi',
+  menuTitle: 'Dati', language: 'Lingua', mExport: '💾 Esporta backup (JSON)', mImport: '📂 Importa backup', mCopy: '📋 Copia tutto come testo',
+  mSeed: '🥚 Aggiungi contatore di esempio «{name}»', mWipe: '🗑 Elimina tutti i dati',
+  menuNoteHtml: 'I tuoi dati restano solo su questo dispositivo (nella memoria del browser). Fai un backup ogni tanto.<br>{app} · Versione {v}',
+  seedAdded: '🥚 {name} aggiunte', wipeQ: 'Eliminare davvero TUTTI i contatori e le voci?\nConsiglio: esporta prima un backup.', wipeAll: 'Elimina tutto', wiped: 'Tutti i dati eliminati',
+  seedName: 'Uova',
+  welcomeTitle: 'Benvenuto in Contatore 👋',
+  welcomeBodyHtml: 'Qui puoi contare qualsiasi cosa – con un tocco su <b>+1</b>.\n\nVuoi che crei subito il tuo contatore <b>🥚 {name}</b> (cicli da 10){old}?',
+  welcomeOld: ' – con i dati della tua app delle uova', startEmpty: 'Inizia vuoto', takeOver: 'Aggiungi {name}',
+  seedTaken: '🥚 {name} aggiunte – prossima consegna: N. {n}', langChanged: 'Lingua: Italiano',
+},
+es: {
+  langName: 'Español', flag: '🇪🇸', locale: 'es-ES',
+  appTitle: 'Contador', menuBtn: '⚙︎ Datos', menuAria: 'Menú', languageAria: 'Idioma',
+  emptyState: 'Todavía no hay contadores.<br>Crea el primero – cuenta lo que quieras.',
+  newBtn: '＋ Nuevo contador', back: '‹ Contadores', edit: 'Editar',
+  statToday: 'Hoy', statWeek: 'Semana', statMonth: 'Mes', statTotal: 'Total',
+  undoBtn: '↩︎ Deshacer', backdateBtn: '🕒 Entrada pasada', copyOneBtn: '📋 Copiar como texto',
+  roundAbbr: 'R{r}',
+  relToday: 'hoy', relYesterday: 'ayer', relDayBefore: 'anteayer', relDaysAgo: 'hace {n} días',
+  noEntryYet: 'aún sin entradas', lastLabel: 'última: {t}',
+  justNow: 'justo ahora', durMin: '{n} min', durHours: '{n} h', durDays: { one: '{n} día', other: '{n} días' },
+  tileRoundFull: 'Ronda {r} completa · siguiente: N.º 1', tileRound: 'Ronda {r} · siguiente N.º {next}',
+  detailRound: '{i}/{n} en la ronda {r} · siguiente N.º {next}', detailNewRound: ' (nueva ronda)',
+  entriesCount: { one: '{n} entrada', other: '{n} entradas' },
+  plusNr: '+1  ·  N.º {n}',
+  sinceLast: 'Desde la última entrada', avgGap: 'Ø intervalo', noEntryTap: 'Aún sin entradas – toca +1.',
+  roundTitle: 'Ronda {r} · {i}/{n}', roundFullRow: '✓ Ronda completa – la siguiente entrada empieza de nuevo en 1.',
+  pastSummary: 'Rondas anteriores ({n})', pastItem: 'Ronda {r} · {a} – {b}', noPastRound: 'Aún no hay ninguna ronda completada.',
+  allEntries: 'Todas las entradas ({n})', noEntries: 'Aún no hay entradas.', editAria: 'Editar', deleteAria: 'Eliminar',
+  saveFailed: '⚠️ No se pudo guardar – ¿memoria llena?',
+  toastNr: '{name}: N.º {n}', toastRoundFull: ' – ¡ronda completa! 🎉', toastLogged: '{msg} registrado',
+  noteBtn: '📝 Nota', undo: 'Deshacer', entryRemoved: 'Entrada eliminada',
+  noteTitle: 'Nota de la entrada', notePh: 'p. ej. cantidad, lugar, detalles … (opcional)', withoutNote: 'Sin nota', save: 'Guardar',
+  backdateTitle: 'Añadir entrada pasada', editEntryTitle: 'Editar entrada', dateTime: 'Fecha y hora', noteOptional: 'Nota (opcional)',
+  delete: 'Eliminar', cancel: 'Cancelar', ok: 'OK', backdated: 'Entrada pasada añadida',
+  deleteEntryQ: '¿Eliminar la entrada del {d}?\nLos números siguientes se desplazarán.', entryDeleted: 'Entrada eliminada',
+  undoQ: '¿Quitar la última entrada (N.º {n} del {d})?', remove: 'Quitar', undone: 'Deshecho',
+  editCounterTitle: 'Editar contador', newCounterTitle: 'Nuevo contador', fieldName: 'Nombre', namePh: 'p. ej. café, gasolina, entrenamiento',
+  fieldSymbol: 'Símbolo', fieldColor: 'Color', colorAria: 'Color {c}', fieldRound: 'Tamaño de ronda (opcional)', roundPh: 'ninguno – seguir contando',
+  roundHelp: 'p. ej. 10 → tras 10 entradas la siguiente vuelve a empezar en 1 (como una caja o un paquete). Las rondas anteriores quedan en el historial.',
+  askNote: 'Pedir una nota en cada +1', askNoteHelp: 'Desactivado: +1 sigue siendo un solo toque – puedes añadir una nota cuando quieras desde el aviso o la entrada.',
+  errName: 'Introduce un nombre.', errRound: 'Tamaño de ronda: número entero de 2 a 999, o déjalo vacío.', deleteCounter: 'Eliminar contador',
+  entriesWith: { one: '{n} entrada', other: '{n} entradas' },
+  deleteCounterQ: '¿Eliminar de verdad el contador «{name}» con {entries}?\nNo se puede deshacer.', deleteForever: 'Eliminar definitivamente',
+  counterDeleted: '«{name}» eliminado', saved: 'Guardado', created: '{name} creado',
+  backupTitle: 'Copia de seguridad del contador', exported: 'Copia de seguridad exportada',
+  errBackupFile: 'No es un archivo de copia de seguridad válido.', errBackupCounter: 'Contador no válido en el archivo.',
+  importFailed: '⚠️ Error al importar: {msg}', fileUnreadable: 'archivo ilegible',
+  importTitle: 'Importar copia de seguridad',
+  importBodyHtml: 'El archivo contiene {c} contadores y {e} entradas.\n\n<b>Reemplazar</b>: todos los datos actuales se sustituyen por la copia.\n<b>Combinar</b>: la copia se añade, las entradas iguales no se duplican.',
+  merge: 'Combinar', replace: 'Reemplazar', importDone: 'Importación terminada: {n} contadores',
+  txtNoEntries: '(sin entradas)', txtRound: 'Ronda {r}:', txtRoundFull: 'Ronda {r} (completa):', txtRoundPart: 'Ronda {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(sin contadores)',
+  copied: '📋 Copiado al portapapeles', textTitle: 'Texto', close: 'Cerrar',
+  menuTitle: 'Datos', language: 'Idioma', mExport: '💾 Exportar copia (JSON)', mImport: '📂 Importar copia', mCopy: '📋 Copiar todo como texto',
+  mSeed: '🥚 Añadir contador de ejemplo «{name}»', mWipe: '🗑 Borrar todos los datos',
+  menuNoteHtml: 'Tus datos solo se guardan en este dispositivo (en la memoria del navegador). Haz una copia de seguridad de vez en cuando.<br>{app} · Versión {v}',
+  seedAdded: '🥚 {name} añadidos', wipeQ: '¿Borrar de verdad TODOS los contadores y entradas?\nConsejo: exporta antes una copia de seguridad.', wipeAll: 'Borrar todo', wiped: 'Todos los datos borrados',
+  seedName: 'Huevos',
+  welcomeTitle: 'Bienvenido a Contador 👋',
+  welcomeBodyHtml: 'Aquí puedes contar cualquier cosa – con un toque en <b>+1</b>.\n\n¿Creo ya tu contador <b>🥚 {name}</b> (rondas de 10){old}?',
+  welcomeOld: ' – con los datos de tu app de huevos', startEmpty: 'Empezar vacío', takeOver: 'Añadir {name}',
+  seedTaken: '🥚 {name} añadidos – próxima entrega: N.º {n}', langChanged: 'Idioma: Español',
+},
+fr: {
+  langName: 'Français', flag: '🇫🇷', locale: 'fr-FR',
+  appTitle: 'Compteur', menuBtn: '⚙︎ Données', menuAria: 'Menu', languageAria: 'Langue',
+  emptyState: 'Aucun compteur pour l’instant.<br>Crée le premier – compte tout ce que tu veux.',
+  newBtn: '＋ Nouveau compteur', back: '‹ Compteurs', edit: 'Modifier',
+  statToday: 'Aujourd’hui', statWeek: 'Semaine', statMonth: 'Mois', statTotal: 'Total',
+  undoBtn: '↩︎ Annuler', backdateBtn: '🕒 Entrée passée', copyOneBtn: '📋 Copier en texte',
+  roundAbbr: 'T{r}',
+  relToday: 'aujourd’hui', relYesterday: 'hier', relDayBefore: 'avant-hier', relDaysAgo: 'il y a {n} jours',
+  noEntryYet: 'aucune entrée', lastLabel: 'dernière : {t}',
+  justNow: 'à l’instant', durMin: '{n} min', durHours: '{n} h', durDays: { one: '{n} jour', other: '{n} jours' },
+  tileRoundFull: 'Tour {r} complet · suivant : N° 1', tileRound: 'Tour {r} · suivant N° {next}',
+  detailRound: '{i}/{n} au tour {r} · suivant N° {next}', detailNewRound: ' (nouveau tour)',
+  entriesCount: { one: '{n} entrée', other: '{n} entrées' },
+  plusNr: '+1  ·  N° {n}',
+  sinceLast: 'Depuis la dernière entrée', avgGap: 'Ø intervalle', noEntryTap: 'Aucune entrée – touche +1.',
+  roundTitle: 'Tour {r} · {i}/{n}', roundFullRow: '✓ Tour complet – la prochaine entrée recommence à 1.',
+  pastSummary: 'Tours précédents ({n})', pastItem: 'Tour {r} · {a} – {b}', noPastRound: 'Aucun tour terminé pour l’instant.',
+  allEntries: 'Toutes les entrées ({n})', noEntries: 'Aucune entrée pour l’instant.', editAria: 'Modifier', deleteAria: 'Supprimer',
+  saveFailed: '⚠️ Échec de l’enregistrement – mémoire pleine ?',
+  toastNr: '{name} : N° {n}', toastRoundFull: ' – tour complet ! 🎉', toastLogged: '{msg} enregistré',
+  noteBtn: '📝 Note', undo: 'Annuler', entryRemoved: 'Entrée retirée',
+  noteTitle: 'Note pour cette entrée', notePh: 'p. ex. quantité, lieu, détails … (facultatif)', withoutNote: 'Sans note', save: 'Enregistrer',
+  backdateTitle: 'Ajouter une entrée passée', editEntryTitle: 'Modifier l’entrée', dateTime: 'Date et heure', noteOptional: 'Note (facultative)',
+  delete: 'Supprimer', cancel: 'Annuler', ok: 'OK', backdated: 'Entrée passée ajoutée',
+  deleteEntryQ: 'Supprimer l’entrée du {d} ?\nLes numéros suivants seront décalés.', entryDeleted: 'Entrée supprimée',
+  undoQ: 'Retirer la dernière entrée (N° {n} du {d}) ?', remove: 'Retirer', undone: 'Annulé',
+  editCounterTitle: 'Modifier le compteur', newCounterTitle: 'Nouveau compteur', fieldName: 'Nom', namePh: 'p. ex. café, carburant, sport',
+  fieldSymbol: 'Symbole', fieldColor: 'Couleur', colorAria: 'Couleur {c}', fieldRound: 'Taille du tour (facultatif)', roundPh: 'aucune – continuer à compter',
+  roundHelp: 'p. ex. 10 → après 10 entrées, la suivante recommence à 1 (comme une boîte ou un paquet). Les tours précédents restent dans l’historique.',
+  askNote: 'Demander une note à chaque +1', askNoteHelp: 'Désactivé : +1 reste un seul geste – tu peux toujours ajouter une note via le message ou l’entrée.',
+  errName: 'Saisis un nom.', errRound: 'Taille du tour : nombre entier de 2 à 999, ou laisser vide.', deleteCounter: 'Supprimer le compteur',
+  entriesWith: { one: '{n} entrée', other: '{n} entrées' },
+  deleteCounterQ: 'Vraiment supprimer le compteur « {name} » avec {entries} ?\nCette action est irréversible.', deleteForever: 'Supprimer définitivement',
+  counterDeleted: '« {name} » supprimé', saved: 'Enregistré', created: '{name} créé',
+  backupTitle: 'Sauvegarde du compteur', exported: 'Sauvegarde exportée',
+  errBackupFile: 'Fichier de sauvegarde non valide.', errBackupCounter: 'Compteur non valide dans le fichier.',
+  importFailed: '⚠️ Échec de l’import : {msg}', fileUnreadable: 'fichier illisible',
+  importTitle: 'Importer une sauvegarde',
+  importBodyHtml: 'Le fichier contient {c} compteurs et {e} entrées.\n\n<b>Remplacer</b> : toutes les données actuelles sont remplacées par la sauvegarde.\n<b>Fusionner</b> : la sauvegarde est ajoutée, les entrées identiques ne sont pas dupliquées.',
+  merge: 'Fusionner', replace: 'Remplacer', importDone: 'Import terminé : {n} compteurs',
+  txtNoEntries: '(aucune entrée)', txtRound: 'Tour {r} :', txtRoundFull: 'Tour {r} (complet) :', txtRoundPart: 'Tour {r} ({i}/{n}) :', txtTotal: 'Total : {n}', txtNoCounters: '(aucun compteur)',
+  copied: '📋 Copié dans le presse-papiers', textTitle: 'Texte', close: 'Fermer',
+  menuTitle: 'Données', language: 'Langue', mExport: '💾 Exporter la sauvegarde (JSON)', mImport: '📂 Importer une sauvegarde', mCopy: '📋 Tout copier en texte',
+  mSeed: '🥚 Ajouter le compteur d’exemple « {name} »', mWipe: '🗑 Supprimer toutes les données',
+  menuNoteHtml: 'Tes données restent uniquement sur cet appareil (dans la mémoire du navigateur). Fais une sauvegarde de temps en temps.<br>{app} · Version {v}',
+  seedAdded: '🥚 {name} ajoutés', wipeQ: 'Vraiment supprimer TOUS les compteurs et entrées ?\nAstuce : exporte d’abord une sauvegarde.', wipeAll: 'Tout supprimer', wiped: 'Toutes les données supprimées',
+  seedName: 'Œufs',
+  welcomeTitle: 'Bienvenue dans Compteur 👋',
+  welcomeBodyHtml: 'Ici, tu peux tout compter – d’un seul geste sur <b>+1</b>.\n\nJe crée tout de suite ton compteur <b>🥚 {name}</b> (tours de 10){old} ?',
+  welcomeOld: ' – avec les données de ton app des œufs', startEmpty: 'Commencer vide', takeOver: 'Ajouter {name}',
+  seedTaken: '🥚 {name} ajoutés – prochaine livraison : N° {n}', langChanged: 'Langue : Français',
+},
+};
+const LANGS = ['de', 'en', 'it', 'es', 'fr'];
+const LANG_KEY = 'zaehler-lang';
+</script>
 <script>
 (() => {
 'use strict';
@@ -218,6 +500,7 @@
    Entry   = { id, counterId, timestamp, note?, dateOnly? }
    Runden und Nummern werden NICHT gespeichert, sondern aus der sortierten
    Eintragsliste abgeleitet (Eintrag i -> Runde floor(i/roundSize)+1, Nr. i%roundSize+1).
+   Die Sprache liegt getrennt in localStorage["zaehler-lang"] (nicht im Backup).
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;
@@ -230,37 +513,81 @@ const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); })).toUpperCase();
 const isoNow = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, 'Z'); // ohne Millisekunden -> Swift .iso8601 kompatibel
 
+/* ---------- Sprache ---------- */
+const baseOf = p => String(p || '').toLowerCase().split(/[-_]/)[0];
+function detectLang() {
+  try { const s = localStorage.getItem(LANG_KEY); if (LANGS.includes(s)) return s; } catch (e) {}
+  const prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
+  for (const p of prefs) if (LANGS.includes(baseOf(p))) return baseOf(p);
+  return 'en';
+}
+let lang = detectLang(), L = I18N[lang], plural, dateFmt, timeFmt;
+function intlLocale() { // Region vom Gerät übernehmen, wenn die Gerätesprache passt (z. B. de-AT, en-US)
+  const nav = (navigator.languages || [navigator.language]).find(p => baseOf(p) === lang);
+  try { if (nav && Intl.DateTimeFormat.supportedLocalesOf(nav).length) return nav; } catch (e) {}
+  return L.locale;
+}
+function setupIntl() {
+  const loc = intlLocale();
+  plural = new Intl.PluralRules(loc);
+  dateFmt = new Intl.DateTimeFormat(loc, { day: '2-digit', month: '2-digit', year: 'numeric' });
+  timeFmt = new Intl.DateTimeFormat(loc, { hour: '2-digit', minute: '2-digit' });
+}
+setupIntl();
+function t(key, p = {}) {
+  let v = L[key];
+  if (v === undefined) { console.error('i18n: fehlender Schlüssel ' + lang + '.' + key); v = I18N.en[key] ?? I18N.de[key] ?? ('⟦' + key + '⟧'); }
+  if (v && typeof v === 'object') v = v[plural.select(p.n ?? 0)] ?? v.other;
+  return String(v).replace(/\{(\w+)\}/g, (m, k) => (p[k] !== undefined ? p[k] : m));
+}
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.title = t('appTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  $('langBtn').textContent = `🌐 ${lang.toUpperCase()}`; $('langBtn').setAttribute('aria-label', t('languageAria'));
+}
+function setLang(l, remember = true) {
+  if (!LANGS.includes(l)) return;
+  lang = l; L = I18N[l]; setupIntl();
+  if (remember) { try { localStorage.setItem(LANG_KEY, l); } catch (e) {} }
+  applyStatic(); render();
+}
+const langButtons = () => LANGS.map(l => `<button class="btn${l === lang ? ' on' : ''}" type="button" data-v="lang:${l}" data-lang="${l}" aria-label="${esc(I18N[l].langName)}">${I18N[l].flag} ${l.toUpperCase()}</button>`).join('');
+
 /* ---------- Datum & Zeit ---------- */
 const pad = n => String(n).padStart(2, '0');
-const fmtDate = d => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
-const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtDate = d => dateFmt.format(d);
+const fmtTime = d => timeFmt.format(d);
 const fmtEntry = e => { const d = new Date(e.timestamp); return e.dateOnly ? fmtDate(d) : `${fmtDate(d)}, ${fmtTime(d)}`; };
 const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const startOfWeek = d => { const s = startOfDay(d); const wd = (s.getDay() + 6) % 7; s.setDate(s.getDate() - wd); return s; }; // Montag
+const startOfWeek = d => { const s = startOfDay(d); const wd = (s.getDay() + 6) % 7; s.setDate(s.getDate() - wd); return s; }; // Montag (in allen Sprachen)
 const startOfMonth = d => new Date(d.getFullYear(), d.getMonth(), 1);
 const dayDiff = (a, b) => Math.round((startOfDay(a) - startOfDay(b)) / 864e5);
 function relDay(d) {
   const n = dayDiff(new Date(), d);
-  if (n === 0) return 'heute'; if (n === 1) return 'gestern'; if (n === 2) return 'vorgestern';
-  if (n > 0 && n < 7) return `vor ${n} Tagen`;
+  if (n === 0) return t('relToday'); if (n === 1) return t('relYesterday'); if (n === 2) return t('relDayBefore');
+  if (n > 0 && n < 7) return t('relDaysAgo', { n });
   return fmtDate(d);
 }
 function lastText(e) {
-  if (!e) return 'noch kein Eintrag';
+  if (!e) return t('noEntryYet');
   const d = new Date(e.timestamp);
   const r = relDay(d);
   return e.dateOnly ? r : `${r}, ${fmtTime(d)}`;
 }
+const daysText = n => t('durDays', { n });
 function duration(ms) {
   if (ms < 0) ms = 0;
   const min = Math.floor(ms / 6e4), h = Math.floor(min / 60), days = Math.floor(h / 24);
-  if (min < 1) return 'gerade eben';
-  if (h < 1) return `${min} Min.`;
-  if (days < 1) return `${h} Std. ${min % 60} Min.`;
-  if (days < 60) return `${days} ${days === 1 ? 'Tag' : 'Tagen'}${h % 24 ? ` ${h % 24} Std.` : ''}`;
-  return `${days} Tagen`;
+  if (min < 1) return t('justNow');
+  if (h < 1) return t('durMin', { n: min });
+  if (days < 1) return `${t('durHours', { n: h })} ${t('durMin', { n: min % 60 })}`;
+  if (days < 60) return `${daysText(days)}${h % 24 ? ` ${t('durHours', { n: h % 24 })}` : ''}`;
+  return daysText(days);
 }
-const toLocalInput = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${fmtTime(d)}`;
+const toLocalInput = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const localDateNoon = ymd => { const [y, m, d] = ymd.split('-').map(Number); return new Date(y, m - 1, d, 12, 0, 0); };
 
 /* ---------- Speicher ---------- */
@@ -275,9 +602,8 @@ function load() {
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(db)); }
-  catch (e) { toast('⚠️ Speichern fehlgeschlagen – Speicher voll?'); }
+  catch (e) { toast(t('saveFailed')); }
 }
-
 /* ---------- Abfragen ---------- */
 const counter = id => db.counters.find(c => c.id === id);
 const sortedCounters = () => [...db.counters].sort((a, b) => a.order - b.order);
@@ -296,14 +622,14 @@ function roundInfo(c, list) {
 function stats(list) {
   const now = new Date(), d0 = startOfDay(now), w0 = startOfWeek(now), m0 = startOfMonth(now);
   let today = 0, week = 0, month = 0;
-  for (const e of list) { const t = new Date(e.timestamp); if (t >= d0) today++; if (t >= w0) week++; if (t >= m0) month++; }
+  for (const e of list) { const ts = new Date(e.timestamp); if (ts >= d0) today++; if (ts >= w0) week++; if (ts >= m0) month++; }
   const last = list[list.length - 1];
   const avg = list.length > 1 ? (new Date(last.timestamp) - new Date(list[0].timestamp)) / (list.length - 1) : null;
   return { today, week, month, total: list.length, last, avg };
 }
 function countLabel(c, list) {
   const r = roundInfo(c, list);
-  return r.round ? { big: `${r.inRound}<small>/${r.n}</small>`, sub: r.full ? `Runde ${r.round} voll · nächste: Nr. 1` : `Runde ${r.round} · nächste Nr. ${r.next}`, r }
+  return r.round ? { big: `${r.inRound}<small>/${r.n}</small>`, sub: r.full ? t('tileRoundFull', { r: r.round }) : t('tileRound', { r: r.round, next: r.next }), r }
                  : { big: `${r.total}`, sub: '', r };
 }
 
@@ -322,7 +648,8 @@ function upsertCounter(data) {
 }
 function deleteCounter(id) { db.counters = db.counters.filter(c => c.id !== id); db.entries = db.entries.filter(e => e.counterId !== id); save(); }
 function addEierSeed(dates = EIER_SEED) {
-  const c = upsertCounter({ name: 'Eier', emoji: '🥚', color: '#ff9500', roundSize: 10, askNote: false });
+  // Name in der aktuellen Sprache; danach ist es ein normaler Nutzer-Zählername und wird nicht übersetzt.
+  const c = upsertCounter({ name: t('seedName'), emoji: '🥚', color: '#ff9500', roundSize: 10, askNote: false });
   for (const ymd of dates) db.entries.push({ id: uuid(), counterId: c.id, timestamp: isoNow(localDateNoon(ymd)), dateOnly: true });
   save(); return c;
 }
@@ -349,7 +676,7 @@ function openSheet(html, onMount) {
 }
 function closeSheet(v = null) { $('sheet').classList.remove('show'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
 $('sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(null); });
-const confirmBox = (text, yes = 'OK', danger = false, no = 'Abbrechen') =>
+const confirmBox = (text, yes = t('ok'), danger = false, no = t('cancel')) =>
   openSheet(`<p>${esc(text)}</p><div class="row"><button class="btn" data-v="no" type="button">${esc(no)}</button>
     <button class="btn ${danger ? 'danger' : 'primary'}" data-v="yes" id="sheetYes" type="button">${esc(yes)}</button></div>`).then(v => v === 'yes');
 const buzz = () => { try { navigator.vibrate && navigator.vibrate(15); } catch (e) {} };
@@ -378,7 +705,7 @@ function renderHome() {
         <span class="tile-text"><div class="tile-name">${esc(c.name)}</div>
           <div class="tile-count">${lab.big}</div>
           ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
-          ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}<div class="tile-sub">zuletzt: ${esc(lastText(last))}</div></span>
+          ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div></span>
       </button>
       <button class="plus" type="button" data-plus aria-label="${esc(c.name)} +1">+1</button>`;
     el.querySelector('[data-open]').onclick = () => go(c.id);
@@ -390,19 +717,19 @@ function renderDetail(c) {
   const d = $('detail'); d.style.setProperty('--c', c.color);
   const es = entriesOf(c.id), lab = countLabel(c, es), st = stats(es), r = lab.r;
   $('dEmoji').textContent = c.emoji || '🔢'; $('dName').textContent = c.name;
-  $('dSub').textContent = r.round ? `${r.inRound}/${r.n} in Runde ${r.round} · nächste Nr. ${r.next}${r.full ? ' (neue Runde)' : ''}` : `${r.total} ${r.total === 1 ? 'Eintrag' : 'Einträge'}`;
-  $('dPlus').textContent = r.round ? `+1  ·  Nr. ${r.next}` : '+1';
+  $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '') : t('entriesCount', { n: r.total });
+  $('dPlus').textContent = r.round ? t('plusNr', { n: r.next }) : '+1';
   $('sToday').textContent = st.today; $('sWeek').textContent = st.week; $('sMonth').textContent = st.month; $('sTotal').textContent = st.total;
   $('sSince').innerHTML = st.last
-    ? `Seit dem letzten Eintrag: <b>${esc(st.last.dateOnly && dayDiff(new Date(), new Date(st.last.timestamp)) >= 1
-        ? (n => `${n} ${n === 1 ? 'Tag' : 'Tagen'}`)(dayDiff(new Date(), new Date(st.last.timestamp)))
-        : duration(Date.now() - new Date(st.last.timestamp)))}</b>${st.avg ? ` · Ø Abstand: <b>${esc(duration(st.avg))}</b>` : ''}`
-    : 'Noch kein Eintrag – tippe auf +1.';
+    ? `${esc(t('sinceLast'))}: <b>${esc(st.last.dateOnly && dayDiff(new Date(), new Date(st.last.timestamp)) >= 1
+        ? daysText(dayDiff(new Date(), new Date(st.last.timestamp)))
+        : duration(Date.now() - new Date(st.last.timestamp)))}</b>${st.avg ? ` · ${esc(t('avgGap'))}: <b>${esc(duration(st.avg))}</b>` : ''}`
+    : esc(t('noEntryTap'));
 
   // Runde
   $('roundCard').hidden = $('pastCard').hidden = !r.round;
   if (r.round) {
-    $('roundTitle').textContent = `Runde ${r.round} · ${r.inRound}/${r.n}`;
+    $('roundTitle').textContent = t('roundTitle', { r: r.round, i: r.inRound, n: r.n });
     const ol = $('roundList'); ol.innerHTML = '';
     for (let i = 1; i <= r.n; i++) {
       const e = r.current[i - 1], li = document.createElement('li');
@@ -412,25 +739,25 @@ function renderDetail(c) {
       li.innerHTML = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
       ol.appendChild(li);
     }
-    if (r.full) { const li = document.createElement('li'); li.innerHTML = `<span class="when" style="color:var(--c);font-weight:600">✓ Runde voll – der nächste Eintrag startet wieder bei 1.</span>`; ol.appendChild(li); }
-    $('pastSummary').textContent = `Frühere Runden (${r.past.length})`;
+    if (r.full) { const li = document.createElement('li'); li.innerHTML = `<span class="when" style="color:var(--c);font-weight:600">${esc(t('roundFullRow'))}</span>`; ol.appendChild(li); }
+    $('pastSummary').textContent = t('pastSummary', { n: r.past.length });
     $('pastList').innerHTML = r.past.length ? r.past.map((rr, i) => ({ rr, i })).reverse().map(({ rr, i }) =>
-      `<div class="past"><h3>Runde ${i + 1} · ${esc(fmtDate(new Date(rr[0].timestamp)))} – ${esc(fmtDate(new Date(rr[rr.length - 1].timestamp)))}</h3>
+      `<div class="past"><h3>${esc(t('pastItem', { r: i + 1, a: fmtDate(new Date(rr[0].timestamp)), b: fmtDate(new Date(rr[rr.length - 1].timestamp)) }))}</h3>
        <p>${rr.map((e, k) => `${k + 1}: ${esc(fmtDate(new Date(e.timestamp)))}`).join(' · ')}</p></div>`).join('')
-      : '<p class="hint">Noch keine abgeschlossene Runde.</p>';
+      : `<p class="hint">${esc(t('noPastRound'))}</p>`;
   }
   $('undoBtn').disabled = !es.length;
 
   // Alle Einträge (neueste zuerst)
-  $('entriesTitle').textContent = `Alle Einträge (${es.length})`;
+  $('entriesTitle').textContent = t('allEntries', { n: es.length });
   const ol = $('entryList'); ol.innerHTML = '';
-  if (!es.length) ol.innerHTML = '<li><span class="when" style="color:var(--muted)">Noch keine Einträge.</span></li>';
+  if (!es.length) ol.innerHTML = `<li><span class="when" style="color:var(--muted)">${esc(t('noEntries'))}</span></li>`;
   es.map((e, i) => ({ e, i })).reverse().forEach(({ e, i }) => {
     const li = document.createElement('li'); li.className = 'filled'; li.dataset.id = e.id;
     const nr = r.round ? (i % r.n) + 1 : i + 1;
-    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round ? ` <span class="rel">· R${Math.floor(i / r.n) + 1}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}</span>
-      <button class="rowbtn" type="button" data-edit aria-label="Bearbeiten">✎</button>
-      <button class="rowbtn del" type="button" data-del aria-label="Löschen">🗑</button>`;
+    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor(i / r.n) + 1 }))}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}</span>
+      <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
+      <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
     li.querySelector('[data-del]').onclick = () => deleteEntryAsk(e.id);
     ol.appendChild(li);
@@ -445,29 +772,30 @@ async function tapPlus(cid, tileEl) {
   const idx = es.findIndex(x => x.id === e.id);
   const nr = r.round ? (idx % r.n) + 1 : idx + 1;
   render();
-  const t = document.querySelector(`.tile[data-id="${cid}"]`); if (t) { t.classList.remove('pulse'); void t.offsetWidth; t.classList.add('pulse'); }
-  const msg = `${c.emoji || ''} ${c.name}: Nr. ${nr}${r.round && r.full && idx === es.length - 1 ? ' – Runde voll! 🎉' : ''}`;
-  if (c.askNote) { await noteFor(e.id); toast(msg + ' eingetragen', [['Rückgängig', () => { removeEntry(e.id); render(); toast('Eintrag entfernt'); }]], 4000); return; }
-  toast(msg, [['📝 Notiz', () => noteFor(e.id)], ['Rückgängig', () => { removeEntry(e.id); render(); toast('Eintrag entfernt'); }]], 4000);
+  const tl = document.querySelector(`.tile[data-id="${cid}"]`); if (tl) { tl.classList.remove('pulse'); void tl.offsetWidth; tl.classList.add('pulse'); }
+  const msg = `${c.emoji || ''} ${t('toastNr', { name: c.name, n: nr })}${r.round && r.full && idx === es.length - 1 ? t('toastRoundFull') : ''}`;
+  const undoBtn = [t('undo'), () => { removeEntry(e.id); render(); toast(t('entryRemoved')); }];
+  if (c.askNote) { await noteFor(e.id); toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
+  toast(msg, [[t('noteBtn'), () => noteFor(e.id)], undoBtn], 4000);
 }
 async function noteFor(eid) {
   const e = db.entries.find(x => x.id === eid); if (!e) return;
-  const v = await openSheet(`<h2>Notiz zum Eintrag</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}</p>
-    <div class="field"><textarea id="noteIn" placeholder="z. B. Menge, Ort, Details … (optional)">${esc(e.note || '')}</textarea></div>
-    <div class="row"><button class="btn" data-v="no" type="button">Ohne Notiz</button><button class="btn primary" type="button" id="noteSave">Speichern</button></div>`,
+  const v = await openSheet(`<h2>${esc(t('noteTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}</p>
+    <div class="field"><textarea id="noteIn" placeholder="${esc(t('notePh'))}">${esc(e.note || '')}</textarea></div>
+    <div class="row"><button class="btn" data-v="no" type="button">${esc(t('withoutNote'))}</button><button class="btn primary" type="button" id="noteSave">${esc(t('save'))}</button></div>`,
     box => { const ta = box.querySelector('#noteIn'); setTimeout(() => ta.focus(), 50);
       box.querySelector('#noteSave').onclick = () => closeSheet(ta.value); });
   if (v === null || v === 'no') return;
-  const t = v.trim(); if (t) e.note = t; else delete e.note; save(); render();
+  const tx = v.trim(); if (tx) e.note = tx; else delete e.note; save(); render();
 }
 async function editEntry(eid, isNew = false, cid = null) {
   const e = isNew ? { timestamp: isoNow(), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
   const d = new Date(e.timestamp);
-  const v = await openSheet(`<h2>${isNew ? 'Eintrag nachtragen' : 'Eintrag bearbeiten'}</h2>
-    <div class="field"><label for="eWhen">Datum & Uhrzeit</label><input type="datetime-local" id="eWhen" value="${toLocalInput(d)}"></div>
-    <div class="field"><label for="eNote">Notiz (optional)</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
-    <div class="row">${isNew ? '' : '<button class="btn danger" type="button" data-v="del">Löschen</button>'}
-      <button class="btn" type="button" data-v="no">Abbrechen</button><button class="btn primary" type="button" id="eSave">Speichern</button></div>`,
+  const v = await openSheet(`<h2>${esc(t(isNew ? 'backdateTitle' : 'editEntryTitle'))}</h2>
+    <div class="field"><label for="eWhen">${esc(t('dateTime'))}</label><input type="datetime-local" id="eWhen" value="${toLocalInput(d)}"></div>
+    <div class="field"><label for="eNote">${esc(t('noteOptional'))}</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
+    <div class="row">${isNew ? '' : `<button class="btn danger" type="button" data-v="del">${esc(t('delete'))}</button>`}
+      <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" id="eSave">${esc(t('save'))}</button></div>`,
     box => box.querySelector('#eSave').onclick = () => {
       const w = box.querySelector('#eWhen').value; const dt = w ? new Date(w) : null;
       if (!dt || isNaN(dt)) { box.querySelector('#eWhen').focus(); return; }
@@ -475,35 +803,35 @@ async function editEntry(eid, isNew = false, cid = null) {
     });
   if (v === 'del') return deleteEntryAsk(eid);
   if (!v || typeof v !== 'object') return;
-  if (isNew) { const n = addEntry(cid, { timestamp: v.ts, note: v.note }); render(); toast('Eintrag nachgetragen'); return n; }
+  if (isNew) { const n = addEntry(cid, { timestamp: v.ts, note: v.note }); render(); toast(t('backdated')); return n; }
   e.timestamp = v.ts; if (v.note) e.note = v.note; else delete e.note; delete e.dateOnly; save(); render();
 }
 async function deleteEntryAsk(eid) {
   const e = db.entries.find(x => x.id === eid); if (!e) return;
-  if (await confirmBox(`Eintrag vom ${fmtEntry(e)} löschen?\nDie Nummern danach rücken nach.`, 'Löschen', true)) { removeEntry(eid); render(); toast('Eintrag gelöscht'); }
+  if (await confirmBox(t('deleteEntryQ', { d: fmtEntry(e) }), t('delete'), true)) { removeEntry(eid); render(); toast(t('entryDeleted')); }
 }
 async function undoLast(cid) {
   const es = entriesOf(cid); if (!es.length) return;
   const e = es[es.length - 1], c = counter(cid), r = roundInfo(c, es);
   const nr = r.round ? ((es.length - 1) % r.n) + 1 : es.length;
-  if (await confirmBox(`Letzten Eintrag (Nr. ${nr} vom ${fmtEntry(e)}) entfernen?`, 'Entfernen', true)) { removeEntry(e.id); render(); toast('Rückgängig gemacht'); }
+  if (await confirmBox(t('undoQ', { n: nr, d: fmtEntry(e) }), t('remove'), true)) { removeEntry(e.id); render(); toast(t('undone')); }
 }
 
 async function editCounter(cid = null) {
   const c = cid ? counter(cid) : null;
   const cur = c ? { ...c } : { name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
-  const v = await openSheet(`<h2>${c ? 'Zähler bearbeiten' : 'Neuer Zähler'}</h2>
-    <div class="field"><label for="fName">Name</label><input type="text" id="fName" maxlength="40" placeholder="z. B. Kaffee, Tanken, Training" value="${esc(cur.name)}" autocomplete="off"></div>
-    <div class="field"><span class="lbl">Symbol</span><div class="emoji-row"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="Emoji">
+  const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
+    <div class="field"><label for="fName">${esc(t('fieldName'))}</label><input type="text" id="fName" maxlength="40" placeholder="${esc(t('namePh'))}" value="${esc(cur.name)}" autocomplete="off"></div>
+    <div class="field"><span class="lbl">${esc(t('fieldSymbol'))}</span><div class="emoji-row"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="Emoji">
       <div class="picks">${EMOJIS.map(x => `<button type="button" data-pick="${x}">${x}</button>`).join('')}</div></div></div>
-    <div class="field"><span class="lbl">Farbe</span><div class="swatches">${COLORS.map(x => `<button type="button" aria-label="Farbe ${x}" data-color="${x}" style="--sw:${x}" class="${x === cur.color ? 'on' : ''}"></button>`).join('')}</div></div>
-    <div class="field"><label for="fRound">Rundengröße (optional)</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="keine – einfach weiterzählen" value="${cur.roundSize || ''}">
-      <p class="small">z. B. 10 → nach 10 Einträgen startet der nächste wieder bei 1 (wie eine Schachtel/Packung). Frühere Runden bleiben in der Historie.</p></div>
-    <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> Bei jedem +1 nach einer Notiz fragen</label>
-    <p class="small">Aus: +1 bleibt ein einziger Tipp – Notiz geht trotzdem jederzeit über die Meldung oder den Eintrag.</p>
+    <div class="field"><span class="lbl">${esc(t('fieldColor'))}</span><div class="swatches">${COLORS.map(x => `<button type="button" aria-label="${esc(t('colorAria', { c: x }))}" data-color="${x}" style="--sw:${x}" class="${x === cur.color ? 'on' : ''}"></button>`).join('')}</div></div>
+    <div class="field"><label for="fRound">${esc(t('fieldRound'))}</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="${esc(t('roundPh'))}" value="${cur.roundSize || ''}">
+      <p class="small">${esc(t('roundHelp'))}</p></div>
+    <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> ${esc(t('askNote'))}</label>
+    <p class="small">${esc(t('askNoteHelp'))}</p>
     <p class="small" id="fErr" style="color:var(--danger)"></p>
-    <div class="row"><button class="btn" type="button" data-v="no">Abbrechen</button><button class="btn primary" type="button" id="fSave">Speichern</button></div>
-    ${c ? '<div class="row"><button class="btn danger" type="button" data-v="del" id="fDelete">Zähler löschen</button></div>' : ''}`,
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" id="fSave">${esc(t('save'))}</button></div>
+    ${c ? `<div class="row"><button class="btn danger" type="button" data-v="del" id="fDelete">${esc(t('deleteCounter'))}</button></div>` : ''}`,
     box => {
       let color = cur.color;
       box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { box.querySelector('#fEmoji').value = b.dataset.pick; });
@@ -512,24 +840,23 @@ async function editCounter(cid = null) {
         const name = box.querySelector('#fName').value.trim();
         const emoji = [...box.querySelector('#fEmoji').value.trim()].slice(0, 4).join('') || '🔢';
         const rs = box.querySelector('#fRound').value.trim(); const n = rs ? parseInt(rs, 10) : null;
-        if (!name) { box.querySelector('#fErr').textContent = 'Bitte einen Namen eingeben.'; box.querySelector('#fName').focus(); return; }
-        if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { box.querySelector('#fErr').textContent = 'Rundengröße: ganze Zahl von 2 bis 999 oder leer lassen.'; return; }
+        if (!name) { box.querySelector('#fErr').textContent = t('errName'); box.querySelector('#fName').focus(); return; }
+        if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { box.querySelector('#fErr').textContent = t('errRound'); return; }
         closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked });
       };
       if (!c) setTimeout(() => box.querySelector('#fName').focus(), 50);
     });
   if (v === 'del') {
     const n = entriesOf(cid).length;
-    if (await confirmBox(`Zähler „${c.name}“ mit ${n} ${n === 1 ? 'Eintrag' : 'Einträgen'} wirklich löschen?\nDas kann nicht rückgängig gemacht werden.`, 'Endgültig löschen', true)) {
-      deleteCounter(cid); go(null); render(); toast(`„${c.name}“ gelöscht`);
+    if (await confirmBox(t('deleteCounterQ', { name: c.name, entries: t('entriesWith', { n }) }), t('deleteForever'), true)) {
+      deleteCounter(cid); go(null); render(); toast(t('counterDeleted', { name: c.name }));
     }
     return;
   }
   if (!v || typeof v !== 'object') return;
   const saved = upsertCounter(c ? { id: c.id, ...v } : v); render();
-  toast(c ? 'Gespeichert' : `${saved.emoji} ${saved.name} angelegt`);
+  toast(c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
 }
-
 /* ---------- Export / Import / Text ---------- */
 function backupObject() { return { format: 'zaehler-backup', version: VERSION, exportedAt: isoNow(), counters: db.counters, entries: db.entries }; }
 async function exportJson() {
@@ -537,16 +864,16 @@ async function exportJson() {
   const d = new Date(), name = `zaehler-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
   try {
     const file = new File([json], name, { type: 'application/json' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Zähler-Backup' }); return; }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: t('backupTitle') }); return; }
   } catch (e) { if (e && e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-  toast('Backup exportiert');
+  toast(t('exported'));
 }
 function validateBackup(o) {
-  if (!o || typeof o !== 'object' || !Array.isArray(o.counters) || !Array.isArray(o.entries)) throw new Error('Keine gültige Zähler-Backup-Datei.');
+  if (!o || typeof o !== 'object' || !Array.isArray(o.counters) || !Array.isArray(o.entries)) throw new Error(t('errBackupFile'));
   const counters = o.counters.map(c => {
-    if (!c || typeof c.id !== 'string' || typeof c.name !== 'string') throw new Error('Ungültiger Zähler in der Datei.');
+    if (!c || typeof c.id !== 'string' || typeof c.name !== 'string') throw new Error(t('errBackupCounter'));
     const rs = c.roundSize == null ? null : parseInt(c.roundSize, 10);
     return { id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
       color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : COLORS[5], roundSize: rs >= 2 ? rs : null, askNote: !!c.askNote,
@@ -562,54 +889,64 @@ function validateBackup(o) {
 async function importJson(file) {
   let data;
   try { data = validateBackup(JSON.parse(await file.text())); }
-  catch (e) { toast('⚠️ Import fehlgeschlagen: ' + (e.message || 'Datei unlesbar'), [], 4000); return; }
-  const v = await openSheet(`<h2>Backup importieren</h2><p>Die Datei enthält ${data.counters.length} Zähler und ${data.entries.length} Einträge.\n\n<b>Ersetzen</b>: alle aktuellen Daten werden durch das Backup ersetzt.\n<b>Zusammenführen</b>: Backup wird ergänzt, gleiche Einträge nicht doppelt.</p>
-    <div class="row"><button class="btn" type="button" data-v="merge" id="impMerge">Zusammenführen</button><button class="btn danger" type="button" data-v="replace" id="impReplace">Ersetzen</button></div>
-    <div class="row"><button class="btn" type="button" data-v="no">Abbrechen</button></div>`);
+  catch (e) { toast(t('importFailed', { msg: (e instanceof SyntaxError ? '' : e.message) || t('fileUnreadable') }), [], 4000); return; }
+  const v = await openSheet(`<h2>${esc(t('importTitle'))}</h2><p>${t('importBodyHtml', { c: data.counters.length, e: data.entries.length })}</p>
+    <div class="row"><button class="btn" type="button" data-v="merge" id="impMerge">${esc(t('merge'))}</button><button class="btn danger" type="button" data-v="replace" id="impReplace">${esc(t('replace'))}</button></div>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
   if (v === 'replace') { db.counters = data.counters; db.entries = data.entries; }
   else if (v === 'merge') {
     for (const c of data.counters) { const ex = counter(c.id); if (ex) Object.assign(ex, c); else db.counters.push(c); }
     const have = new Set(db.entries.map(e => e.id)); for (const e of data.entries) if (!have.has(e.id)) db.entries.push(e);
   } else return;
-  db.settings.onboarded = true; save(); go(null); render(); toast(`Import fertig: ${data.counters.length} Zähler`);
+  db.settings.onboarded = true; save(); go(null); render(); toast(t('importDone', { n: data.counters.length }));
 }
 function counterText(c) {
   const es = entriesOf(c.id), r = roundInfo(c, es);
   const lines = [`${c.emoji} ${c.name}`];
-  if (!es.length) lines.push('(keine Einträge)');
+  const line = (e, k, sep) => `${k + 1}${sep}${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`;
+  if (!es.length) lines.push(t('txtNoEntries'));
   else if (r.round) {
-    r.past.forEach((rr, i) => { lines.push(`Runde ${i + 1}:`); rr.forEach((e, k) => lines.push(`${k + 1} = ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`)); });
-    lines.push(`Runde ${r.round}${r.full ? ' (voll)' : ` (${r.inRound}/${r.n})`}:`);
-    r.current.forEach((e, k) => lines.push(`${k + 1} = ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`));
-  } else { es.forEach((e, k) => lines.push(`${k + 1}. ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`)); lines.push(`Gesamt: ${es.length}`); }
+    r.past.forEach((rr, i) => { lines.push(t('txtRound', { r: i + 1 })); rr.forEach((e, k) => lines.push(line(e, k, ' = '))); });
+    lines.push(r.full ? t('txtRoundFull', { r: r.round }) : t('txtRoundPart', { r: r.round, i: r.inRound, n: r.n }));
+    r.current.forEach((e, k) => lines.push(line(e, k, ' = ')));
+  } else { es.forEach((e, k) => lines.push(line(e, k, '. '))); lines.push(t('txtTotal', { n: es.length })); }
   return lines.join('\n');
 }
 async function copyText(txt) {
-  try { await navigator.clipboard.writeText(txt); toast('📋 In die Zwischenablage kopiert'); return; } catch (e) {}
+  try { await navigator.clipboard.writeText(txt); toast(t('copied')); return; } catch (e) {}
   const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length);
   let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove();
-  if (ok) toast('📋 In die Zwischenablage kopiert');
-  else openSheet(`<h2>Text</h2><div class="field"><textarea readonly style="min-height:240px">${esc(txt)}</textarea></div><div class="row"><button class="btn" data-v="no" type="button">Schließen</button></div>`);
+  if (ok) toast(t('copied'));
+  else openSheet(`<h2>${esc(t('textTitle'))}</h2><div class="field"><textarea readonly style="min-height:240px">${esc(txt)}</textarea></div><div class="row"><button class="btn" data-v="no" type="button">${esc(t('close'))}</button></div>`);
 }
 async function menu() {
-  const v = await openSheet(`<h2>Daten</h2><div class="menu">
-    <button class="btn" type="button" data-v="export" id="mExport">💾 Backup exportieren (JSON)</button>
-    <button class="btn" type="button" data-v="import" id="mImport">📂 Backup importieren</button>
-    <button class="btn" type="button" data-v="copy" id="mCopy">📋 Alles als Text kopieren</button>
-    <button class="btn" type="button" data-v="seed" id="mSeed">🥚 Beispielzähler „Eier“ hinzufügen</button>
-    <button class="btn danger" type="button" data-v="wipe" id="mWipe">🗑 Alle Daten löschen</button></div>
-    <p class="small">Deine Daten liegen nur auf diesem Gerät (im Browser-Speicher). Mach ab und zu ein Backup.<br>Zähler · Version ${VERSION}</p>
-    <div class="row"><button class="btn" type="button" data-v="no">Schließen</button></div>`);
-  if (v === 'export') exportJson();
+  const v = await openSheet(`<h2>${esc(t('menuTitle'))}</h2>
+    <span class="lbl">🌐 ${esc(t('language'))}</span><div class="langs" id="mLangs">${langButtons()}</div>
+    <div class="menu">
+    <button class="btn" type="button" data-v="export" id="mExport">${esc(t('mExport'))}</button>
+    <button class="btn" type="button" data-v="import" id="mImport">${esc(t('mImport'))}</button>
+    <button class="btn" type="button" data-v="copy" id="mCopy">${esc(t('mCopy'))}</button>
+    <button class="btn" type="button" data-v="seed" id="mSeed">${esc(t('mSeed', { name: t('seedName') }))}</button>
+    <button class="btn danger" type="button" data-v="wipe" id="mWipe">${esc(t('mWipe'))}</button></div>
+    <p class="small">${t('menuNoteHtml', { app: esc(t('appTitle')), v: VERSION })}</p>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v && v.startsWith('lang:')) { setLang(v.slice(5)); menu(); }
+  else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
-  else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || '(keine Zähler)');
-  else if (v === 'seed') { addEierSeed(); render(); toast('🥚 Eier hinzugefügt'); }
+  else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
+  else if (v === 'seed') { addEierSeed(); render(); toast(t('seedAdded', { name: t('seedName') })); }
   else if (v === 'wipe') {
-    if (await confirmBox('Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', 'Alles löschen', true)) {
-      db = freshDb(); db.settings.onboarded = true; save(); go(null); render(); toast('Alle Daten gelöscht');
+    if (await confirmBox(t('wipeQ'), t('wipeAll'), true)) {
+      db = freshDb(); db.settings.onboarded = true; save(); go(null); render(); toast(t('wiped'));
     }
   }
+}
+async function langMenu() {
+  const v = await openSheet(`<h2>🌐 ${esc(t('language'))}</h2><div class="langlist">${LANGS.map(l =>
+      `<button class="btn${l === lang ? ' on' : ''}" type="button" data-v="lang:${l}" data-lang="${l}">${I18N[l].flag} ${esc(I18N[l].langName)}</button>`).join('')}</div>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v && v.startsWith('lang:')) { setLang(v.slice(5)); toast(t('langChanged')); }
 }
 $('importFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importJson(f); });
 
@@ -622,11 +959,14 @@ function eierAppDates() { // Daten aus der alten Eier-App übernehmen, falls auf
 }
 async function onboarding() {
   const old = eierAppDates(), dates = old || EIER_SEED;
-  const v = await openSheet(`<h2>Willkommen bei Zähler 👋</h2>
-    <p>Hier kannst du alles zählen – mit einem Tipp auf <b>+1</b>.\n\nSoll ich gleich deinen Zähler <b>🥚 Eier</b> (Runde à 10) anlegen${old ? ' – mit den Daten aus deiner Eier-App' : ''}?\n${dates.slice(-10).map((d, i) => `${i + 1} = ${d.split('-').reverse().join('.')}`).join('\n')}${dates.length > 10 ? '\n…' : ''}</p>
-    <div class="row"><button class="btn" type="button" data-v="no" id="obNo">Leer starten</button><button class="btn primary" type="button" data-v="yes" id="obYes">Eier übernehmen</button></div>`);
+  const name = t('seedName');
+  const v = await openSheet(`<h2>${esc(t('welcomeTitle'))}</h2>
+    <div class="langs" id="obLangs">${langButtons()}</div>
+    <p>${t('welcomeBodyHtml', { name: esc(name), old: old ? esc(t('welcomeOld')) : '' })}\n${dates.slice(-10).map((d, i) => `${i + 1} = ${esc(fmtDate(localDateNoon(d)))}`).join('\n')}${dates.length > 10 ? '\n…' : ''}</p>
+    <div class="row"><button class="btn" type="button" data-v="no" id="obNo">${esc(t('startEmpty'))}</button><button class="btn primary" type="button" data-v="yes" id="obYes">${esc(t('takeOver', { name }))}</button></div>`);
+  if (v && v.startsWith('lang:')) { setLang(v.slice(5)); return onboarding(); }
   db.settings.onboarded = true;
-  if (v === 'yes') { addEierSeed(dates); toast('🥚 Eier übernommen – nächste Lieferung: Nr. ' + ((dates.length % 10) + 1)); }
+  if (v === 'yes') { addEierSeed(dates); toast(t('seedTaken', { name, n: (dates.length % 10) + 1 })); }
   else save();
   render();
 }
@@ -634,6 +974,7 @@ async function onboarding() {
 /* ---------- Verdrahtung ---------- */
 $('newBtn').onclick = () => editCounter();
 $('menuBtn').onclick = menu;
+$('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => go(null);
 $('editBtn').onclick = () => editCounter(currentId());
 $('dPlus').onclick = () => tapPlus(currentId());
@@ -644,10 +985,11 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { db
 setInterval(() => { if (!document.hidden && !$('sheet').classList.contains('show')) render(); }, 60000);
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+applyStatic();
 render();
 if (!db.settings.onboarded) onboarding();
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
-window.__zaehler = { get db() { return db; } }; // für Tests
+window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS }; // für Tests
 })();
 </script>
 </body>
