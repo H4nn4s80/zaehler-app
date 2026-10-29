@@ -149,6 +149,19 @@
   .small { font-size: 13px; color: var(--muted); margin: 6px 2px 0; }
   .menu .btn { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 0 14px; }
 
+  /* Backup-Banner */
+  #backupBanner { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; background: var(--card); border-radius: 14px;
+    box-shadow: var(--shadow); border-left: 4px solid var(--accent); padding: 10px 10px 10px 14px; margin: 2px 0 6px; font-size: 15px; }
+  #backupBanner[hidden] { display: none !important; }
+  #bbMsg { flex: 1 1 180px; font-weight: 600; }
+  #backupBanner .bb-btns { display: flex; gap: 8px; margin-left: auto; }
+  #backupBanner button { border: 0; border-radius: 10px; min-height: 36px; padding: 0 12px; font-size: 14px; font-weight: 600; }
+  #bbNow { background: var(--accent); color: #fff; }
+  #bbLater { background: var(--soft); color: var(--ink); }
+  .ivs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+  .ivs .btn { margin: 0; font-size: 15px; padding: 0 6px; }
+  #sheet .ivs .btn.on { background: var(--accent); color: #fff; }
+  .menu-sec { margin: 4px 0 12px; }
   /* Toast */
   #toast { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 16px); margin: 0 auto; max-width: 500px;
     background: #1c1c1e; color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
@@ -168,6 +181,8 @@
 
 <!-- Startseite -->
 <main id="home">
+  <div id="backupBanner" role="status" hidden><span id="bbMsg"></span>
+    <span class="bb-btns"><button type="button" id="bbLater"></button><button type="button" id="bbNow"></button></span></div>
   <div class="top">
     <button class="iconbtn" id="langBtn" type="button"></button>
     <button class="iconbtn" id="menuBtn" type="button" data-i18n="menuBtn" data-i18n-aria="menuAria"></button>
@@ -267,6 +282,10 @@ de: {
   entriesWith: { one: '{n} Eintrag', other: '{n} Einträgen' },
   deleteCounterQ: 'Zähler „{name}“ mit {entries} wirklich löschen?\nDas kann nicht rückgängig gemacht werden.', deleteForever: 'Endgültig löschen',
   counterDeleted: '„{name}“ gelöscht', saved: 'Gespeichert', created: '{name} angelegt',
+  bannerDue: { one: '💾 Backup fällig – zuletzt vor {n} Tag', other: '💾 Backup fällig – zuletzt vor {n} Tagen' }, bannerNever: '💾 Backup fällig – noch nie gesichert',
+  backupNow: 'Jetzt sichern', later: 'Später', backupSection: 'Backup', lastBackup: 'Letztes Backup: {t}', never: 'noch nie',
+  backupHint: 'Tippe auf „In Dateien sichern“ und wähle iCloud Drive.', reminder: 'Erinnerung',
+  ivOff: 'Aus', ivDaily: 'Täglich', ivWeekly: 'Wöchentlich', ivMonthly: 'Monatlich',
   backupTitle: 'Zähler-Backup', exported: 'Backup exportiert',
   errBackupFile: 'Keine gültige Zähler-Backup-Datei.', errBackupCounter: 'Ungültiger Zähler in der Datei.',
   importFailed: '⚠️ Import fehlgeschlagen: {msg}', fileUnreadable: 'Datei unlesbar',
@@ -275,7 +294,7 @@ de: {
   merge: 'Zusammenführen', replace: 'Ersetzen', importDone: 'Import fertig: {n} Zähler',
   txtNoEntries: '(keine Einträge)', txtRound: 'Runde {r}:', txtRoundFull: 'Runde {r} (voll):', txtRoundPart: 'Runde {r} ({i}/{n}):', txtTotal: 'Gesamt: {n}', txtNoCounters: '(keine Zähler)',
   copied: '📋 In die Zwischenablage kopiert', textTitle: 'Text', close: 'Schließen',
-  menuTitle: 'Daten', language: 'Sprache', mExport: '💾 Backup exportieren (JSON)', mImport: '📂 Backup importieren', mCopy: '📋 Alles als Text kopieren',
+  menuTitle: 'Daten', language: 'Sprache', mExport: '💾 Jetzt sichern (Backup-Datei)', mImport: '📂 Backup importieren', mCopy: '📋 Alles als Text kopieren',
   mSeed: '🥚 Beispielzähler „{name}“ hinzufügen', mWipe: '🗑 Alle Daten löschen',
   menuNoteHtml: 'Deine Daten liegen nur auf diesem Gerät (im Browser-Speicher). Mach ab und zu ein Backup.<br>{app} · Version {v}',
   seedAdded: '🥚 {name} hinzugefügt', wipeQ: 'Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', wipeAll: 'Alles löschen', wiped: 'Alle Daten gelöscht',
@@ -321,6 +340,10 @@ en: {
   entriesWith: { one: '{n} entry', other: '{n} entries' },
   deleteCounterQ: 'Really delete counter “{name}” with {entries}?\nThis cannot be undone.', deleteForever: 'Delete permanently',
   counterDeleted: '“{name}” deleted', saved: 'Saved', created: '{name} created',
+  bannerDue: { one: '💾 Backup due – last one {n} day ago', other: '💾 Backup due – last one {n} days ago' }, bannerNever: '💾 Backup due – never backed up',
+  backupNow: 'Back up now', later: 'Later', backupSection: 'Backup', lastBackup: 'Last backup: {t}', never: 'never',
+  backupHint: 'Tap “Save to Files” and choose iCloud Drive.', reminder: 'Reminder',
+  ivOff: 'Off', ivDaily: 'Daily', ivWeekly: 'Weekly', ivMonthly: 'Monthly',
   backupTitle: 'Counter backup', exported: 'Backup exported',
   errBackupFile: 'Not a valid counter backup file.', errBackupCounter: 'Invalid counter in the file.',
   importFailed: '⚠️ Import failed: {msg}', fileUnreadable: 'file unreadable',
@@ -329,7 +352,7 @@ en: {
   merge: 'Merge', replace: 'Replace', importDone: 'Import done: {n} counters',
   txtNoEntries: '(no entries)', txtRound: 'Round {r}:', txtRoundFull: 'Round {r} (full):', txtRoundPart: 'Round {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(no counters)',
   copied: '📋 Copied to clipboard', textTitle: 'Text', close: 'Close',
-  menuTitle: 'Data', language: 'Language', mExport: '💾 Export backup (JSON)', mImport: '📂 Import backup', mCopy: '📋 Copy everything as text',
+  menuTitle: 'Data', language: 'Language', mExport: '💾 Back up now (backup file)', mImport: '📂 Import backup', mCopy: '📋 Copy everything as text',
   mSeed: '🥚 Add example counter “{name}”', mWipe: '🗑 Delete all data',
   menuNoteHtml: 'Your data is stored only on this device (in the browser storage). Make a backup now and then.<br>{app} · Version {v}',
   seedAdded: '🥚 {name} added', wipeQ: 'Really delete ALL counters and entries?\nTip: export a backup first.', wipeAll: 'Delete everything', wiped: 'All data deleted',
@@ -375,6 +398,10 @@ it: {
   entriesWith: { one: '{n} voce', other: '{n} voci' },
   deleteCounterQ: 'Eliminare davvero il contatore «{name}» con {entries}?\nL’operazione non può essere annullata.', deleteForever: 'Elimina definitivamente',
   counterDeleted: '«{name}» eliminato', saved: 'Salvato', created: '{name} creato',
+  bannerDue: { one: '💾 Backup da fare – ultimo {n} giorno fa', other: '💾 Backup da fare – ultimo {n} giorni fa' }, bannerNever: '💾 Backup da fare – mai eseguito',
+  backupNow: 'Salva ora', later: 'Più tardi', backupSection: 'Backup', lastBackup: 'Ultimo backup: {t}', never: 'mai',
+  backupHint: 'Tocca «Salva su File» e scegli iCloud Drive.', reminder: 'Promemoria',
+  ivOff: 'Disattivato', ivDaily: 'Ogni giorno', ivWeekly: 'Ogni settimana', ivMonthly: 'Ogni mese',
   backupTitle: 'Backup contatore', exported: 'Backup esportato',
   errBackupFile: 'File di backup non valido.', errBackupCounter: 'Contatore non valido nel file.',
   importFailed: '⚠️ Importazione non riuscita: {msg}', fileUnreadable: 'file illeggibile',
@@ -383,7 +410,7 @@ it: {
   merge: 'Unisci', replace: 'Sostituisci', importDone: 'Importazione completata: {n} contatori',
   txtNoEntries: '(nessuna voce)', txtRound: 'Ciclo {r}:', txtRoundFull: 'Ciclo {r} (completo):', txtRoundPart: 'Ciclo {r} ({i}/{n}):', txtTotal: 'Totale: {n}', txtNoCounters: '(nessun contatore)',
   copied: '📋 Copiato negli appunti', textTitle: 'Testo', close: 'Chiudi',
-  menuTitle: 'Dati', language: 'Lingua', mExport: '💾 Esporta backup (JSON)', mImport: '📂 Importa backup', mCopy: '📋 Copia tutto come testo',
+  menuTitle: 'Dati', language: 'Lingua', mExport: '💾 Salva ora (file di backup)', mImport: '📂 Importa backup', mCopy: '📋 Copia tutto come testo',
   mSeed: '🥚 Aggiungi contatore di esempio «{name}»', mWipe: '🗑 Elimina tutti i dati',
   menuNoteHtml: 'I tuoi dati restano solo su questo dispositivo (nella memoria del browser). Fai un backup ogni tanto.<br>{app} · Versione {v}',
   seedAdded: '🥚 {name} aggiunte', wipeQ: 'Eliminare davvero TUTTI i contatori e le voci?\nConsiglio: esporta prima un backup.', wipeAll: 'Elimina tutto', wiped: 'Tutti i dati eliminati',
@@ -429,6 +456,10 @@ es: {
   entriesWith: { one: '{n} entrada', other: '{n} entradas' },
   deleteCounterQ: '¿Eliminar de verdad el contador «{name}» con {entries}?\nNo se puede deshacer.', deleteForever: 'Eliminar definitivamente',
   counterDeleted: '«{name}» eliminado', saved: 'Guardado', created: '{name} creado',
+  bannerDue: { one: '💾 Copia pendiente – última hace {n} día', other: '💾 Copia pendiente – última hace {n} días' }, bannerNever: '💾 Copia pendiente – nunca guardada',
+  backupNow: 'Guardar ahora', later: 'Más tarde', backupSection: 'Copia de seguridad', lastBackup: 'Última copia: {t}', never: 'nunca',
+  backupHint: 'Toca «Guardar en Archivos» y elige iCloud Drive.', reminder: 'Recordatorio',
+  ivOff: 'Desactivado', ivDaily: 'Diario', ivWeekly: 'Semanal', ivMonthly: 'Mensual',
   backupTitle: 'Copia de seguridad del contador', exported: 'Copia de seguridad exportada',
   errBackupFile: 'No es un archivo de copia de seguridad válido.', errBackupCounter: 'Contador no válido en el archivo.',
   importFailed: '⚠️ Error al importar: {msg}', fileUnreadable: 'archivo ilegible',
@@ -437,7 +468,7 @@ es: {
   merge: 'Combinar', replace: 'Reemplazar', importDone: 'Importación terminada: {n} contadores',
   txtNoEntries: '(sin entradas)', txtRound: 'Ronda {r}:', txtRoundFull: 'Ronda {r} (completa):', txtRoundPart: 'Ronda {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(sin contadores)',
   copied: '📋 Copiado al portapapeles', textTitle: 'Texto', close: 'Cerrar',
-  menuTitle: 'Datos', language: 'Idioma', mExport: '💾 Exportar copia (JSON)', mImport: '📂 Importar copia', mCopy: '📋 Copiar todo como texto',
+  menuTitle: 'Datos', language: 'Idioma', mExport: '💾 Guardar ahora (archivo de copia)', mImport: '📂 Importar copia', mCopy: '📋 Copiar todo como texto',
   mSeed: '🥚 Añadir contador de ejemplo «{name}»', mWipe: '🗑 Borrar todos los datos',
   menuNoteHtml: 'Tus datos solo se guardan en este dispositivo (en la memoria del navegador). Haz una copia de seguridad de vez en cuando.<br>{app} · Versión {v}',
   seedAdded: '🥚 {name} añadidos', wipeQ: '¿Borrar de verdad TODOS los contadores y entradas?\nConsejo: exporta antes una copia de seguridad.', wipeAll: 'Borrar todo', wiped: 'Todos los datos borrados',
@@ -483,6 +514,10 @@ fr: {
   entriesWith: { one: '{n} entrée', other: '{n} entrées' },
   deleteCounterQ: 'Vraiment supprimer le compteur « {name} » avec {entries} ?\nCette action est irréversible.', deleteForever: 'Supprimer définitivement',
   counterDeleted: '« {name} » supprimé', saved: 'Enregistré', created: '{name} créé',
+  bannerDue: { one: '💾 Sauvegarde à faire – dernière il y a {n} jour', other: '💾 Sauvegarde à faire – dernière il y a {n} jours' }, bannerNever: '💾 Sauvegarde à faire – jamais sauvegardé',
+  backupNow: 'Sauvegarder', later: 'Plus tard', backupSection: 'Sauvegarde', lastBackup: 'Dernière sauvegarde : {t}', never: 'jamais',
+  backupHint: 'Touche « Enregistrer dans Fichiers » et choisis iCloud Drive.', reminder: 'Rappel',
+  ivOff: 'Désactivé', ivDaily: 'Quotidien', ivWeekly: 'Hebdomadaire', ivMonthly: 'Mensuel',
   backupTitle: 'Sauvegarde du compteur', exported: 'Sauvegarde exportée',
   errBackupFile: 'Fichier de sauvegarde non valide.', errBackupCounter: 'Compteur non valide dans le fichier.',
   importFailed: '⚠️ Échec de l’import : {msg}', fileUnreadable: 'fichier illisible',
@@ -491,7 +526,7 @@ fr: {
   merge: 'Fusionner', replace: 'Remplacer', importDone: 'Import terminé : {n} compteurs',
   txtNoEntries: '(aucune entrée)', txtRound: 'Tour {r} :', txtRoundFull: 'Tour {r} (complet) :', txtRoundPart: 'Tour {r} ({i}/{n}) :', txtTotal: 'Total : {n}', txtNoCounters: '(aucun compteur)',
   copied: '📋 Copié dans le presse-papiers', textTitle: 'Texte', close: 'Fermer',
-  menuTitle: 'Données', language: 'Langue', mExport: '💾 Exporter la sauvegarde (JSON)', mImport: '📂 Importer une sauvegarde', mCopy: '📋 Tout copier en texte',
+  menuTitle: 'Données', language: 'Langue', mExport: '💾 Sauvegarder maintenant (fichier)', mImport: '📂 Importer une sauvegarde', mCopy: '📋 Tout copier en texte',
   mSeed: '🥚 Ajouter le compteur d’exemple « {name} »', mWipe: '🗑 Supprimer toutes les données',
   menuNoteHtml: 'Tes données restent uniquement sur cet appareil (dans la mémoire du navigateur). Fais une sauvegarde de temps en temps.<br>{app} · Version {v}',
   seedAdded: '🥚 {name} ajoutés', wipeQ: 'Vraiment supprimer TOUS les compteurs et entrées ?\nAstuce : exporte d’abord une sauvegarde.', wipeAll: 'Tout supprimer', wiped: 'Toutes les données supprimées',
@@ -718,6 +753,7 @@ window.addEventListener('hashchange', () => { window.scrollTo(0, 0); render(); }
 
 /* ---------- Rendering ---------- */
 function render() {
+  updateBanner();
   const id = currentId(), c = id && counter(id);
   $('home').hidden = !!c; $('detail').hidden = !c;
   if (c) renderDetail(c); else renderHome();
@@ -900,16 +936,49 @@ async function editCounter(cid = null) {
 }
 /* ---------- Export / Import / Text ---------- */
 function backupObject() { return { format: 'zaehler-backup', version: VERSION, exportedAt: isoNow(), counters: db.counters, entries: db.entries }; }
+/* ---------- Backup-Erinnerung (Geräte-Einstellungen, nicht Teil der Nutzerdaten/des Backups) ---------- */
+const BK_LAST = 'zaehler-backup-last', BK_IV = 'zaehler-backup-interval', BK_SNOOZE = 'zaehler-backup-snooze';
+const IVS = { off: 0, daily: 1, weekly: 7, monthly: 30 };
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const backupInterval = () => (lsGet(BK_IV) in IVS ? lsGet(BK_IV) : 'weekly');
+const lastBackup = () => { const v = lsGet(BK_LAST); const d = v ? new Date(v) : null; return d && !isNaN(d) ? d : null; };
+function backupDue() {
+  const days = IVS[backupInterval()];
+  if (!days || !db.counters.length || !db.entries.length) return null;
+  const now = Date.now(), snooze = new Date(lsGet(BK_SNOOZE) || 0);
+  if (!isNaN(snooze) && snooze > now) return null;
+  const last = lastBackup();
+  // Noch nie gesichert: ab dem ältesten Zähler rechnen, damit nicht schon direkt nach dem ersten Start gemahnt wird.
+  const ref = last || new Date(Math.min(...db.counters.map(c => +new Date(c.createdAt) || now)));
+  const ago = Math.floor((now - ref) / 864e5);
+  return ago >= days ? { last, ago } : null;
+}
+function updateBanner() {
+  const due = backupDue(), el = $('backupBanner');
+  el.hidden = !due;
+  if (!due) return;
+  $('bbMsg').textContent = due.last ? t('bannerDue', { n: due.ago }) : t('bannerNever');
+  $('bbNow').textContent = t('backupNow'); $('bbLater').textContent = t('later');
+}
+const lastBackupText = () => { const d = lastBackup(); return d ? `${relDay(d)}, ${fmtTime(d)}` : t('never'); };
+/** Backup teilen (iPhone: „In Dateien sichern“ → iCloud Drive), sonst Download. Ergebnis: 'shared' | 'downloaded' | 'aborted' */
 async function exportJson() {
   const json = JSON.stringify(backupObject(), null, 2);
   const d = new Date(), name = `zaehler-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+  let result = null;
   try {
     const file = new File([json], name, { type: 'application/json' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: t('backupTitle') }); return; }
-  } catch (e) { if (e && e.name === 'AbortError') return; }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: t('backupTitle') }); result = 'shared'; }
+  } catch (e) { if (e && e.name === 'AbortError') { updateBanner(); return 'aborted'; } }
+  if (!result) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    result = 'downloaded';
+  }
+  lsSet(BK_LAST, isoNow()); try { localStorage.removeItem(BK_SNOOZE); } catch (e) {} updateBanner();
   toast(t('exported'));
+  return result;
 }
 function validateBackup(o) {
   if (!o || typeof o !== 'object' || !Array.isArray(o.counters) || !Array.isArray(o.entries)) throw new Error(t('errBackupFile'));
@@ -964,8 +1033,13 @@ async function copyText(txt) {
 async function menu() {
   const v = await openSheet(`<h2>${esc(t('menuTitle'))}</h2>
     <span class="lbl">🌐 ${esc(t('language'))}</span><div class="langs" id="mLangs">${langButtons()}</div>
+    <span class="lbl">💾 ${esc(t('backupSection'))}</span>
+    <div class="menu menu-sec" id="mBackup">
+    <button class="btn primary" type="button" data-v="export" id="mExport">${esc(t('mExport'))}</button>
+    <p class="small" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p></div>
+    <span class="lbl">⏰ ${esc(t('reminder'))}</span>
+    <div class="ivs" id="mIvs">${Object.keys(IVS).map(k => `<button class="btn${k === backupInterval() ? ' on' : ''}" type="button" data-v="iv:${k}" data-iv="${k}">${esc(t('iv' + k[0].toUpperCase() + k.slice(1)))}</button>`).join('')}</div>
     <div class="menu">
-    <button class="btn" type="button" data-v="export" id="mExport">${esc(t('mExport'))}</button>
     <button class="btn" type="button" data-v="import" id="mImport">${esc(t('mImport'))}</button>
     <button class="btn" type="button" data-v="copy" id="mCopy">${esc(t('mCopy'))}</button>
     <button class="btn" type="button" data-v="seed" id="mSeed">${esc(t('mSeed', { name: t('seedName') }))}</button>
@@ -973,6 +1047,7 @@ async function menu() {
     <p class="small">${t('menuNoteHtml', { app: esc(t('appTitle')), v: VERSION })}</p>
     <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
   if (v && v.startsWith('lang:')) { setLang(v.slice(5)); menu(); }
+  else if (v && v.startsWith('iv:')) { lsSet(BK_IV, v.slice(3)); updateBanner(); menu(); }
   else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
   else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
@@ -1014,6 +1089,8 @@ async function onboarding() {
 
 /* ---------- Verdrahtung ---------- */
 $('newBtn').onclick = () => editCounter();
+$('bbNow').onclick = () => exportJson();
+$('bbLater').onclick = () => { lsSet(BK_SNOOZE, isoNow(new Date(Date.now() + 864e5))); updateBanner(); };
 $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => go(null);
