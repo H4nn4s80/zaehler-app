@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Zähler">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="format-detection" content="telephone=no">
+<title>Zähler</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+  :root {
+    --bg: #f2f2f7; --card: #ffffff; --ink: #1c1c1e; --muted: #8e8e93; --line: #e5e5ea;
+    --soft: #f2f2f7; --danger: #ff3b30; --accent: #007aff; --shadow: 0 1px 3px rgba(0,0,0,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #2c2c2e; --soft: #2c2c2e; --shadow: none; }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  body { padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
+                  calc(env(safe-area-inset-bottom) + 90px) calc(env(safe-area-inset-left) + 16px);
+         min-height: 100vh; -webkit-user-select: none; user-select: none; }
+  button { font: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
+  [hidden] { display: none !important; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
+  h1 { font-size: 34px; margin: 4px 0 12px; letter-spacing: -0.6px; }
+  .iconbtn { border: 0; background: transparent; color: var(--accent); font-size: 17px; font-weight: 500;
+    min-height: 44px; min-width: 44px; padding: 0 6px; }
+  .iconbtn.big { font-size: 24px; }
+
+  /* Kacheln */
+  #list { display: grid; gap: 12px; }
+  .tile { display: flex; align-items: stretch; background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+    overflow: hidden; border-left: 6px solid var(--c); transition: transform .1s; }
+  .tile.pulse { animation: pulse .5s; }
+  @keyframes pulse { 0%{transform:scale(1)} 40%{transform:scale(1.025)} 100%{transform:scale(1)} }
+  .tile-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 14px 10px 14px 12px;
+    border: 0; background: transparent; text-align: left; }
+  .emoji { font-size: 34px; width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center;
+    border-radius: 14px; background: color-mix(in srgb, var(--c) 16%, transparent); }
+  .tile-text { min-width: 0; }
+  .tile-name { font-weight: 600; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile-count { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .tile-count small { font-size: 15px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+  .tile-sub { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plus { flex: none; width: 92px; border: 0; background: var(--c); color: #fff; font-size: 28px; font-weight: 800;
+    letter-spacing: -0.5px; transition: filter .1s, transform .08s; }
+  .plus:active { filter: brightness(.85); }
+  .bar { height: 5px; border-radius: 3px; background: var(--soft); margin-top: 6px; overflow: hidden; width: 140px; max-width: 100%; }
+  .bar i { display: block; height: 100%; background: var(--c); border-radius: 3px; }
+  #newBtn { display: block; width: 100%; margin-top: 14px; min-height: 54px; border-radius: 16px; border: 2px dashed var(--line);
+    background: transparent; color: var(--accent); font-weight: 600; }
+  .empty-state { text-align: center; color: var(--muted); padding: 40px 10px 10px; }
+  .empty-state div { font-size: 54px; }
+
+  /* Detail */
+  .d-head { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
+  .d-head .emoji { width: 58px; height: 58px; font-size: 40px; border-radius: 16px; }
+  .d-head h1 { margin: 0; font-size: 28px; line-height: 1.15; word-break: break-word; }
+  .d-head .tile-sub { font-size: 15px; white-space: normal; }
+  #dPlus { display: block; width: 100%; min-height: 86px; border: 0; border-radius: 22px; background: var(--c); color: #fff;
+    font-size: 30px; font-weight: 800; box-shadow: 0 8px 20px color-mix(in srgb, var(--c) 35%, transparent); transition: transform .08s; }
+  #dPlus:active { transform: scale(.97); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .stat { background: var(--card); border-radius: 14px; padding: 10px 6px; text-align: center; box-shadow: var(--shadow); }
+  .stat b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .since { background: var(--card); border-radius: 14px; padding: 12px 14px; margin-top: 8px; box-shadow: var(--shadow); font-size: 15px; }
+  .since b { font-variant-numeric: tabular-nums; }
+  .card { background: var(--card); border-radius: 18px; margin-top: 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0;
+    padding: 14px 16px 6px; font-weight: 600; }
+  ol.rows { list-style: none; margin: 0; padding: 0 0 4px; }
+  ol.rows li { display: flex; align-items: center; gap: 12px; padding: 0 12px 0 16px; min-height: 50px; border-top: 1px solid var(--line); }
+  ol.rows li:first-child { border-top: 0; }
+  .nr { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; border: 2px solid var(--line); color: var(--muted); flex: none; font-variant-numeric: tabular-nums; }
+  li.filled .nr { background: var(--c); border-color: var(--c); color: #fff; }
+  li.next .nr { border-style: dashed; border-color: var(--c); color: var(--c); }
+  li.latest { background: color-mix(in srgb, var(--c) 10%, transparent); }
+  .when { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; }
+  .when .note { display: block; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .when .rel { color: var(--muted); font-size: 13px; }
+  li.emptyrow .when { color: var(--muted); opacity: .5; }
+  .rowbtn { border: 0; background: transparent; color: var(--muted); min-width: 40px; min-height: 40px; font-size: 18px; border-radius: 10px; }
+  .rowbtn:active { background: var(--soft); }
+  .rowbtn.del { color: var(--danger); }
+  .row { display: flex; gap: 10px; margin-top: 14px; }
+  .btn { flex: 1; min-height: 50px; border-radius: 14px; border: 0; background: var(--card); color: var(--ink);
+    font-size: 16px; font-weight: 600; box-shadow: var(--shadow); padding: 0 10px; }
+  .btn:active { filter: brightness(.94); }
+  .btn:disabled { opacity: .4; }
+  .btn.danger { color: var(--danger); }
+  .btn.primary { background: var(--accent); color: #fff; }
+  details.card summary { padding: 14px 16px; font-weight: 600; list-style: none; min-height: 50px; cursor: pointer; }
+  details.card summary::-webkit-details-marker { display: none; }
+  details.card summary::after { content: "›"; float: right; color: var(--muted); font-size: 22px; line-height: 1; transition: transform .2s; }
+  details.card[open] summary::after { transform: rotate(90deg); }
+  .past { border-top: 1px solid var(--line); padding: 10px 16px; }
+  .past h3 { margin: 0 0 3px; font-size: 15px; }
+  .past p { margin: 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .hint { color: var(--muted); font-size: 14px; margin: 6px 16px 12px; }
+
+  /* Sheet / Dialog */
+  #sheet { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
+  #sheet.show { display: flex; }
+  #sheet .box { background: var(--card); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
+    border-radius: 22px 22px 0 0; padding: 18px 16px calc(env(safe-area-inset-bottom) + 18px); animation: up .22s ease-out; }
+  @keyframes up { from { transform: translateY(40px); opacity: .5 } to { transform: none; opacity: 1 } }
+  #sheet h2 { margin: 0 0 12px; font-size: 20px; }
+  #sheet p { margin: 0 0 14px; white-space: pre-line; }
+  #sheet .row { margin-top: 16px; }
+  #sheet .btn { box-shadow: none; background: var(--soft); }
+  #sheet .btn.primary { background: var(--accent); color: #fff; }
+  #sheet .btn.danger { color: var(--danger); }
+  .field { margin-bottom: 14px; }
+  .field label, .lbl { display: block; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 0 0 6px 2px; }
+  .field input[type=text], .field input[type=number], .field input[type=datetime-local], .field textarea {
+    width: 100%; font: inherit; font-size: 17px; padding: 12px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); -webkit-user-select: text; user-select: text; min-height: 48px; }
+  .field textarea { min-height: 80px; resize: vertical; }
+  #fEmoji { width: 70px !important; text-align: center; font-size: 28px !important; padding: 6px !important; }
+  .emoji-row { display: flex; gap: 10px; align-items: center; }
+  .picks { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+  .picks button { border: 0; background: var(--soft); border-radius: 10px; width: 38px; height: 38px; font-size: 21px; padding: 0; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatches button { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; background: var(--sw);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
+  .swatches button.on { border-color: var(--ink); }
+  .check { display: flex; align-items: center; gap: 10px; font-size: 16px; min-height: 44px; }
+  .check input { width: 22px; height: 22px; }
+  .small { font-size: 13px; color: var(--muted); margin: 6px 2px 0; }
+  .menu .btn { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 0 14px; }
+
+  /* Toast */
+  #toast { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 16px); margin: 0 auto; max-width: 500px;
+    background: #1c1c1e; color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
+    opacity: 0; transform: translateY(30px); transition: all .25s; pointer-events: none; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  #toast.show { opacity: 1; transform: none; pointer-events: auto; }
+  #toastMsg { flex: 1; font-weight: 600; font-size: 15px; }
+  #toast button { border: 0; background: rgba(255,255,255,.15); color: #fff; border-radius: 10px; min-height: 38px; padding: 0 12px; font-size: 15px; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Startseite -->
+<main id="home">
+  <div class="top">
+    <span></span>
+    <button class="iconbtn" id="menuBtn" type="button" aria-label="Menü">⚙︎ Daten</button>
+  </div>
+  <h1>Zähler</h1>
+  <div id="list"></div>
+  <div class="empty-state" id="emptyState" hidden><div>🔢</div><p>Noch keine Zähler.<br>Leg deinen ersten an – egal was du zählen willst.</p></div>
+  <button id="newBtn" type="button">＋ Neuer Zähler</button>
+</main>
+
+<!-- Detailansicht -->
+<main id="detail" hidden>
+  <div class="top">
+    <button class="iconbtn" id="backBtn" type="button">‹ Zähler</button>
+    <button class="iconbtn" id="editBtn" type="button">Bearbeiten</button>
+  </div>
+  <div class="d-head">
+    <div class="emoji" id="dEmoji"></div>
+    <div><h1 id="dName"></h1><div class="tile-sub" id="dSub"></div></div>
+  </div>
+  <button id="dPlus" type="button">+1</button>
+  <div class="stats">
+    <div class="stat"><b id="sToday">0</b><span>Heute</span></div>
+    <div class="stat"><b id="sWeek">0</b><span>Woche</span></div>
+    <div class="stat"><b id="sMonth">0</b><span>Monat</span></div>
+    <div class="stat"><b id="sTotal">0</b><span>Gesamt</span></div>
+  </div>
+  <div class="since" id="sSince"></div>
+
+  <section class="card" id="roundCard">
+    <h2 id="roundTitle">Aktuelle Runde</h2>
+    <ol class="rows" id="roundList"></ol>
+  </section>
+  <details class="card" id="pastCard">
+    <summary id="pastSummary">Frühere Runden</summary>
+    <div id="pastList"></div>
+  </details>
+
+  <div class="row">
+    <button class="btn danger" id="undoBtn" type="button">↩︎ Rückgängig</button>
+    <button class="btn" id="backdateBtn" type="button">🕒 Nachtragen</button>
+  </div>
+  <div class="row">
+    <button class="btn" id="copyOneBtn" type="button">📋 Als Text kopieren</button>
+  </div>
+
+  <section class="card">
+    <h2 id="entriesTitle">Alle Einträge</h2>
+    <ol class="rows" id="entryList"></ol>
+  </section>
+</main>
+
+<div id="sheet" role="dialog" aria-modal="true"><div class="box" id="sheetBox"></div></div>
+<div id="toast" role="status"><span id="toastMsg"></span><span id="toastBtns"></span></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+(() => {
+'use strict';
+/* =========================================================================
+   Datenmodell (siehe DATENMODELL.md)
+   db = { version, counters: [Counter], entries: [Entry], settings: {onboarded} }
+   Counter = { id, name, emoji, color, roundSize|null, askNote, order, createdAt }
+   Entry   = { id, counterId, timestamp, note?, dateOnly? }
+   Runden und Nummern werden NICHT gespeichert, sondern aus der sortierten
+   Eintragsliste abgeleitet (Eintrag i -> Runde floor(i/roundSize)+1, Nr. i%roundSize+1).
+   ========================================================================= */
+const KEY = 'zaehler-v1';
+const VERSION = 1;
+const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
+const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
+const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); })).toUpperCase();
+const isoNow = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, 'Z'); // ohne Millisekunden -> Swift .iso8601 kompatibel
+
+/* ---------- Datum & Zeit ---------- */
+const pad = n => String(n).padStart(2, '0');
+const fmtDate = d => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmtEntry = e => { const d = new Date(e.timestamp); return e.dateOnly ? fmtDate(d) : `${fmtDate(d)}, ${fmtTime(d)}`; };
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const startOfWeek = d => { const s = startOfDay(d); const wd = (s.getDay() + 6) % 7; s.setDate(s.getDate() - wd); return s; }; // Montag
+const startOfMonth = d => new Date(d.getFullYear(), d.getMonth(), 1);
+const dayDiff = (a, b) => Math.round((startOfDay(a) - startOfDay(b)) / 864e5);
+function relDay(d) {
+  const n = dayDiff(new Date(), d);
+  if (n === 0) return 'heute'; if (n === 1) return 'gestern'; if (n === 2) return 'vorgestern';
+  if (n > 0 && n < 7) return `vor ${n} Tagen`;
+  return fmtDate(d);
+}
+function lastText(e) {
+  if (!e) return 'noch kein Eintrag';
+  const d = new Date(e.timestamp);
+  const r = relDay(d);
+  return e.dateOnly ? r : `${r}, ${fmtTime(d)}`;
+}
+function duration(ms) {
+  if (ms < 0) ms = 0;
+  const min = Math.floor(ms / 6e4), h = Math.floor(min / 60), days = Math.floor(h / 24);
+  if (min < 1) return 'gerade eben';
+  if (h < 1) return `${min} Min.`;
+  if (days < 1) return `${h} Std. ${min % 60} Min.`;
+  if (days < 60) return `${days} ${days === 1 ? 'Tag' : 'Tagen'}${h % 24 ? ` ${h % 24} Std.` : ''}`;
+  return `${days} Tagen`;
+}
+const toLocalInput = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${fmtTime(d)}`;
+const localDateNoon = ymd => { const [y, m, d] = ymd.split('-').map(Number); return new Date(y, m - 1, d, 12, 0, 0); };
+
+/* ---------- Speicher ---------- */
+const freshDb = () => ({ version: VERSION, counters: [], entries: [], settings: { onboarded: false } });
+let db = load();
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.counters) && Array.isArray(s.entries)) { s.settings = s.settings || {}; return s; }
+  } catch (e) {}
+  return freshDb();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { toast('⚠️ Speichern fehlgeschlagen – Speicher voll?'); }
+}
+
+/* ---------- Abfragen ---------- */
+const counter = id => db.counters.find(c => c.id === id);
+const sortedCounters = () => [...db.counters].sort((a, b) => a.order - b.order);
+const byTime = (a, b) => (a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0);
+const entriesOf = id => db.entries.filter(e => e.counterId === id).sort(byTime);
+/** Runden-Info abgeleitet aus Anzahl + Rundengröße */
+function roundInfo(c, list) {
+  const total = list.length, n = c.roundSize;
+  if (!n) return { total, round: null };
+  const roundIdx = total ? Math.floor((total - 1) / n) : 0;         // 0-basiert: aktuelle (letzte belegte) Runde
+  const inRound = total - roundIdx * n;                              // 0..n Einträge in aktueller Runde
+  const full = total > 0 && inRound === n;
+  return { total, n, round: roundIdx + 1, inRound, full, next: (total % n) + 1,
+           current: list.slice(roundIdx * n, roundIdx * n + n), past: Array.from({ length: roundIdx }, (_, i) => list.slice(i * n, i * n + n)) };
+}
+function stats(list) {
+  const now = new Date(), d0 = startOfDay(now), w0 = startOfWeek(now), m0 = startOfMonth(now);
+  let today = 0, week = 0, month = 0;
+  for (const e of list) { const t = new Date(e.timestamp); if (t >= d0) today++; if (t >= w0) week++; if (t >= m0) month++; }
+  const last = list[list.length - 1];
+  const avg = list.length > 1 ? (new Date(last.timestamp) - new Date(list[0].timestamp)) / (list.length - 1) : null;
+  return { today, week, month, total: list.length, last, avg };
+}
+function countLabel(c, list) {
+  const r = roundInfo(c, list);
+  return r.round ? { big: `${r.inRound}<small>/${r.n}</small>`, sub: r.full ? `Runde ${r.round} voll · nächste: Nr. 1` : `Runde ${r.round} · nächste Nr. ${r.next}`, r }
+                 : { big: `${r.total}`, sub: '', r };
+}
+
+/* ---------- Mutationen ---------- */
+function addEntry(cid, extra = {}) {
+  const e = { id: uuid(), counterId: cid, timestamp: isoNow(), ...extra };
+  if (!e.note) delete e.note;
+  db.entries.push(e); save(); return e;
+}
+function removeEntry(id) { db.entries = db.entries.filter(e => e.id !== id); save(); }
+function upsertCounter(data) {
+  let c = data.id && counter(data.id);
+  if (c) Object.assign(c, data);
+  else { c = { id: uuid(), order: db.counters.reduce((m, x) => Math.max(m, x.order + 1), 0), createdAt: isoNow(), ...data }; db.counters.push(c); }
+  save(); return c;
+}
+function deleteCounter(id) { db.counters = db.counters.filter(c => c.id !== id); db.entries = db.entries.filter(e => e.counterId !== id); save(); }
+function addEierSeed(dates = EIER_SEED) {
+  const c = upsertCounter({ name: 'Eier', emoji: '🥚', color: '#ff9500', roundSize: 10, askNote: false });
+  for (const ymd of dates) db.entries.push({ id: uuid(), counterId: c.id, timestamp: isoNow(localDateNoon(ymd)), dateOnly: true });
+  save(); return c;
+}
+
+/* ---------- UI: Toast & Sheet ---------- */
+let toastTimer;
+function toast(msg, buttons = [], ms = 2400) {
+  $('toastMsg').textContent = msg;
+  const bx = $('toastBtns'); bx.innerHTML = '';
+  buttons.forEach(([label, fn]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+    b.onclick = () => { hideToast(); fn(); }; bx.appendChild(b); });
+  $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, ms);
+}
+const hideToast = () => $('toast').classList.remove('show');
+
+let sheetResolve = null;
+function openSheet(html, onMount) {
+  return new Promise(res => {
+    if (sheetResolve) sheetResolve(null);
+    sheetResolve = res; hideToast(); $('sheetBox').innerHTML = html; $('sheet').classList.add('show');
+    $('sheetBox').querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => closeSheet(b.dataset.v)));
+    if (onMount) onMount($('sheetBox'));
+  });
+}
+function closeSheet(v = null) { $('sheet').classList.remove('show'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
+$('sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(null); });
+const confirmBox = (text, yes = 'OK', danger = false, no = 'Abbrechen') =>
+  openSheet(`<p>${esc(text)}</p><div class="row"><button class="btn" data-v="no" type="button">${esc(no)}</button>
+    <button class="btn ${danger ? 'danger' : 'primary'}" data-v="yes" id="sheetYes" type="button">${esc(yes)}</button></div>`).then(v => v === 'yes');
+const buzz = () => { try { navigator.vibrate && navigator.vibrate(15); } catch (e) {} };
+
+/* ---------- Routing ---------- */
+const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
+const go = id => { location.hash = id ? 'c=' + encodeURIComponent(id) : ''; };
+window.addEventListener('hashchange', () => { window.scrollTo(0, 0); render(); });
+
+/* ---------- Rendering ---------- */
+function render() {
+  const id = currentId(), c = id && counter(id);
+  $('home').hidden = !!c; $('detail').hidden = !c;
+  if (c) renderDetail(c); else renderHome();
+}
+function renderHome() {
+  const list = $('list'); list.innerHTML = '';
+  const cs = sortedCounters();
+  $('emptyState').hidden = cs.length > 0;
+  for (const c of cs) {
+    const es = entriesOf(c.id), lab = countLabel(c, es), last = es[es.length - 1];
+    const el = document.createElement('div');
+    el.className = 'tile'; el.style.setProperty('--c', c.color); el.dataset.id = c.id;
+    el.innerHTML = `<button class="tile-main" type="button" data-open>
+        <span class="emoji">${esc(c.emoji || '🔢')}</span>
+        <span class="tile-text"><div class="tile-name">${esc(c.name)}</div>
+          <div class="tile-count">${lab.big}</div>
+          ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
+          ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}<div class="tile-sub">zuletzt: ${esc(lastText(last))}</div></span>
+      </button>
+      <button class="plus" type="button" data-plus aria-label="${esc(c.name)} +1">+1</button>`;
+    el.querySelector('[data-open]').onclick = () => go(c.id);
+    el.querySelector('[data-plus]').onclick = () => tapPlus(c.id, el);
+    list.appendChild(el);
+  }
+}
+function renderDetail(c) {
+  const d = $('detail'); d.style.setProperty('--c', c.color);
+  const es = entriesOf(c.id), lab = countLabel(c, es), st = stats(es), r = lab.r;
+  $('dEmoji').textContent = c.emoji || '🔢'; $('dName').textContent = c.name;
+  $('dSub').textContent = r.round ? `${r.inRound}/${r.n} in Runde ${r.round} · nächste Nr. ${r.next}${r.full ? ' (neue Runde)' : ''}` : `${r.total} ${r.total === 1 ? 'Eintrag' : 'Einträge'}`;
+  $('dPlus').textContent = r.round ? `+1  ·  Nr. ${r.next}` : '+1';
+  $('sToday').textContent = st.today; $('sWeek').textContent = st.week; $('sMonth').textContent = st.month; $('sTotal').textContent = st.total;
+  $('sSince').innerHTML = st.last
+    ? `Seit dem letzten Eintrag: <b>${esc(st.last.dateOnly && dayDiff(new Date(), new Date(st.last.timestamp)) >= 1
+        ? (n => `${n} ${n === 1 ? 'Tag' : 'Tagen'}`)(dayDiff(new Date(), new Date(st.last.timestamp)))
+        : duration(Date.now() - new Date(st.last.timestamp)))}</b>${st.avg ? ` · Ø Abstand: <b>${esc(duration(st.avg))}</b>` : ''}`
+    : 'Noch kein Eintrag – tippe auf +1.';
+
+  // Runde
+  $('roundCard').hidden = $('pastCard').hidden = !r.round;
+  if (r.round) {
+    $('roundTitle').textContent = `Runde ${r.round} · ${r.inRound}/${r.n}`;
+    const ol = $('roundList'); ol.innerHTML = '';
+    for (let i = 1; i <= r.n; i++) {
+      const e = r.current[i - 1], li = document.createElement('li');
+      li.className = e ? 'filled' : 'emptyrow';
+      if (e && i === r.current.length) li.classList.add('latest');
+      if (!e && !r.full && i === r.next) li.classList.add('next');
+      li.innerHTML = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
+      ol.appendChild(li);
+    }
+    if (r.full) { const li = document.createElement('li'); li.innerHTML = `<span class="when" style="color:var(--c);font-weight:600">✓ Runde voll – der nächste Eintrag startet wieder bei 1.</span>`; ol.appendChild(li); }
+    $('pastSummary').textContent = `Frühere Runden (${r.past.length})`;
+    $('pastList').innerHTML = r.past.length ? r.past.map((rr, i) => ({ rr, i })).reverse().map(({ rr, i }) =>
+      `<div class="past"><h3>Runde ${i + 1} · ${esc(fmtDate(new Date(rr[0].timestamp)))} – ${esc(fmtDate(new Date(rr[rr.length - 1].timestamp)))}</h3>
+       <p>${rr.map((e, k) => `${k + 1}: ${esc(fmtDate(new Date(e.timestamp)))}`).join(' · ')}</p></div>`).join('')
+      : '<p class="hint">Noch keine abgeschlossene Runde.</p>';
+  }
+  $('undoBtn').disabled = !es.length;
+
+  // Alle Einträge (neueste zuerst)
+  $('entriesTitle').textContent = `Alle Einträge (${es.length})`;
+  const ol = $('entryList'); ol.innerHTML = '';
+  if (!es.length) ol.innerHTML = '<li><span class="when" style="color:var(--muted)">Noch keine Einträge.</span></li>';
+  es.map((e, i) => ({ e, i })).reverse().forEach(({ e, i }) => {
+    const li = document.createElement('li'); li.className = 'filled'; li.dataset.id = e.id;
+    const nr = r.round ? (i % r.n) + 1 : i + 1;
+    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round ? ` <span class="rel">· R${Math.floor(i / r.n) + 1}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}</span>
+      <button class="rowbtn" type="button" data-edit aria-label="Bearbeiten">✎</button>
+      <button class="rowbtn del" type="button" data-del aria-label="Löschen">🗑</button>`;
+    li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
+    li.querySelector('[data-del]').onclick = () => deleteEntryAsk(e.id);
+    ol.appendChild(li);
+  });
+}
+
+/* ---------- Aktionen ---------- */
+async function tapPlus(cid, tileEl) {
+  const c = counter(cid); if (!c) return;
+  const e = addEntry(cid); buzz();
+  const es = entriesOf(cid), r = roundInfo(c, es);
+  const idx = es.findIndex(x => x.id === e.id);
+  const nr = r.round ? (idx % r.n) + 1 : idx + 1;
+  render();
+  const t = document.querySelector(`.tile[data-id="${cid}"]`); if (t) { t.classList.remove('pulse'); void t.offsetWidth; t.classList.add('pulse'); }
+  const msg = `${c.emoji || ''} ${c.name}: Nr. ${nr}${r.round && r.full && idx === es.length - 1 ? ' – Runde voll! 🎉' : ''}`;
+  if (c.askNote) { await noteFor(e.id); toast(msg + ' eingetragen', [['Rückgängig', () => { removeEntry(e.id); render(); toast('Eintrag entfernt'); }]], 4000); return; }
+  toast(msg, [['📝 Notiz', () => noteFor(e.id)], ['Rückgängig', () => { removeEntry(e.id); render(); toast('Eintrag entfernt'); }]], 4000);
+}
+async function noteFor(eid) {
+  const e = db.entries.find(x => x.id === eid); if (!e) return;
+  const v = await openSheet(`<h2>Notiz zum Eintrag</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}</p>
+    <div class="field"><textarea id="noteIn" placeholder="z. B. Menge, Ort, Details … (optional)">${esc(e.note || '')}</textarea></div>
+    <div class="row"><button class="btn" data-v="no" type="button">Ohne Notiz</button><button class="btn primary" type="button" id="noteSave">Speichern</button></div>`,
+    box => { const ta = box.querySelector('#noteIn'); setTimeout(() => ta.focus(), 50);
+      box.querySelector('#noteSave').onclick = () => closeSheet(ta.value); });
+  if (v === null || v === 'no') return;
+  const t = v.trim(); if (t) e.note = t; else delete e.note; save(); render();
+}
+async function editEntry(eid, isNew = false, cid = null) {
+  const e = isNew ? { timestamp: isoNow(), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
+  const d = new Date(e.timestamp);
+  const v = await openSheet(`<h2>${isNew ? 'Eintrag nachtragen' : 'Eintrag bearbeiten'}</h2>
+    <div class="field"><label for="eWhen">Datum & Uhrzeit</label><input type="datetime-local" id="eWhen" value="${toLocalInput(d)}"></div>
+    <div class="field"><label for="eNote">Notiz (optional)</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
+    <div class="row">${isNew ? '' : '<button class="btn danger" type="button" data-v="del">Löschen</button>'}
+      <button class="btn" type="button" data-v="no">Abbrechen</button><button class="btn primary" type="button" id="eSave">Speichern</button></div>`,
+    box => box.querySelector('#eSave').onclick = () => {
+      const w = box.querySelector('#eWhen').value; const dt = w ? new Date(w) : null;
+      if (!dt || isNaN(dt)) { box.querySelector('#eWhen').focus(); return; }
+      closeSheet({ ts: isoNow(dt), note: box.querySelector('#eNote').value.trim() });
+    });
+  if (v === 'del') return deleteEntryAsk(eid);
+  if (!v || typeof v !== 'object') return;
+  if (isNew) { const n = addEntry(cid, { timestamp: v.ts, note: v.note }); render(); toast('Eintrag nachgetragen'); return n; }
+  e.timestamp = v.ts; if (v.note) e.note = v.note; else delete e.note; delete e.dateOnly; save(); render();
+}
+async function deleteEntryAsk(eid) {
+  const e = db.entries.find(x => x.id === eid); if (!e) return;
+  if (await confirmBox(`Eintrag vom ${fmtEntry(e)} löschen?\nDie Nummern danach rücken nach.`, 'Löschen', true)) { removeEntry(eid); render(); toast('Eintrag gelöscht'); }
+}
+async function undoLast(cid) {
+  const es = entriesOf(cid); if (!es.length) return;
+  const e = es[es.length - 1], c = counter(cid), r = roundInfo(c, es);
+  const nr = r.round ? ((es.length - 1) % r.n) + 1 : es.length;
+  if (await confirmBox(`Letzten Eintrag (Nr. ${nr} vom ${fmtEntry(e)}) entfernen?`, 'Entfernen', true)) { removeEntry(e.id); render(); toast('Rückgängig gemacht'); }
+}
+
+async function editCounter(cid = null) {
+  const c = cid ? counter(cid) : null;
+  const cur = c ? { ...c } : { name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
+  const v = await openSheet(`<h2>${c ? 'Zähler bearbeiten' : 'Neuer Zähler'}</h2>
+    <div class="field"><label for="fName">Name</label><input type="text" id="fName" maxlength="40" placeholder="z. B. Kaffee, Tanken, Training" value="${esc(cur.name)}" autocomplete="off"></div>
+    <div class="field"><span class="lbl">Symbol</span><div class="emoji-row"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="Emoji">
+      <div class="picks">${EMOJIS.map(x => `<button type="button" data-pick="${x}">${x}</button>`).join('')}</div></div></div>
+    <div class="field"><span class="lbl">Farbe</span><div class="swatches">${COLORS.map(x => `<button type="button" aria-label="Farbe ${x}" data-color="${x}" style="--sw:${x}" class="${x === cur.color ? 'on' : ''}"></button>`).join('')}</div></div>
+    <div class="field"><label for="fRound">Rundengröße (optional)</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="keine – einfach weiterzählen" value="${cur.roundSize || ''}">
+      <p class="small">z. B. 10 → nach 10 Einträgen startet der nächste wieder bei 1 (wie eine Schachtel/Packung). Frühere Runden bleiben in der Historie.</p></div>
+    <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> Bei jedem +1 nach einer Notiz fragen</label>
+    <p class="small">Aus: +1 bleibt ein einziger Tipp – Notiz geht trotzdem jederzeit über die Meldung oder den Eintrag.</p>
+    <p class="small" id="fErr" style="color:var(--danger)"></p>
+    <div class="row"><button class="btn" type="button" data-v="no">Abbrechen</button><button class="btn primary" type="button" id="fSave">Speichern</button></div>
+    ${c ? '<div class="row"><button class="btn danger" type="button" data-v="del" id="fDelete">Zähler löschen</button></div>' : ''}`,
+    box => {
+      let color = cur.color;
+      box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { box.querySelector('#fEmoji').value = b.dataset.pick; });
+      box.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { color = b.dataset.color; box.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b)); });
+      box.querySelector('#fSave').onclick = () => {
+        const name = box.querySelector('#fName').value.trim();
+        const emoji = [...box.querySelector('#fEmoji').value.trim()].slice(0, 4).join('') || '🔢';
+        const rs = box.querySelector('#fRound').value.trim(); const n = rs ? parseInt(rs, 10) : null;
+        if (!name) { box.querySelector('#fErr').textContent = 'Bitte einen Namen eingeben.'; box.querySelector('#fName').focus(); return; }
+        if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { box.querySelector('#fErr').textContent = 'Rundengröße: ganze Zahl von 2 bis 999 oder leer lassen.'; return; }
+        closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked });
+      };
+      if (!c) setTimeout(() => box.querySelector('#fName').focus(), 50);
+    });
+  if (v === 'del') {
+    const n = entriesOf(cid).length;
+    if (await confirmBox(`Zähler „${c.name}“ mit ${n} ${n === 1 ? 'Eintrag' : 'Einträgen'} wirklich löschen?\nDas kann nicht rückgängig gemacht werden.`, 'Endgültig löschen', true)) {
+      deleteCounter(cid); go(null); render(); toast(`„${c.name}“ gelöscht`);
+    }
+    return;
+  }
+  if (!v || typeof v !== 'object') return;
+  const saved = upsertCounter(c ? { id: c.id, ...v } : v); render();
+  toast(c ? 'Gespeichert' : `${saved.emoji} ${saved.name} angelegt`);
+}
+
+/* ---------- Export / Import / Text ---------- */
+function backupObject() { return { format: 'zaehler-backup', version: VERSION, exportedAt: isoNow(), counters: db.counters, entries: db.entries }; }
+async function exportJson() {
+  const json = JSON.stringify(backupObject(), null, 2);
+  const d = new Date(), name = `zaehler-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+  try {
+    const file = new File([json], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Zähler-Backup' }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('Backup exportiert');
+}
+function validateBackup(o) {
+  if (!o || typeof o !== 'object' || !Array.isArray(o.counters) || !Array.isArray(o.entries)) throw new Error('Keine gültige Zähler-Backup-Datei.');
+  const counters = o.counters.map(c => {
+    if (!c || typeof c.id !== 'string' || typeof c.name !== 'string') throw new Error('Ungültiger Zähler in der Datei.');
+    const rs = c.roundSize == null ? null : parseInt(c.roundSize, 10);
+    return { id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
+      color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : COLORS[5], roundSize: rs >= 2 ? rs : null, askNote: !!c.askNote,
+      order: Number.isFinite(c.order) ? c.order : 0, createdAt: typeof c.createdAt === 'string' ? c.createdAt : isoNow() };
+  });
+  const ids = new Set(counters.map(c => c.id));
+  const entries = o.entries.filter(e => e && typeof e.id === 'string' && ids.has(e.counterId) && !isNaN(new Date(e.timestamp))).map(e => {
+    const x = { id: e.id, counterId: e.counterId, timestamp: isoNow(new Date(e.timestamp)) };
+    if (typeof e.note === 'string' && e.note.trim()) x.note = e.note.trim(); if (e.dateOnly) x.dateOnly = true; return x;
+  });
+  return { counters, entries };
+}
+async function importJson(file) {
+  let data;
+  try { data = validateBackup(JSON.parse(await file.text())); }
+  catch (e) { toast('⚠️ Import fehlgeschlagen: ' + (e.message || 'Datei unlesbar'), [], 4000); return; }
+  const v = await openSheet(`<h2>Backup importieren</h2><p>Die Datei enthält ${data.counters.length} Zähler und ${data.entries.length} Einträge.\n\n<b>Ersetzen</b>: alle aktuellen Daten werden durch das Backup ersetzt.\n<b>Zusammenführen</b>: Backup wird ergänzt, gleiche Einträge nicht doppelt.</p>
+    <div class="row"><button class="btn" type="button" data-v="merge" id="impMerge">Zusammenführen</button><button class="btn danger" type="button" data-v="replace" id="impReplace">Ersetzen</button></div>
+    <div class="row"><button class="btn" type="button" data-v="no">Abbrechen</button></div>`);
+  if (v === 'replace') { db.counters = data.counters; db.entries = data.entries; }
+  else if (v === 'merge') {
+    for (const c of data.counters) { const ex = counter(c.id); if (ex) Object.assign(ex, c); else db.counters.push(c); }
+    const have = new Set(db.entries.map(e => e.id)); for (const e of data.entries) if (!have.has(e.id)) db.entries.push(e);
+  } else return;
+  db.settings.onboarded = true; save(); go(null); render(); toast(`Import fertig: ${data.counters.length} Zähler`);
+}
+function counterText(c) {
+  const es = entriesOf(c.id), r = roundInfo(c, es);
+  const lines = [`${c.emoji} ${c.name}`];
+  if (!es.length) lines.push('(keine Einträge)');
+  else if (r.round) {
+    r.past.forEach((rr, i) => { lines.push(`Runde ${i + 1}:`); rr.forEach((e, k) => lines.push(`${k + 1} = ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`)); });
+    lines.push(`Runde ${r.round}${r.full ? ' (voll)' : ` (${r.inRound}/${r.n})`}:`);
+    r.current.forEach((e, k) => lines.push(`${k + 1} = ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`));
+  } else { es.forEach((e, k) => lines.push(`${k + 1}. ${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`)); lines.push(`Gesamt: ${es.length}`); }
+  return lines.join('\n');
+}
+async function copyText(txt) {
+  try { await navigator.clipboard.writeText(txt); toast('📋 In die Zwischenablage kopiert'); return; } catch (e) {}
+  const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, txt.length);
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove();
+  if (ok) toast('📋 In die Zwischenablage kopiert');
+  else openSheet(`<h2>Text</h2><div class="field"><textarea readonly style="min-height:240px">${esc(txt)}</textarea></div><div class="row"><button class="btn" data-v="no" type="button">Schließen</button></div>`);
+}
+async function menu() {
+  const v = await openSheet(`<h2>Daten</h2><div class="menu">
+    <button class="btn" type="button" data-v="export" id="mExport">💾 Backup exportieren (JSON)</button>
+    <button class="btn" type="button" data-v="import" id="mImport">📂 Backup importieren</button>
+    <button class="btn" type="button" data-v="copy" id="mCopy">📋 Alles als Text kopieren</button>
+    <button class="btn" type="button" data-v="seed" id="mSeed">🥚 Beispielzähler „Eier“ hinzufügen</button>
+    <button class="btn danger" type="button" data-v="wipe" id="mWipe">🗑 Alle Daten löschen</button></div>
+    <p class="small">Deine Daten liegen nur auf diesem Gerät (im Browser-Speicher). Mach ab und zu ein Backup.<br>Zähler · Version ${VERSION}</p>
+    <div class="row"><button class="btn" type="button" data-v="no">Schließen</button></div>`);
+  if (v === 'export') exportJson();
+  else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
+  else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || '(keine Zähler)');
+  else if (v === 'seed') { addEierSeed(); render(); toast('🥚 Eier hinzugefügt'); }
+  else if (v === 'wipe') {
+    if (await confirmBox('Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', 'Alles löschen', true)) {
+      db = freshDb(); db.settings.onboarded = true; save(); go(null); render(); toast('Alle Daten gelöscht');
+    }
+  }
+}
+$('importFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importJson(f); });
+
+/* ---------- Erster Start ---------- */
+function eierAppDates() { // Daten aus der alten Eier-App übernehmen, falls auf derselben Domain vorhanden
+  try { const s = JSON.parse(localStorage.getItem('eier-app-v1'));
+    if (s && Array.isArray(s.current) && Array.isArray(s.rounds)) { const ds = [...s.rounds.flat(), ...s.current].map(e => e.date).filter(Boolean); if (ds.length) return ds; }
+  } catch (e) {}
+  return null;
+}
+async function onboarding() {
+  const old = eierAppDates(), dates = old || EIER_SEED;
+  const v = await openSheet(`<h2>Willkommen bei Zähler 👋</h2>
+    <p>Hier kannst du alles zählen – mit einem Tipp auf <b>+1</b>.\n\nSoll ich gleich deinen Zähler <b>🥚 Eier</b> (Runde à 10) anlegen${old ? ' – mit den Daten aus deiner Eier-App' : ''}?\n${dates.slice(-10).map((d, i) => `${i + 1} = ${d.split('-').reverse().join('.')}`).join('\n')}${dates.length > 10 ? '\n…' : ''}</p>
+    <div class="row"><button class="btn" type="button" data-v="no" id="obNo">Leer starten</button><button class="btn primary" type="button" data-v="yes" id="obYes">Eier übernehmen</button></div>`);
+  db.settings.onboarded = true;
+  if (v === 'yes') { addEierSeed(dates); toast('🥚 Eier übernommen – nächste Lieferung: Nr. ' + ((dates.length % 10) + 1)); }
+  else save();
+  render();
+}
+
+/* ---------- Verdrahtung ---------- */
+$('newBtn').onclick = () => editCounter();
+$('menuBtn').onclick = menu;
+$('backBtn').onclick = () => go(null);
+$('editBtn').onclick = () => editCounter(currentId());
+$('dPlus').onclick = () => tapPlus(currentId());
+$('undoBtn').onclick = () => undoLast(currentId());
+$('backdateBtn').onclick = () => editEntry(null, true, currentId());
+$('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { db = load(); render(); } });
+setInterval(() => { if (!document.hidden && !$('sheet').classList.contains('show')) render(); }, 60000);
+
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+render();
+if (!db.settings.onboarded) onboarding();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+window.__zaehler = { get db() { return db; } }; // für Tests
+})();
+</script>
+</body>
+</html>
