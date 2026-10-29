@@ -126,9 +126,19 @@
     width: 100%; font: inherit; font-size: 17px; padding: 12px; border-radius: 12px; border: 1px solid var(--line);
     background: var(--bg); color: var(--ink); -webkit-user-select: text; user-select: text; min-height: 48px; }
   .field textarea { min-height: 80px; resize: vertical; }
-  #fEmoji { width: 70px !important; text-align: center; font-size: 28px !important; padding: 6px !important; }
-  .emoji-row { display: flex; gap: 10px; align-items: center; }
-  .picks { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+  /* Großes Emoji-Feld: Antippen öffnet die Tastatur, über 🌐/😀 kommt man zu den Emojis */
+  .emoji-big { display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 18px; border: 2px dashed var(--line);
+    background: var(--bg); cursor: text; margin-bottom: 10px; }
+  .field label.emoji-big { display: flex; text-transform: none; letter-spacing: normal; font-size: inherit; color: inherit; margin: 0 0 10px; }
+  .emoji-big:focus-within { border-style: solid; border-color: var(--accent); }
+  .field .emoji-big input#fEmoji { flex: none; width: 84px; height: 84px; min-height: 84px; padding: 0; border-radius: 16px; border: 0;
+    background: var(--card); text-align: center; font-size: 52px; line-height: 84px; caret-color: transparent;
+    box-shadow: var(--shadow); -webkit-user-select: text; user-select: text; }
+  #fEmoji:focus { outline: none; }
+  #fEmoji::selection { background: transparent; }
+  .emoji-hint { flex: 1; min-width: 0; font-size: 15px; color: var(--muted); line-height: 1.35; }
+  .emoji-hint b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 2px; }
+  .picks { display: flex; flex-wrap: wrap; gap: 4px; }
   .picks button { border: 0; background: var(--soft); border-radius: 10px; width: 38px; height: 38px; font-size: 21px; padding: 0; }
   .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
   .swatches button { width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent; background: var(--sw);
@@ -249,6 +259,7 @@ de: {
   deleteEntryQ: 'Eintrag vom {d} löschen?\nDie Nummern danach rücken nach.', entryDeleted: 'Eintrag gelöscht',
   undoQ: 'Letzten Eintrag (Nr. {n} vom {d}) entfernen?', remove: 'Entfernen', undone: 'Rückgängig gemacht',
   editCounterTitle: 'Zähler bearbeiten', newCounterTitle: 'Neuer Zähler', fieldName: 'Name', namePh: 'z. B. Kaffee, Tanken, Training',
+  emojiTap: 'Tippen zum Ändern', emojiHint: 'Tippen und 🌐/😀-Taste für Emojis', emojiQuick: 'Schnellauswahl', 
   fieldSymbol: 'Symbol', fieldColor: 'Farbe', colorAria: 'Farbe {c}', fieldRound: 'Rundengröße (optional)', roundPh: 'keine – einfach weiterzählen',
   roundHelp: 'z. B. 10 → nach 10 Einträgen startet der nächste wieder bei 1 (wie eine Schachtel/Packung). Frühere Runden bleiben in der Historie.',
   askNote: 'Bei jedem +1 nach einer Notiz fragen', askNoteHelp: 'Aus: +1 bleibt ein einziger Tipp – Notiz geht trotzdem jederzeit über die Meldung oder den Eintrag.',
@@ -302,6 +313,7 @@ en: {
   deleteEntryQ: 'Delete the entry from {d}?\nLater numbers will move up.', entryDeleted: 'Entry deleted',
   undoQ: 'Remove the last entry (No. {n} from {d})?', remove: 'Remove', undone: 'Undone',
   editCounterTitle: 'Edit counter', newCounterTitle: 'New counter', fieldName: 'Name', namePh: 'e.g. coffee, fuel, workout',
+  emojiTap: 'Tap to change', emojiHint: 'Tap, then use the 🌐/😀 key for emojis', emojiQuick: 'Quick pick', 
   fieldSymbol: 'Symbol', fieldColor: 'Colour', colorAria: 'Colour {c}', fieldRound: 'Round size (optional)', roundPh: 'none – just keep counting',
   roundHelp: 'e.g. 10 → after 10 entries the next one starts again at 1 (like a box or pack). Previous rounds stay in the history.',
   askNote: 'Ask for a note on every +1', askNoteHelp: 'Off: +1 stays a single tap – you can still add a note any time via the message or the entry.',
@@ -355,6 +367,7 @@ it: {
   deleteEntryQ: 'Eliminare la voce del {d}?\nI numeri successivi scaleranno.', entryDeleted: 'Voce eliminata',
   undoQ: 'Rimuovere l’ultima voce (N. {n} del {d})?', remove: 'Rimuovi', undone: 'Annullato',
   editCounterTitle: 'Modifica contatore', newCounterTitle: 'Nuovo contatore', fieldName: 'Nome', namePh: 'es. caffè, benzina, allenamento',
+  emojiTap: 'Tocca per cambiare', emojiHint: 'Tocca e usa il tasto 🌐/😀 per le emoji', emojiQuick: 'Scelta rapida', 
   fieldSymbol: 'Simbolo', fieldColor: 'Colore', colorAria: 'Colore {c}', fieldRound: 'Dimensione ciclo (facoltativa)', roundPh: 'nessuna – continua a contare',
   roundHelp: 'es. 10 → dopo 10 voci la successiva riparte da 1 (come una scatola o confezione). I cicli precedenti restano nella cronologia.',
   askNote: 'Chiedi una nota a ogni +1', askNoteHelp: 'Disattivato: +1 resta un solo tocco – puoi comunque aggiungere una nota dal messaggio o dalla voce.',
@@ -408,6 +421,7 @@ es: {
   deleteEntryQ: '¿Eliminar la entrada del {d}?\nLos números siguientes se desplazarán.', entryDeleted: 'Entrada eliminada',
   undoQ: '¿Quitar la última entrada (N.º {n} del {d})?', remove: 'Quitar', undone: 'Deshecho',
   editCounterTitle: 'Editar contador', newCounterTitle: 'Nuevo contador', fieldName: 'Nombre', namePh: 'p. ej. café, gasolina, entrenamiento',
+  emojiTap: 'Toca para cambiar', emojiHint: 'Toca y usa la tecla 🌐/😀 para los emojis', emojiQuick: 'Selección rápida', 
   fieldSymbol: 'Símbolo', fieldColor: 'Color', colorAria: 'Color {c}', fieldRound: 'Tamaño de ronda (opcional)', roundPh: 'ninguno – seguir contando',
   roundHelp: 'p. ej. 10 → tras 10 entradas la siguiente vuelve a empezar en 1 (como una caja o un paquete). Las rondas anteriores quedan en el historial.',
   askNote: 'Pedir una nota en cada +1', askNoteHelp: 'Desactivado: +1 sigue siendo un solo toque – puedes añadir una nota cuando quieras desde el aviso o la entrada.',
@@ -461,6 +475,7 @@ fr: {
   deleteEntryQ: 'Supprimer l’entrée du {d} ?\nLes numéros suivants seront décalés.', entryDeleted: 'Entrée supprimée',
   undoQ: 'Retirer la dernière entrée (N° {n} du {d}) ?', remove: 'Retirer', undone: 'Annulé',
   editCounterTitle: 'Modifier le compteur', newCounterTitle: 'Nouveau compteur', fieldName: 'Nom', namePh: 'p. ex. café, carburant, sport',
+  emojiTap: 'Touche pour changer', emojiHint: 'Touche, puis utilise la touche 🌐/😀 pour les emojis', emojiQuick: 'Choix rapide', 
   fieldSymbol: 'Symbole', fieldColor: 'Couleur', colorAria: 'Couleur {c}', fieldRound: 'Taille du tour (facultatif)', roundPh: 'aucune – continuer à compter',
   roundHelp: 'p. ex. 10 → après 10 entrées, la suivante recommence à 1 (comme une boîte ou un paquet). Les tours précédents restent dans l’historique.',
   askNote: 'Demander une note à chaque +1', askNoteHelp: 'Désactivé : +1 reste un seul geste – tu peux toujours ajouter une note via le message ou l’entrée.',
@@ -509,6 +524,21 @@ const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Letztes Emoji-Graphem eines Textes (ZWJ-Sequenzen, Hautfarben, Flaggen, Keycaps) oder '' */
+const EMOJI_TEST = /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u;
+const EMOJI_SEQ = /\p{Regional_Indicator}{2}|[0-9#*]\uFE0F?\u20E3|\p{Extended_Pictographic}[\uFE0E\uFE0F]?\p{Emoji_Modifier}?[\u{E0020}-\u{E007F}]*(?:\u200D\p{Extended_Pictographic}[\uFE0E\uFE0F]?\p{Emoji_Modifier}?)*/gu;
+const lastEmojiRegex = s => { const m = String(s ?? '').match(EMOJI_SEQ); return m ? m[m.length - 1] : ''; }; // Fallback ohne Intl.Segmenter
+function lastEmoji(text) {
+  const s = String(text ?? '');
+  if (typeof Intl === 'undefined' || !Intl.Segmenter) return lastEmojiRegex(s);
+  const gs = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s)].map(x => x.segment);
+  for (let i = gs.length - 1; i >= 0; i--) {
+    const g = gs[i];
+    if (/^\p{Regional_Indicator}$/u.test(g)) continue; // halbe Flagge ignorieren
+    if (EMOJI_TEST.test(g)) return g;
+  }
+  return '';
+}
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
   'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); })).toUpperCase();
 const isoNow = (d = new Date()) => d.toISOString().replace(/\.\d{3}Z$/, 'Z'); // ohne Millisekunden -> Swift .iso8601 kompatibel
@@ -822,8 +852,11 @@ async function editCounter(cid = null) {
   const cur = c ? { ...c } : { name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
   const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
     <div class="field"><label for="fName">${esc(t('fieldName'))}</label><input type="text" id="fName" maxlength="40" placeholder="${esc(t('namePh'))}" value="${esc(cur.name)}" autocomplete="off"></div>
-    <div class="field"><span class="lbl">${esc(t('fieldSymbol'))}</span><div class="emoji-row"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="Emoji">
-      <div class="picks">${EMOJIS.map(x => `<button type="button" data-pick="${x}">${x}</button>`).join('')}</div></div></div>
+    <div class="field"><span class="lbl">${esc(t('fieldSymbol'))}</span>
+      <label class="emoji-big" for="fEmoji"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="${esc(t('fieldSymbol'))}"
+          inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="64">
+        <span class="emoji-hint"><b>${esc(t('emojiTap'))}</b>${esc(t('emojiHint'))}</span></label>
+      <span class="lbl">${esc(t('emojiQuick'))}</span><div class="picks">${EMOJIS.map(x => `<button type="button" data-pick="${x}">${x}</button>`).join('')}</div></div></div>
     <div class="field"><span class="lbl">${esc(t('fieldColor'))}</span><div class="swatches">${COLORS.map(x => `<button type="button" aria-label="${esc(t('colorAria', { c: x }))}" data-color="${x}" style="--sw:${x}" class="${x === cur.color ? 'on' : ''}"></button>`).join('')}</div></div>
     <div class="field"><label for="fRound">${esc(t('fieldRound'))}</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="${esc(t('roundPh'))}" value="${cur.roundSize || ''}">
       <p class="small">${esc(t('roundHelp'))}</p></div>
@@ -834,11 +867,19 @@ async function editCounter(cid = null) {
     ${c ? `<div class="row"><button class="btn danger" type="button" data-v="del" id="fDelete">${esc(t('deleteCounter'))}</button></div>` : ''}`,
     box => {
       let color = cur.color;
-      box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { box.querySelector('#fEmoji').value = b.dataset.pick; });
+      const ei = box.querySelector('#fEmoji'); let emojiVal = lastEmoji(cur.emoji) || '🔢'; ei.value = emojiVal;
+      // Immer genau EIN Emoji: das zuletzt eingegebene ersetzt das alte; Text ohne Emoji wird verworfen.
+      const takeEmoji = () => { const e = lastEmoji(ei.value); if (e) emojiVal = e; if (ei.value !== emojiVal) ei.value = emojiVal; };
+      ei.addEventListener('input', e => { if (!e.isComposing) takeEmoji(); });
+      ei.addEventListener('compositionend', takeEmoji);
+      ei.addEventListener('change', takeEmoji);
+      ei.addEventListener('focus', () => setTimeout(() => { try { ei.select(); } catch (x) {} }, 0));
+      ei.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ei.blur(); } });
+      box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { emojiVal = b.dataset.pick; ei.value = emojiVal; });
       box.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { color = b.dataset.color; box.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b)); });
       box.querySelector('#fSave').onclick = () => {
         const name = box.querySelector('#fName').value.trim();
-        const emoji = [...box.querySelector('#fEmoji').value.trim()].slice(0, 4).join('') || '🔢';
+        takeEmoji(); const emoji = emojiVal;
         const rs = box.querySelector('#fRound').value.trim(); const n = rs ? parseInt(rs, 10) : null;
         if (!name) { box.querySelector('#fErr').textContent = t('errName'); box.querySelector('#fName').focus(); return; }
         if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { box.querySelector('#fErr').textContent = t('errRound'); return; }
@@ -989,7 +1030,7 @@ applyStatic();
 render();
 if (!db.settings.onboarded) onboarding();
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
-window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS }; // für Tests
+window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex }; // für Tests
 })();
 </script>
 </body>
