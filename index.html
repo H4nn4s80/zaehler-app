@@ -29,9 +29,10 @@
          min-height: 100vh; -webkit-user-select: none; user-select: none; }
   button { font: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
   [hidden] { display: none !important; }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
+  /* Kopfzeile: 8 px tiefer (relativ -> übriges Layout unverändert), ganzzahlige Zeilenhöhe -> Text auf ganzen Pixeln */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; position: relative; top: 8px; }
   h1 { font-size: 34px; margin: 4px 0 12px; letter-spacing: -0.6px; }
-  .iconbtn { border: 0; background: transparent; color: var(--accent); font-size: 17px; font-weight: 500;
+  .iconbtn { border: 0; background: transparent; color: var(--accent); font-size: 17px; font-weight: 500; line-height: 24px;
     min-height: 44px; min-width: 44px; padding: 0 6px; }
   .iconbtn.big { font-size: 24px; }
 
@@ -559,7 +560,7 @@ const LANG_KEY = 'zaehler-lang';
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 5, APP_DATE = '2026-10-29'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 6, APP_DATE = '2026-10-29'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
