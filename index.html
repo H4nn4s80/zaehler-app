@@ -17,6 +17,7 @@
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
   :root {
+    --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
     --bg: #f2f2f7; --card: #ffffff; --ink: #1c1c1e; --muted: #8e8e93; --line: #e5e5ea;
     --soft: #f2f2f7; --danger: #ff3b30; --orange: #ff9500; --accent: #007aff; --shadow: 0 1px 3px rgba(0,0,0,.07);
     --toast: #1c1c1e; --seg-on: #fff; --backdrop: rgba(0,0,0,.4); color-scheme: light;
@@ -31,8 +32,8 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--ink);
     font: 17px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
-  body { padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px)
-                  calc(env(safe-area-inset-bottom) + 90px) calc(env(safe-area-inset-left) + 16px);
+  body { padding: calc(var(--sat) + 10px) calc(var(--sar) + 16px)
+                  calc(var(--sab) + 90px) calc(var(--sal) + 16px);
          min-height: 100vh; -webkit-user-select: none; user-select: none; }
   button { font: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
   [hidden] { display: none !important; }
@@ -127,7 +128,7 @@
   #sheet { position: fixed; inset: 0; background: var(--backdrop); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
   #sheet.show { display: flex; }
   #sheet .box { background: var(--card); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
-    border-radius: 22px 22px 0 0; padding: 18px 16px calc(env(safe-area-inset-bottom) + 18px); animation: up .22s ease-out; }
+    border-radius: 22px 22px 0 0; padding: 18px 16px calc(var(--sab) + 18px); animation: up .22s ease-out; }
   @keyframes up { from { transform: translateY(40px); opacity: .5 } to { transform: none; opacity: 1 } }
   #sheet h2 { margin: 0 0 12px; font-size: 20px; }
   #sheet p { margin: 0 0 14px; white-space: pre-line; }
@@ -361,7 +362,7 @@
   .swipe.sw-on:not(.sw-anim) > .tile, .swipe.sw-on:not(.sw-anim) > .sw-front { transition: none; }
   .swipe.dragging > .tile { box-shadow: 0 8px 24px rgba(0,0,0,.18); outline: 2px solid var(--c); }
   /* Toast */
-  #toast { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 16px); margin: 0 auto; max-width: 500px;
+  #toast { position: fixed; left: 12px; right: 12px; bottom: calc(var(--sab) + 16px); margin: 0 auto; max-width: 500px;
     background: var(--toast); color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
     opacity: 0; transform: translateY(30px); transition: all .25s; pointer-events: none; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
   #toast.show { opacity: 1; transform: none; pointer-events: auto; }
@@ -412,7 +413,7 @@
     margin: 6px 0 12px; -webkit-font-smoothing: antialiased; }
   .d-head h1 { font: 700 28px/34px -apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: .36px; }
   /* Schwebende Navigationsleiste: oben durchsichtig, beim Scrollen Glas */
-  .top { position: sticky; top: 0; z-index: 15; margin: calc(-10px - env(safe-area-inset-top)) -16px 0; padding: calc(env(safe-area-inset-top) + 14px) 16px 8px;
+  .top { position: sticky; top: 0; z-index: 15; margin: calc(-10px - var(--sat)) -16px 0; padding: calc(var(--sat) + 14px) 16px 8px;
     transition: background-color .25s, box-shadow .25s; }
   html.scrolled .top { background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
     box-shadow: 0 .5px 0 var(--glass-line); }
@@ -458,7 +459,7 @@
   .hits { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 22px; }
   /* Dialoge: schwebendes Glas-Blatt */
   #sheet { background: color-mix(in srgb, var(--backdrop) 75%, transparent); }
-  #sheet .box { width: calc(100% - 16px); margin: 0 8px calc(env(safe-area-inset-bottom) + 8px); border-radius: 34px;
+  #sheet .box { width: calc(100% - 16px); margin: 0 8px calc(var(--sab) + 8px); border-radius: 34px;
     background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
     box-shadow: var(--glass-hl), 0 20px 60px -10px rgba(0,0,0,.35); padding: 22px 18px 18px; max-height: calc(92vh - 8px); }
   #sheet .btn { background: var(--glass-fill); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.18); border-radius: 25px; }
@@ -490,21 +491,117 @@
   html { overscroll-behavior-y: none; }
   #sheet .box { overscroll-behavior: contain; }
   .grabber { display: block; width: 36px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--muted) 55%, transparent); margin: 0 auto; pointer-events: none; }
-  .top > .grabber { position: absolute; left: 50%; top: calc(env(safe-area-inset-top) + 5px); margin-left: -18px; }
+  .top > .grabber { position: absolute; left: 50%; top: calc(var(--sat) + 5px); margin-left: -18px; }
   #sheet .box::before { content: ""; display: block; width: 36px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--muted) 55%, transparent); margin: -12px auto 12px; }
   main.pulled { position: relative; z-index: 3; background: var(--blobs), var(--bg); background-attachment: fixed; border-radius: 38px; overflow: hidden;
     margin: 0 -16px; padding: 0 16px; transform-origin: 50% 0; box-shadow: 0 -2px 30px rgba(0,0,0,.18); will-change: transform; }
   main.pulled .top { position: relative; }
   #home.behind { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; transform-origin: 50% 0; transform: scale(.94);
-    padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px) 0 calc(env(safe-area-inset-left) + 16px); border-radius: 38px; }
+    padding: calc(var(--sat) + 10px) calc(var(--sar) + 16px) 0 calc(var(--sal) + 16px); border-radius: 38px; }
   #pullDim { position: fixed; inset: 0; z-index: 2; background: rgba(0,0,0,.28); pointer-events: none; }
   .pull-anim { transition: transform .32s cubic-bezier(.2,.9,.25,1.08) !important; }
   #home.behind.pull-anim { transition: transform .32s ease-out !important; }
-  .pull-ask { position: absolute; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 24px); z-index: 2; padding: 16px; border-radius: 28px; display: grid; gap: 10px;
+  .pull-ask { position: absolute; left: 16px; right: 16px; bottom: calc(var(--sab) + 24px); z-index: 2; padding: 16px; border-radius: 28px; display: grid; gap: 10px;
     background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%); box-shadow: var(--glass-hl), 0 20px 50px -10px rgba(0,0,0,.45); }
   .pull-ask p { margin: 0 0 4px; text-align: center; font-weight: 600; font-size: 15px; color: var(--muted); }
   .pull-ask .btn { background: var(--glass-fill); box-shadow: none; width: 100%; }
   #sheet { position: fixed; }
+  /* ================= v9: Blätter sauber im sicheren Bereich, Glas-Knöpfe auf der Startseite ================= */
+  /* Blatt = schwebende Glas-Karte (#sheetCard: Hintergrund, Rundung, Rand) + innerer Scrollbereich (#sheetBox).
+     So beschneidet die Rundung nie Inhalt (WebKit schneidet scrollende Inhalte mit backdrop-filter nicht sauber an runden Ecken ab). */
+  #sheet { align-items: flex-end; }
+  #sheet .sheet-card { position: relative; display: flex; flex-direction: column; width: calc(100% - 16px); max-width: 520px;
+    margin: 0 8px var(--sheet-gap); border-radius: 34px; overflow: hidden; isolation: isolate;
+    max-height: calc(100vh - var(--sat) - var(--sheet-gap) - 12px); max-height: calc(100dvh - var(--sat) - var(--sheet-gap) - 12px);
+    background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+    box-shadow: var(--glass-hl), 0 20px 60px -10px rgba(0,0,0,.35); animation: up .22s ease-out; }
+  #sheet .sheet-card::before { content: ""; position: absolute; top: 6px; left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; z-index: 2;
+    background: color-mix(in srgb, var(--muted) 55%, transparent); pointer-events: none; }
+  #sheet .box, #sheet .box::before { all: unset; }
+  #sheet .box { display: block; box-sizing: border-box; flex: 1 1 auto; min-height: 0; width: 100%; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    padding: 24px 18px calc(28px + var(--sab-in)); scroll-padding-bottom: 28px; color: var(--ink); }
+  #sheet .box::after { content: ""; display: block; height: 1px; } /* hält den unteren Abstand auch in Safari beim Scrollen */
+  :root { --sheet-gap: max(8px, calc(var(--sab) - 14px)); --sab-in: max(0px, calc(var(--sab) - var(--sheet-gap) - 14px)); }
+  .pull-ask { bottom: calc(var(--sheet-gap) + 16px); }
+  /* Startseite: „Neuer Zähler“ als Glas-Kapsel mit getöntem Plus, darunter kleine Glas-Kapseln „Anordnen“ / „Archiv“ */
+  .home-actions { margin-top: 16px; display: grid; gap: 12px; }
+  #newBtn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin: 0; min-height: 56px; border: 0; border-radius: 28px;
+    background: var(--glass-bg); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); box-shadow: var(--glass-hl), var(--glass-shadow); color: var(--accent); font: 600 17px/22px -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.41px; transition: transform .12s, opacity .2s; }
+  #newBtn .nb-ic { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none;
+    background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.45); }
+  #newBtn .nb-ic svg { width: 14px; height: 14px; display: block; }
+  #newBtn:active { transform: scale(.98); opacity: .7; transition: none; }
+  .home-sub { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  #arrangeBtn, #archiveBtn { display: inline-flex; align-items: center; gap: 6px; margin: 0; min-height: 44px; padding: 0 16px; border: 0; border-radius: 22px;
+    background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); box-shadow: var(--glass-hl), var(--glass-shadow);
+    font: 500 15px/20px -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -0.24px; transition: opacity .25s; }
+  #arrangeBtn { color: var(--accent); }
+  #archiveBtn { color: var(--ink); }
+  #arrangeBtn svg { width: 17px; height: 17px; display: block; }
+  #arrangeBtn.done { background: var(--accent); color: #fff; font-weight: 600; background-image: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0) 60%); }
+  #arrangeBtn:active, #archiveBtn:active { opacity: .45; transition: none; }
+  /* ================= v9: Daten-Menü im iOS-26-Stil ================= */
+  :root { --gs-track: rgba(118,118,128,.16); --gs-thumb: linear-gradient(180deg, #fff, rgba(255,255,255,.88)); --gs-on: var(--accent);
+    --gs-th-sh: 0 3px 10px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08), inset 0 1px 0 #fff, inset 0 0 0 .5px rgba(0,0,0,.04);
+    --m-grp: rgba(255,255,255,.80); --m-grp-hl: inset 0 0 0 .5px rgba(0,0,0,.05); --m-sep: rgba(60,60,67,.18); --m-press: rgba(0,0,0,.07); --m-foot: #6c6c70; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --gs-track: rgba(118,118,128,.30);
+    --gs-thumb: linear-gradient(180deg, rgba(64,156,255,.98), rgba(10,132,255,.92)); --gs-on: #fff;
+    --gs-th-sh: 0 3px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 .5px rgba(255,255,255,.12);
+    --m-grp: rgba(255,255,255,.085); --m-grp-hl: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 .5px rgba(255,255,255,.06); --m-sep: rgba(84,84,88,.55); --m-press: rgba(255,255,255,.10); --m-foot: #a1a1a8; } }
+  :root[data-theme="dark"] { --gs-track: rgba(118,118,128,.30);
+    --gs-thumb: linear-gradient(180deg, rgba(64,156,255,.98), rgba(10,132,255,.92)); --gs-on: #fff;
+    --gs-th-sh: 0 3px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35), inset 0 0 0 .5px rgba(255,255,255,.12);
+    --m-grp: rgba(255,255,255,.085); --m-grp-hl: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 .5px rgba(255,255,255,.06); --m-sep: rgba(84,84,88,.55); --m-press: rgba(255,255,255,.10); --m-foot: #a1a1a8; }
+  #sheet .mx { font-family: -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  #sheet .mx h2 { margin: 2px 4px 14px; font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+  .mx .m-h { font-size: 13px; line-height: 18px; color: var(--m-foot); text-transform: uppercase; letter-spacing: .4px; font-weight: 500; margin: 18px 16px 7px; }
+  .mx .m-h:first-of-type { margin-top: 6px; }
+  #sheet .mx .m-foot { font-size: 13px; line-height: 18px; color: var(--m-foot); margin: 7px 16px 0; }
+  /* Glas-Segmente: eine Spur, erhabener glänzender Daumen gleitet zur Auswahl */
+  .gseg { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); padding: 3px; border-radius: 999px; isolation: isolate;
+    background: var(--gs-track); box-shadow: inset 0 1px 2px rgba(0,0,0,.06); }
+  .gseg-th { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--n)); border-radius: 999px;
+    transform: translateX(calc(100% * var(--i))); background: var(--gs-thumb); box-shadow: var(--gs-th-sh); transition: transform .34s cubic-bezier(.3,1.3,.5,1); }
+  .gseg-b { position: relative; z-index: 1; min-height: 44px; margin: 0; padding: 2px 4px; border: 0; border-radius: 999px; background: transparent; color: var(--ink);
+    font: 500 14px/1.15 -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -.15px; overflow-wrap: anywhere; transition: color .2s, opacity .15s; -webkit-tap-highlight-color: transparent; }
+  .gseg-b.on { color: var(--gs-on); font-weight: 650; }
+  .gseg.many .gseg-b { font-size: 13px; letter-spacing: -.25px; padding: 2px 1px; }
+  .gseg-b:not(.on):active { opacity: .45; transition: none; }
+  /* Gruppierte Liste (inset grouped) auf Glas */
+  .mx .m-group, .mx .m-card { margin: 16px 0 0; border-radius: 24px; overflow: hidden; background: var(--m-grp); box-shadow: var(--m-grp-hl); }
+  .mx .m-card { padding: 14px 16px 12px; }
+  .m-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; margin: 0; padding: 8px 16px; border: 0; border-radius: 0;
+    background: transparent; color: var(--ink); text-align: left; font: 400 17px/22px -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -.41px; -webkit-tap-highlight-color: transparent; }
+  .m-row + .m-row::before { content: ""; position: absolute; top: 0; right: 0; left: 58px; height: .5px; background: var(--m-sep); }
+  .m-row:active { background: var(--m-press); }
+  .m-row.danger { color: #ff3b30; }
+  :root[data-theme="dark"] .m-row.danger { color: #ff453a; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .m-row.danger { color: #ff453a; } }
+  .m-ic { flex: none; width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; color: #fff;
+    background: var(--ic); background-image: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 70%); box-shadow: inset 0 0 0 .5px rgba(0,0,0,.08); }
+  .m-ic svg { width: 18px; height: 18px; display: block; }
+  .m-lb { flex: 1 1 auto; min-width: 0; }
+  .m-val { color: var(--m-foot); font-size: 17px; }
+  .m-chev { flex: none; width: 8px; height: 14px; color: color-mix(in srgb, var(--m-foot) 70%, transparent); }
+  /* „Jetzt sichern“: auffällige getönte Glas-Kapsel */
+  .m-cta { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; margin: 0 0 10px; border: 0; border-radius: 999px; color: #fff;
+    background: var(--accent); background-image: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 55%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 20px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+    font: 600 17px/22px -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -.41px; transition: transform .12s, opacity .2s; }
+  .m-cta svg { width: 20px; height: 20px; }
+  .m-cta:active { transform: scale(.98); opacity: .8; transition: none; }
+  #sheet .mx .m-note { margin: 0 2px 4px; font-size: 13px; line-height: 18px; color: var(--m-foot); }
+  .mx .m-note b { color: var(--ink); font-weight: 600; }
+  #sheet .mx .m-note:empty { display: none; }
+  .m-close { display: block; width: 100%; min-height: 52px; margin: 18px 0 0; border: 0; border-radius: 999px; background: var(--m-grp); box-shadow: var(--m-grp-hl);
+    color: var(--ink); font: 600 17px/22px -apple-system, "SF Pro Text", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: -.41px; }
+  .m-close:active { background: var(--m-press); }
+  @media (prefers-reduced-transparency: reduce) {
+    #sheet .sheet-card:has(.mx) { background: var(--bg); }
+    .mx .m-group, .mx .m-card, .m-close { background: var(--card); }
+    .gseg { background: color-mix(in srgb, var(--ink) 12%, var(--card)); }
+  }
 </style>
 </head>
 <body>
@@ -525,9 +622,10 @@
   <div id="list"></div>
   <div id="searchRes" hidden></div>
   <div class="empty-state" id="emptyState" hidden><div>🔢</div><p data-i18n-html="emptyState"></p></div>
-  <button id="newBtn" type="button" data-i18n="newBtn"></button>
-  <button id="arrangeBtn" type="button" hidden></button>
-  <button id="archiveBtn" type="button" hidden></button>
+  <div class="home-actions">
+    <button id="newBtn" type="button"><span class="nb-ic" aria-hidden="true"><svg viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M7 1.5v11M1.5 7h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><span data-i18n="newBtn"></span></button>
+    <div class="home-sub"><button id="arrangeBtn" type="button" hidden></button><button id="archiveBtn" type="button" hidden></button></div>
+  </div>
 </main>
 
 <!-- v7c: Jahresrückblick -->
@@ -624,7 +722,7 @@
 </main>
 
 <div id="pullDim" hidden></div>
-<div id="sheet" role="dialog" aria-modal="true"><div class="box" id="sheetBox"></div></div>
+<div id="sheet" role="dialog" aria-modal="true"><div class="sheet-card" id="sheetCard"><div class="box" id="sheetBox"></div></div></div>
 <div id="toast" role="status"><span id="toastMsg"></span><span id="toastBtns"></span></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
@@ -639,7 +737,7 @@ de: {
   langName: 'Deutsch', flag: '🇩🇪', locale: 'de-DE',
   appTitle: 'Zähler', menuBtn: '⚙︎ Daten', menuAria: 'Menü', languageAria: 'Sprache',
   emptyState: 'Noch keine Zähler.<br>Leg deinen ersten an – egal was du zählen willst.',
-  newBtn: '＋ Neuer Zähler', back: 'Zähler', edit: 'Bearbeiten',
+  newBtn: 'Neuer Zähler', back: 'Zähler', edit: 'Bearbeiten',
   statToday: 'Heute', statWeek: 'Woche', statMonth: 'Monat', statTotal: 'Gesamt',
   undoBtn: '↩︎ Rückgängig', backdateBtn: '🕒 Nachtragen', copyOneBtn: '📋 Als Text kopieren',
   roundAbbr: 'R{r}',
@@ -684,10 +782,10 @@ de: {
   txtNoEntries: '(keine Einträge)', txtRound: 'Runde {r}:', txtRoundFull: 'Runde {r} (voll):', txtRoundPart: 'Runde {r} ({i}/{n}):', txtTotal: 'Gesamt: {n}', txtNoCounters: '(keine Zähler)',
   copied: '📋 In die Zwischenablage kopiert', textTitle: 'Text', close: 'Schließen',
   menuTitle: 'Daten', language: 'Sprache', mExport: '💾 Jetzt sichern (Backup-Datei)', mImport: '📂 Backup importieren', mCopy: '📋 Alles als Text kopieren',
-  mSeed: '🥚 Beispielzähler „{name}“ hinzufügen', mWipe: '🗑 Alle Daten löschen',
+  mWipe: '🗑 Alle Daten löschen',
   mUpdate: '🔄 Auf Updates prüfen', updating: '🔄 Suche nach Updates …', 
   menuNoteHtml: 'Deine Daten liegen nur auf diesem Gerät (im Browser-Speicher). Mach ab und zu ein Backup.<br>{app} · Version {v} · {d}',
-  seedAdded: '🥚 {name} hinzugefügt', wipeQ: 'Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', wipeAll: 'Alles löschen', wiped: 'Alle Daten gelöscht',
+  wipeQ: 'Wirklich ALLE Zähler und Einträge löschen?\nTipp: vorher ein Backup exportieren.', wipeAll: 'Alles löschen', wiped: 'Alle Daten gelöscht',
   seedName: 'Eier',
   welcomeTitle: 'Willkommen bei Zähler 👋',
   welcomeBodyHtml: 'Hier kannst du alles zählen – mit einem Tipp auf <b>+1</b>.\n\nSoll ich gleich deinen Zähler <b>🥚 {name}</b> (Runde à 10) anlegen{old}?',
@@ -698,7 +796,7 @@ en: {
   langName: 'English', flag: '🇬🇧', locale: 'en-GB',
   appTitle: 'Counter', menuBtn: '⚙︎ Data', menuAria: 'Menu', languageAria: 'Language',
   emptyState: 'No counters yet.<br>Create your first one – whatever you want to count.',
-  newBtn: '＋ New counter', back: 'Counters', edit: 'Edit',
+  newBtn: 'New counter', back: 'Counters', edit: 'Edit',
   statToday: 'Today', statWeek: 'Week', statMonth: 'Month', statTotal: 'Total',
   undoBtn: '↩︎ Undo', backdateBtn: '🕒 Add past entry', copyOneBtn: '📋 Copy as text',
   roundAbbr: 'R{r}',
@@ -743,10 +841,10 @@ en: {
   txtNoEntries: '(no entries)', txtRound: 'Round {r}:', txtRoundFull: 'Round {r} (full):', txtRoundPart: 'Round {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(no counters)',
   copied: '📋 Copied to clipboard', textTitle: 'Text', close: 'Close',
   menuTitle: 'Data', language: 'Language', mExport: '💾 Back up now (backup file)', mImport: '📂 Import backup', mCopy: '📋 Copy everything as text',
-  mSeed: '🥚 Add example counter “{name}”', mWipe: '🗑 Delete all data',
+  mWipe: '🗑 Delete all data',
   mUpdate: '🔄 Check for updates', updating: '🔄 Checking for updates …', 
   menuNoteHtml: 'Your data is stored only on this device (in the browser storage). Make a backup now and then.<br>{app} · Version {v} · {d}',
-  seedAdded: '🥚 {name} added', wipeQ: 'Really delete ALL counters and entries?\nTip: export a backup first.', wipeAll: 'Delete everything', wiped: 'All data deleted',
+  wipeQ: 'Really delete ALL counters and entries?\nTip: export a backup first.', wipeAll: 'Delete everything', wiped: 'All data deleted',
   seedName: 'Eggs',
   welcomeTitle: 'Welcome to Counter 👋',
   welcomeBodyHtml: 'Count anything here – with a single tap on <b>+1</b>.\n\nShall I set up your counter <b>🥚 {name}</b> (rounds of 10) right away{old}?',
@@ -757,7 +855,7 @@ it: {
   langName: 'Italiano', flag: '🇮🇹', locale: 'it-IT',
   appTitle: 'Contatore', menuBtn: '⚙︎ Dati', menuAria: 'Menu', languageAria: 'Lingua',
   emptyState: 'Ancora nessun contatore.<br>Crea il primo – qualunque cosa tu voglia contare.',
-  newBtn: '＋ Nuovo contatore', back: 'Contatori', edit: 'Modifica',
+  newBtn: 'Nuovo contatore', back: 'Contatori', edit: 'Modifica',
   statToday: 'Oggi', statWeek: 'Settimana', statMonth: 'Mese', statTotal: 'Totale',
   undoBtn: '↩︎ Annulla', backdateBtn: '🕒 Voce passata', copyOneBtn: '📋 Copia come testo',
   roundAbbr: 'C{r}',
@@ -802,10 +900,10 @@ it: {
   txtNoEntries: '(nessuna voce)', txtRound: 'Ciclo {r}:', txtRoundFull: 'Ciclo {r} (completo):', txtRoundPart: 'Ciclo {r} ({i}/{n}):', txtTotal: 'Totale: {n}', txtNoCounters: '(nessun contatore)',
   copied: '📋 Copiato negli appunti', textTitle: 'Testo', close: 'Chiudi',
   menuTitle: 'Dati', language: 'Lingua', mExport: '💾 Salva ora (file di backup)', mImport: '📂 Importa backup', mCopy: '📋 Copia tutto come testo',
-  mSeed: '🥚 Aggiungi contatore di esempio «{name}»', mWipe: '🗑 Elimina tutti i dati',
+  mWipe: '🗑 Elimina tutti i dati',
   mUpdate: '🔄 Cerca aggiornamenti', updating: '🔄 Ricerca aggiornamenti …', 
   menuNoteHtml: 'I tuoi dati restano solo su questo dispositivo (nella memoria del browser). Fai un backup ogni tanto.<br>{app} · Versione {v} · {d}',
-  seedAdded: '🥚 {name} aggiunte', wipeQ: 'Eliminare davvero TUTTI i contatori e le voci?\nConsiglio: esporta prima un backup.', wipeAll: 'Elimina tutto', wiped: 'Tutti i dati eliminati',
+  wipeQ: 'Eliminare davvero TUTTI i contatori e le voci?\nConsiglio: esporta prima un backup.', wipeAll: 'Elimina tutto', wiped: 'Tutti i dati eliminati',
   seedName: 'Uova',
   welcomeTitle: 'Benvenuto in Contatore 👋',
   welcomeBodyHtml: 'Qui puoi contare qualsiasi cosa – con un tocco su <b>+1</b>.\n\nVuoi che crei subito il tuo contatore <b>🥚 {name}</b> (cicli da 10){old}?',
@@ -816,7 +914,7 @@ es: {
   langName: 'Español', flag: '🇪🇸', locale: 'es-ES',
   appTitle: 'Contador', menuBtn: '⚙︎ Datos', menuAria: 'Menú', languageAria: 'Idioma',
   emptyState: 'Todavía no hay contadores.<br>Crea el primero – cuenta lo que quieras.',
-  newBtn: '＋ Nuevo contador', back: 'Contadores', edit: 'Editar',
+  newBtn: 'Nuevo contador', back: 'Contadores', edit: 'Editar',
   statToday: 'Hoy', statWeek: 'Semana', statMonth: 'Mes', statTotal: 'Total',
   undoBtn: '↩︎ Deshacer', backdateBtn: '🕒 Entrada pasada', copyOneBtn: '📋 Copiar como texto',
   roundAbbr: 'R{r}',
@@ -861,10 +959,10 @@ es: {
   txtNoEntries: '(sin entradas)', txtRound: 'Ronda {r}:', txtRoundFull: 'Ronda {r} (completa):', txtRoundPart: 'Ronda {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(sin contadores)',
   copied: '📋 Copiado al portapapeles', textTitle: 'Texto', close: 'Cerrar',
   menuTitle: 'Datos', language: 'Idioma', mExport: '💾 Guardar ahora (archivo de copia)', mImport: '📂 Importar copia', mCopy: '📋 Copiar todo como texto',
-  mSeed: '🥚 Añadir contador de ejemplo «{name}»', mWipe: '🗑 Borrar todos los datos',
+  mWipe: '🗑 Borrar todos los datos',
   mUpdate: '🔄 Buscar actualizaciones', updating: '🔄 Buscando actualizaciones …', 
   menuNoteHtml: 'Tus datos solo se guardan en este dispositivo (en la memoria del navegador). Haz una copia de seguridad de vez en cuando.<br>{app} · Versión {v} · {d}',
-  seedAdded: '🥚 {name} añadidos', wipeQ: '¿Borrar de verdad TODOS los contadores y entradas?\nConsejo: exporta antes una copia de seguridad.', wipeAll: 'Borrar todo', wiped: 'Todos los datos borrados',
+  wipeQ: '¿Borrar de verdad TODOS los contadores y entradas?\nConsejo: exporta antes una copia de seguridad.', wipeAll: 'Borrar todo', wiped: 'Todos los datos borrados',
   seedName: 'Huevos',
   welcomeTitle: 'Bienvenido a Contador 👋',
   welcomeBodyHtml: 'Aquí puedes contar cualquier cosa – con un toque en <b>+1</b>.\n\n¿Creo ya tu contador <b>🥚 {name}</b> (rondas de 10){old}?',
@@ -875,7 +973,7 @@ fr: {
   langName: 'Français', flag: '🇫🇷', locale: 'fr-FR',
   appTitle: 'Compteur', menuBtn: '⚙︎ Données', menuAria: 'Menu', languageAria: 'Langue',
   emptyState: 'Aucun compteur pour l’instant.<br>Crée le premier – compte tout ce que tu veux.',
-  newBtn: '＋ Nouveau compteur', back: 'Compteurs', edit: 'Modifier',
+  newBtn: 'Nouveau compteur', back: 'Compteurs', edit: 'Modifier',
   statToday: 'Aujourd’hui', statWeek: 'Semaine', statMonth: 'Mois', statTotal: 'Total',
   undoBtn: '↩︎ Annuler', backdateBtn: '🕒 Entrée passée', copyOneBtn: '📋 Copier en texte',
   roundAbbr: 'T{r}',
@@ -920,10 +1018,10 @@ fr: {
   txtNoEntries: '(aucune entrée)', txtRound: 'Tour {r} :', txtRoundFull: 'Tour {r} (complet) :', txtRoundPart: 'Tour {r} ({i}/{n}) :', txtTotal: 'Total : {n}', txtNoCounters: '(aucun compteur)',
   copied: '📋 Copié dans le presse-papiers', textTitle: 'Texte', close: 'Fermer',
   menuTitle: 'Données', language: 'Langue', mExport: '💾 Sauvegarder maintenant (fichier)', mImport: '📂 Importer une sauvegarde', mCopy: '📋 Tout copier en texte',
-  mSeed: '🥚 Ajouter le compteur d’exemple « {name} »', mWipe: '🗑 Supprimer toutes les données',
+  mWipe: '🗑 Supprimer toutes les données',
   mUpdate: '🔄 Rechercher des mises à jour', updating: '🔄 Recherche de mises à jour …', 
   menuNoteHtml: 'Tes données restent uniquement sur cet appareil (dans la mémoire du navigateur). Fais une sauvegarde de temps en temps.<br>{app} · Version {v} · {d}',
-  seedAdded: '🥚 {name} ajoutés', wipeQ: 'Vraiment supprimer TOUS les compteurs et entrées ?\nAstuce : exporte d’abord une sauvegarde.', wipeAll: 'Tout supprimer', wiped: 'Toutes les données supprimées',
+  wipeQ: 'Vraiment supprimer TOUS les compteurs et entrées ?\nAstuce : exporte d’abord une sauvegarde.', wipeAll: 'Tout supprimer', wiped: 'Toutes les données supprimées',
   seedName: 'Œufs',
   welcomeTitle: 'Bienvenue dans Compteur 👋',
   welcomeBodyHtml: 'Ici, tu peux tout compter – d’un seul geste sur <b>+1</b>.\n\nJe crée tout de suite ton compteur <b>🥚 {name}</b> (tours de 10){old} ?',
@@ -948,7 +1046,7 @@ de: {
   calendarDone: '📅 Kalenderdatei erstellt – im Kalender übernehmen', errReminderDays: 'Bitte mindestens einen Wochentag wählen.', errReminderTime: 'Bitte eine Uhrzeit wählen.',
   reminderDue: '⏰ Heute noch nicht eingetragen', reminderInfo: '⏰ {days} um {time}',
   longPressHint: 'Tipp: +1 gedrückt halten, um gleich eine Notiz dazuzuschreiben.', addNoteAria: 'Notiz hinzufügen',
-  arrangeBtn: '↕︎ Anordnen', arrangeDone: 'Fertig', moveUp: 'Nach oben', moveDown: 'Nach unten', dragHandle: 'Zum Verschieben ziehen',
+  arrangeBtn: 'Anordnen', arrangeDone: 'Fertig', moveUp: 'Nach oben', moveDown: 'Nach unten', dragHandle: 'Zum Verschieben ziehen',
   arrangeHint: 'Ziehe am Griff ☰ oder nutze ▲ ▼. Danach „Fertig“.',
 },
 en: {
@@ -964,7 +1062,7 @@ en: {
   calendarDone: '📅 Calendar file created – add it in Calendar', errReminderDays: 'Please choose at least one weekday.', errReminderTime: 'Please choose a time.',
   reminderDue: '⏰ Not logged yet today', reminderInfo: '⏰ {days} at {time}',
   longPressHint: 'Tip: press and hold +1 to add a note right away.', addNoteAria: 'Add note',
-  arrangeBtn: '↕︎ Arrange', arrangeDone: 'Done', moveUp: 'Move up', moveDown: 'Move down', dragHandle: 'Drag to move',
+  arrangeBtn: 'Arrange', arrangeDone: 'Done', moveUp: 'Move up', moveDown: 'Move down', dragHandle: 'Drag to move',
   arrangeHint: 'Drag the ☰ handle or use ▲ ▼. Then tap “Done”.',
 },
 it: {
@@ -980,7 +1078,7 @@ it: {
   calendarDone: '📅 File calendario creato – aggiungilo in Calendario', errReminderDays: 'Scegli almeno un giorno della settimana.', errReminderTime: 'Scegli un orario.',
   reminderDue: '⏰ Oggi non ancora registrato', reminderInfo: '⏰ {days} alle {time}',
   longPressHint: 'Suggerimento: tieni premuto +1 per aggiungere subito una nota.', addNoteAria: 'Aggiungi nota',
-  arrangeBtn: '↕︎ Riordina', arrangeDone: 'Fine', moveUp: 'Sposta su', moveDown: 'Sposta giù', dragHandle: 'Trascina per spostare',
+  arrangeBtn: 'Riordina', arrangeDone: 'Fine', moveUp: 'Sposta su', moveDown: 'Sposta giù', dragHandle: 'Trascina per spostare',
   arrangeHint: 'Trascina la maniglia ☰ oppure usa ▲ ▼. Poi tocca «Fine».',
 },
 es: {
@@ -996,7 +1094,7 @@ es: {
   calendarDone: '📅 Archivo de calendario creado – añádelo en Calendario', errReminderDays: 'Elige al menos un día de la semana.', errReminderTime: 'Elige una hora.',
   reminderDue: '⏰ Hoy aún sin registrar', reminderInfo: '⏰ {days} a las {time}',
   longPressHint: 'Consejo: mantén pulsado +1 para añadir una nota enseguida.', addNoteAria: 'Añadir nota',
-  arrangeBtn: '↕︎ Ordenar', arrangeDone: 'Listo', moveUp: 'Subir', moveDown: 'Bajar', dragHandle: 'Arrastra para mover',
+  arrangeBtn: 'Ordenar', arrangeDone: 'Listo', moveUp: 'Subir', moveDown: 'Bajar', dragHandle: 'Arrastra para mover',
   arrangeHint: 'Arrastra el asa ☰ o usa ▲ ▼. Después toca «Listo».',
 },
 fr: {
@@ -1012,7 +1110,7 @@ fr: {
   calendarDone: '📅 Fichier calendrier créé – ajoute-le dans Calendrier', errReminderDays: 'Choisis au moins un jour de la semaine.', errReminderTime: 'Choisis une heure.',
   reminderDue: '⏰ Pas encore noté aujourd’hui', reminderInfo: '⏰ {days} à {time}',
   longPressHint: 'Astuce : maintiens +1 appuyé pour ajouter tout de suite une note.', addNoteAria: 'Ajouter une note',
-  arrangeBtn: '↕︎ Réorganiser', arrangeDone: 'Terminé', moveUp: 'Monter', moveDown: 'Descendre', dragHandle: 'Glisser pour déplacer',
+  arrangeBtn: 'Réorganiser', arrangeDone: 'Terminé', moveUp: 'Monter', moveDown: 'Descendre', dragHandle: 'Glisser pour déplacer',
   arrangeHint: 'Fais glisser la poignée ☰ ou utilise ▲ ▼. Puis touche « Terminé ».',
 },
 };
@@ -1282,31 +1380,16 @@ fr: {
 for (const l of Object.keys(I18N_V7C)) Object.assign(I18N[l], I18N_V7C[l]);
 /* ---------- Übersetzungen für Version 8 (Wischen: Archivieren / Löschen) ---------- */
 const I18N_V8 = {
-de: { pullDiscardQ: 'Änderungen verwerfen?', pullDiscard: 'Änderungen verwerfen', pullKeep: 'Weiter bearbeiten', swArchive: 'Archivieren', swDelete: 'Löschen', swRestore: 'Wiederherstellen', swActions: 'Aktionen für {name}',
-  swDeleteQ: 'Zähler „{name}“ mit {entries} löschen?', swDeleteQ0: 'Zähler „{name}“ löschen?',
-  swDeleteInfo: 'Alle Einträge und Fotos dieses Zählers werden gelöscht. Direkt danach kannst du es noch ein paar Sekunden rückgängig machen.',
-  swDeletePhotos: { one: 'Dabei wird auch {n} Foto gelöscht.', other: 'Dabei werden auch {n} Fotos gelöscht.' }, swDeleteTimer: 'Die laufende Zeitmessung wird vorher gestoppt.',
-  swInstead: '🗄 Stattdessen archivieren', swDeleteYes: '🗑 Löschen', swDeleted: '„{name}“ gelöscht', swUndoFail: 'Wiederherstellen nicht möglich.' },
-en: { pullDiscardQ: 'Discard changes?', pullDiscard: 'Discard changes', pullKeep: 'Keep editing', swArchive: 'Archive', swDelete: 'Delete', swRestore: 'Restore', swActions: 'Actions for {name}',
-  swDeleteQ: 'Delete counter “{name}” with {entries}?', swDeleteQ0: 'Delete counter “{name}”?',
-  swDeleteInfo: 'All entries and photos of this counter will be deleted. Right afterwards you can still undo it for a few seconds.',
-  swDeletePhotos: { one: 'This also deletes {n} photo.', other: 'This also deletes {n} photos.' }, swDeleteTimer: 'The running timer will be stopped first.',
-  swInstead: '🗄 Archive instead', swDeleteYes: '🗑 Delete', swDeleted: '“{name}” deleted', swUndoFail: 'Could not restore.' },
-it: { pullDiscardQ: 'Annullare le modifiche?', pullDiscard: 'Annulla modifiche', pullKeep: 'Continua a modificare', swArchive: 'Archivia', swDelete: 'Elimina', swRestore: 'Ripristina', swActions: 'Azioni per {name}',
-  swDeleteQ: 'Eliminare il contatore «{name}» con {entries}?', swDeleteQ0: 'Eliminare il contatore «{name}»?',
-  swDeleteInfo: 'Tutte le voci e le foto di questo contatore verranno eliminate. Subito dopo puoi ancora annullare per qualche secondo.',
-  swDeletePhotos: { one: 'Verrà eliminata anche {n} foto.', other: 'Verranno eliminate anche {n} foto.' }, swDeleteTimer: 'Il timer in corso verrà fermato prima.',
-  swInstead: '🗄 Archivia invece', swDeleteYes: '🗑 Elimina', swDeleted: '«{name}» eliminato', swUndoFail: 'Impossibile ripristinare.' },
-es: { pullDiscardQ: '¿Descartar los cambios?', pullDiscard: 'Descartar cambios', pullKeep: 'Seguir editando', swArchive: 'Archivar', swDelete: 'Eliminar', swRestore: 'Restaurar', swActions: 'Acciones para {name}',
-  swDeleteQ: '¿Eliminar el contador «{name}» con {entries}?', swDeleteQ0: '¿Eliminar el contador «{name}»?',
-  swDeleteInfo: 'Se eliminarán todas las entradas y fotos de este contador. Justo después aún puedes deshacerlo durante unos segundos.',
-  swDeletePhotos: { one: 'También se eliminará {n} foto.', other: 'También se eliminarán {n} fotos.' }, swDeleteTimer: 'Antes se detendrá el cronómetro en marcha.',
-  swInstead: '🗄 Archivar en su lugar', swDeleteYes: '🗑 Eliminar', swDeleted: '«{name}» eliminado', swUndoFail: 'No se pudo restaurar.' },
-fr: { pullDiscardQ: 'Abandonner les modifications ?', pullDiscard: 'Abandonner', pullKeep: 'Continuer la modification', swArchive: 'Archiver', swDelete: 'Supprimer', swRestore: 'Restaurer', swActions: 'Actions pour {name}',
-  swDeleteQ: 'Supprimer le compteur « {name} » avec {entries} ?', swDeleteQ0: 'Supprimer le compteur « {name} » ?',
-  swDeleteInfo: 'Toutes les entrées et photos de ce compteur seront supprimées. Juste après, vous pourrez encore annuler pendant quelques secondes.',
-  swDeletePhotos: { one: '{n} photo sera aussi supprimée.', other: '{n} photos seront aussi supprimées.' }, swDeleteTimer: 'Le chronomètre en cours sera d’abord arrêté.',
-  swInstead: '🗄 Archiver plutôt', swDeleteYes: '🗑 Supprimer', swDeleted: '« {name} » supprimé', swUndoFail: 'Restauration impossible.' },
+de: { swDeletedN: '„{name}“ gelöscht ({entries})', pullDiscardQ: 'Änderungen verwerfen?', pullDiscard: 'Änderungen verwerfen', pullKeep: 'Weiter bearbeiten', swArchive: 'Archivieren', swDelete: 'Löschen', swRestore: 'Wiederherstellen', swActions: 'Aktionen für {name}',
+  swDeleted: '„{name}“ gelöscht', swUndoFail: 'Wiederherstellen nicht möglich.' },
+en: { swDeletedN: '“{name}” deleted ({entries})', pullDiscardQ: 'Discard changes?', pullDiscard: 'Discard changes', pullKeep: 'Keep editing', swArchive: 'Archive', swDelete: 'Delete', swRestore: 'Restore', swActions: 'Actions for {name}',
+  swDeleted: '“{name}” deleted', swUndoFail: 'Could not restore.' },
+it: { swDeletedN: '«{name}» eliminato ({entries})', pullDiscardQ: 'Annullare le modifiche?', pullDiscard: 'Annulla modifiche', pullKeep: 'Continua a modificare', swArchive: 'Archivia', swDelete: 'Elimina', swRestore: 'Ripristina', swActions: 'Azioni per {name}',
+  swDeleted: '«{name}» eliminato', swUndoFail: 'Impossibile ripristinare.' },
+es: { swDeletedN: '«{name}» eliminado ({entries})', pullDiscardQ: '¿Descartar los cambios?', pullDiscard: 'Descartar cambios', pullKeep: 'Seguir editando', swArchive: 'Archivar', swDelete: 'Eliminar', swRestore: 'Restaurar', swActions: 'Acciones para {name}',
+  swDeleted: '«{name}» eliminado', swUndoFail: 'No se pudo restaurar.' },
+fr: { swDeletedN: '« {name} » supprimé ({entries})', pullDiscardQ: 'Abandonner les modifications ?', pullDiscard: 'Abandonner', pullKeep: 'Continuer la modification', swArchive: 'Archiver', swDelete: 'Supprimer', swRestore: 'Restaurer', swActions: 'Actions pour {name}',
+  swDeleted: '« {name} » supprimé', swUndoFail: 'Restauration impossible.' },
 };
 for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
 </script>
@@ -1324,7 +1407,7 @@ for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 8, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 9, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
@@ -1922,26 +2005,20 @@ function archiveWithUndo(cid) {
   toast(t('toastArchived', { name: c.name }), [[t('undo'), () => { setArchived(cid, false); render(); }]], 5000);
 }
 /** Löschen mit Rückfrage („Stattdessen archivieren“) und Rückgängig (inkl. Fotos aus IndexedDB). Ergebnis: 'del' | 'arch' | null */
-async function deleteCounterAsk(cid) {
-  const c = counter(cid); if (!c) return null;
-  const es = entriesOf(cid), nPh = es.filter(e => e.photo).length;
-  const q = es.length ? t('swDeleteQ', { name: c.name, entries: t('entriesWith', { n: es.length }) }) : t('swDeleteQ0', { name: c.name });
-  const info = [t('swDeleteInfo'), nPh ? t('swDeletePhotos', { n: nPh }) : '', c.runningSince ? t('swDeleteTimer') : ''].filter(Boolean).join(' ');
-  const v = await openSheet(`<p class="sw-ask" id="swAsk">${esc(q)}</p><p class="small" id="swInfo">${esc(info)}</p><div class="sw-col">
-    <button class="btn danger" type="button" data-v="del" id="sheetYes">${esc(t('swDeleteYes'))}</button>
-    ${c.archived ? '' : `<button class="btn" type="button" data-v="arch" id="swArch">${esc(t('swInstead'))}</button>`}
-    <button class="btn" type="button" data-v="no" id="swNo">${esc(t('cancel'))}</button></div>`);
-  if (v === 'arch') { archiveWithUndo(cid); return 'arch'; }
-  if (v !== 'del' || !counter(cid)) return null;
-  if (c.runningSince) stopTimerCore(c); // laufende Uhr zuerst anhalten (Sitzung wird Eintrag und kann mit wiederhergestellt werden)
+/** v9: Löschen ohne Rückfrage – sofort weg, „Rückgängig“ (~6 s) stellt Zähler, Einträge und Fotos wieder her. */
+function deleteCounterNow(cid) {
+  const c = counter(cid); if (!c) return false;
+  if (c.runningSince) stopTimerCore(c); // laufende Uhr zuerst anhalten (Sitzung wird Eintrag und kommt mit „Rückgängig“ zurück)
   const pos = db.counters.indexOf(c), snapC = JSON.parse(JSON.stringify(c)), snapE = JSON.parse(JSON.stringify(entriesOf(cid)));
   const ids = [...new Set(snapE.map(e => e.photo).filter(Boolean))];
-  const recs = (await Promise.all(ids.map(id => photoGet(id).catch(() => null)))).filter(Boolean);
-  deleteCounter(cid);
-  ids.forEach(id => { photoDel(id).catch(() => {}); forgetPhoto(id); });
-  go(null); render();
-  toast(t('swDeleted', { name: c.name }), [[t('undo'), async () => {
+  deleteCounter(cid); go(null); render();
+  // Fotos erst sichern, dann aus IndexedDB löschen (die Anzeige wartet nicht darauf)
+  const recsP = Promise.all(ids.map(id => photoGet(id).catch(() => null))).then(r => r.filter(Boolean));
+  recsP.then(() => ids.forEach(id => { photoDel(id).catch(() => {}); forgetPhoto(id); }));
+  const msg = snapE.length ? t('swDeletedN', { name: snapC.name, entries: t('entriesCount', { n: snapE.length }) }) : t('swDeleted', { name: snapC.name });
+  toast(msg, [[t('undo'), async () => {
     if (counter(snapC.id)) return;
+    const recs = await recsP;
     db.counters.splice(Math.min(pos, db.counters.length), 0, snapC);
     const have = new Set(db.entries.map(e => e.id)); db.entries.push(...snapE.filter(e => !have.has(e.id)));
     let lost = 0;
@@ -1949,7 +2026,7 @@ async function deleteCounterAsk(cid) {
     snapE.forEach(e => { if (e.photo && !recs.some(r => r.id === e.photo)) { const x = db.entries.find(y => y.id === e.id); if (x) delete x.photo; } });
     save(); render(); toast(lost ? t('photoQuota') : t('toastRestored', { name: snapC.name }));
   }]], 6000);
-  return 'del';
+  return true;
 }
 
 /* ---------- v8: Runterwischen schließt Seite (Detail, Rückblick) bzw. Blatt (Dialog, Menü, Archiv) – wie iOS-Sheets ---------- */
@@ -1990,10 +2067,10 @@ function pullBegin(x, y, target, t0) {
   return true;
 }
 function pullApply(d, p = pull) {
-  const H = p.kind === 'sheet' ? p.el.offsetHeight : window.innerHeight, f = Math.max(0, Math.min(1, d / H));
+  const H = p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight, f = Math.max(0, Math.min(1, d / H));
   p.d = d;
   if (p.kind === 'sheet') {
-    p.el.style.transform = `translateY(${d}px)`;
+    $('sheetCard').style.transform = `translateY(${d}px)`;
     $('sheet').style.backgroundColor = `color-mix(in srgb, var(--backdrop) ${Math.round((1 - f * 1.4) * 75)}%, transparent)`;
   } else {
     p.el.style.transform = `translateY(${d}px) scale(${1 - f * 0.06})`;
@@ -2021,17 +2098,17 @@ function pullMove(x, y, ts) {
   pullApply(d); return true;
 }
 function pullReset(p) {
-  p.el.classList.remove('pulled', 'pull-anim'); p.el.style.transform = '';
+  p.el.classList.remove('pulled', 'pull-anim'); p.el.style.transform = ''; $('sheetCard').classList.remove('pull-anim'); $('sheetCard').style.transform = '';
   $('sheet').style.backgroundColor = ''; $('home').style.transform = '';
   if ($('home').classList.contains('behind')) { $('home').classList.remove('behind', 'pull-anim'); $('home').hidden = true; } $('pullDim').hidden = true; $('pullDim').style.opacity = '';
   document.documentElement.classList.remove('pulling');
 }
 function pullEnd() {
   const p = pull; pull = null; if (!p || !p.active) return false;
-  const H = p.kind === 'sheet' ? p.el.offsetHeight : window.innerHeight;
+  const H = p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight;
   const close = p.d > H * PULL_CLOSE || (p.v > PULL_FLICK && p.d > 24);
   const ms = reducedMotion() ? 0 : close ? 240 : 360;
-  p.el.classList.add('pull-anim'); if (p.kind === 'page') $('home').classList.add('pull-anim');
+  (p.kind === 'sheet' ? $('sheetCard') : p.el).classList.add('pull-anim'); if (p.kind === 'page') $('home').classList.add('pull-anim');
   if (close && p.kind === 'sheet' && guardedSheet(p.el) && sheetSnap !== null && formState(p.el) !== sheetSnap) { // ungespeicherte Änderungen → nachfragen
     pullApply(0, p); setTimeout(() => { pullReset(p); askDiscard(); }, ms); return true;
   }
@@ -2199,7 +2276,7 @@ function renderHome() {
   $('emptyState').hidden = cs.length > 0 || searching;
   if (cs.length < 2) arranging = false;
   list.classList.toggle('arranging', arranging);
-  $('arrangeBtn').hidden = cs.length < 2 || searching; $('arrangeBtn').textContent = t(arranging ? 'arrangeDone' : 'arrangeBtn');
+  $('arrangeBtn').hidden = cs.length < 2 || searching; $('arrangeBtn').innerHTML = (arranging ? '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10.5 8.2 14.5 16 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>' : '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 16.5V3.5M2.5 7 6 3.5 9.5 7M14 3.5v13M10.5 13l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>') + `<span>${esc(t(arranging ? 'arrangeDone' : 'arrangeBtn'))}</span>`; $('arrangeBtn').classList.toggle('done', arranging);
   $('arrangeHint').hidden = !arranging; $('newBtn').hidden = arranging || searching;
   $('archiveBtn').hidden = !arch.length || arranging || searching; $('archiveBtn').textContent = t('archiveBtn', { n: arch.length });
   list.hidden = searching; $('searchRes').hidden = !searching;
@@ -2273,7 +2350,7 @@ function tileEl(c, idx, count, swipe = false) {
   if (swipe) {
     w.innerHTML = swActs([['sw-arch', '🗄', t('swArchive'), 'arch'], ['sw-del', '🗑', t('swDelete'), 'del']], c.name);
     w.querySelector('[data-sw=arch]').onclick = () => { swClose(false); archiveWithUndo(c.id); };
-    w.querySelector('[data-sw=del]').onclick = () => { swClose(false); deleteCounterAsk(c.id); };
+    w.querySelector('[data-sw=del]').onclick = () => { swClose(false); deleteCounterNow(c.id); };
     bindSwipe(w, el, () => !arranging);
   }
   w.appendChild(el);
@@ -2677,7 +2754,7 @@ async function editCounter(cid = null) {
     else { render(); toast(t('toastRestored', { name: c.name })); }
     return;
   }
-  if (v === 'del') { await deleteCounterAsk(cid); return; } // v8: gleiche Rückfrage wie beim Wischen (mit Rückgängig + Fotos)
+  if (v === 'del') { deleteCounterNow(cid); return; } // v9: wie beim Wischen – sofort löschen, mit Rückgängig (inkl. Fotos)
   if (!v || typeof v !== 'object') return;
   const saved = upsertCounter({ id: cur.id, ...v }); render();
   toast(c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
@@ -2818,7 +2895,26 @@ async function copyText(txt) {
   if (ok) toast(t('copied'));
   else openSheet(`<h2>${esc(t('textTitle'))}</h2><div class="field"><textarea readonly style="min-height:240px">${esc(txt)}</textarea></div><div class="row"><button class="btn" data-v="no" type="button">${esc(t('close'))}</button></div>`);
 }
-async function menu() {
+/* v9: Daten-Menü im iOS-26-Stil – Glas-Segmente, gruppierte Liste mit farbigen Symbolen */
+const mLbl = s => String(s).replace(/^[^\p{L}\p{N}]+\s+/u, ''); // führendes Emoji weg (Symbol kommt als Kachel)
+const MICO = {
+  review: ['#ff9500', '<rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>'],
+  archive: ['#a2845e', '<rect x="3.5" y="4.5" width="17" height="4.5" rx="1.2"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>'],
+  import: ['#34c759', '<path d="M12 4v10M8 10.5l4 4 4-4"/><path d="M4 14.5v3A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-3"/>'],
+  copy: ['#5856d6', '<rect x="8.5" y="8.5" width="11" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H7A2.5 2.5 0 0 0 4.5 6v8A2.5 2.5 0 0 0 7 16.5h1.5"/>'],
+  update: ['#32ade6', '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4v4.5H15"/>'],
+  wipe: ['#ff3b30', '<path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7M10.5 11v5M13.5 11v5"/>'],
+};
+const mSvg = (p, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${p}</svg>`;
+const M_CHEV = '<svg class="m-chev" viewBox="0 0 8 14" aria-hidden="true" focusable="false"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const mRow = (id, v, ic, label, o = {}) => `<button class="m-row${o.danger ? ' danger' : ''}" type="button" data-v="${v}" id="${id}"${o.val != null ? ` aria-label="${esc(label + ' (' + o.val + ')')}"` : ''}>`
+  + `<span class="m-ic" style="--ic:${MICO[ic][0]}" aria-hidden="true">${mSvg(MICO[ic][1])}</span><span class="m-lb">${esc(label)}</span>`
+  + (o.val != null ? `<span class="m-val" aria-hidden="true">${esc(o.val)}</span>` : '') + (o.nav ? M_CHEV : '') + '</button>';
+const mSeg = (id, items, aria) => { const i = Math.max(0, items.findIndex(x => x.on));
+  return `<div class="gseg${items.length > 3 ? ' many' : ''}" id="${id}" role="group" aria-label="${esc(aria)}" style="--n:${items.length};--i:${i}"><span class="gseg-th" aria-hidden="true"></span>`
+    + items.map(x => `<button class="gseg-b${x.on ? ' on' : ''}" type="button"${x.v ? ` data-v="${x.v}"` : ''} ${x.attr} aria-pressed="${!!x.on}"${x.aria ? ` aria-label="${esc(x.aria)}"` : ''}>${esc(x.label)}</button>`).join('') + '</div>'; };
+let menuFrom = null;
+async function menu(st = 0, from = null) {
   setTimeout(async () => { // v7c: Speicher der Fotos und ungefähre Backup-Größe
     await photoGc(); const ps = await photoStats(), m = $('mPhotos'), b = $('mBackupSize'); if (!m || !b) return;
     m.textContent = ps.n ? t('photosUsed', { n: t('photosCount', { n: ps.n }), s: fmtBytes(ps.bytes) }) : t('photosNone');
@@ -2827,38 +2923,47 @@ async function menu() {
     preparePhotos();
   }, 0);
   setTimeout(async () => { try { const ks = (await caches.keys()).filter(k => k.startsWith('zaehler-')); const el = $('mCache'); if (el && ks.length) el.textContent = ` · Cache ${ks.join(', ')}`; } catch (e) {} }, 0);
-  const v = await openSheet(`<h2>${esc(t('menuTitle'))}</h2>
-    <span class="lbl">🌐 ${esc(t('language'))}</span><div class="langs" id="mLangs">${langButtons()}</div>
-    <span class="lbl">🌓 ${esc(t('appearance'))}</span><div class="themes" id="mThemes">${['auto', 'light', 'dark'].map(m =>
-      `<button class="btn${m === themeMode() ? ' on' : ''}" type="button" data-v="theme:${m}" data-theme-v="${m}">${esc(t('theme' + m[0].toUpperCase() + m.slice(1)))}</button>`).join('')}</div>
-    <p class="small" style="margin:0 2px 12px">${esc(t('themeHelp'))}</p>
-    <span class="lbl">💾 ${esc(t('backupSection'))}</span>
-    <div class="menu menu-sec" id="mBackup">
-    <button class="btn primary" type="button" data-v="export" id="mExport">${esc(t('mExport'))}</button>
-    <p class="small" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p>
-    <p class="small" id="mPhotos"></p><p class="small" id="mBackupSize"></p></div>
-    <span class="lbl">⏰ ${esc(t('reminder'))}</span>
-    <div class="ivs" id="mIvs">${Object.keys(IVS).map(k => `<button class="btn${k === backupInterval() ? ' on' : ''}" type="button" data-v="iv:${k}" data-iv="${k}">${esc(t('iv' + k[0].toUpperCase() + k.slice(1)))}</button>`).join('')}</div>
-    <div class="menu">
-    <button class="btn" type="button" data-v="review" id="mReview">${esc(t('reviewMenu'))}</button>
-    ${db.counters.some(c => c.archived) ? `<button class="btn" type="button" data-v="archive" id="mArchive">${esc(t('archiveBtn', { n: db.counters.filter(c => c.archived).length }))}</button>` : ''}
-    <button class="btn" type="button" data-v="import" id="mImport">${esc(t('mImport'))}</button>
-    <button class="btn" type="button" data-v="copy" id="mCopy">${esc(t('mCopy'))}</button>
-    <button class="btn" type="button" data-v="seed" id="mSeed">${esc(t('mSeed', { name: t('seedName') }))}</button>
-    <button class="btn danger" type="button" data-v="wipe" id="mWipe">${esc(t('mWipe'))}</button></div>
-    <button class="btn" type="button" data-v="update" id="mUpdate">${esc(t('mUpdate'))}</button>
-    <p class="small" id="mVersion">${t('menuNoteHtml', { app: esc(t('appTitle')), v: APP_BUILD, d: esc(fmtDate(localDateNoon(APP_DATE))) })}<span id="mCache"></span></p>
-    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
-  if (v && v.startsWith('lang:')) { setLang(v.slice(5)); menu(); }
-  else if (v && v.startsWith('iv:')) { lsSet(BK_IV, v.slice(3)); updateBanner(); menu(); }
-  else if (v && v.startsWith('theme:')) { setTheme(v.slice(6)); menu(); }
+  const nArch = db.counters.filter(c => c.archived).length;
+  const v = await openSheet(`<div class="mx"><h2>${esc(t('menuTitle'))}</h2>
+    <div class="m-h">${esc(t('language'))}</div>
+    ${mSeg('mLangs', LANGS.map(l => ({ v: 'lang:' + l, attr: `data-lang="${l}"`, label: `${I18N[l].flag} ${l.toUpperCase()}`, aria: I18N[l].langName, on: l === lang })), t('language'))}
+    <div class="m-h">${esc(t('appearance'))}</div>
+    ${mSeg('mThemes', ['auto', 'light', 'dark'].map(m => ({ attr: `data-theme-v="${m}"`, label: t('theme' + m[0].toUpperCase() + m.slice(1)), on: m === themeMode() })), t('appearance'))}
+    <p class="m-foot">${esc(t('themeHelp'))}</p>
+    <div class="m-h">${esc(t('backupSection'))}</div>
+    <div class="m-card" id="mBackup">
+      <button class="m-cta" type="button" data-v="export" id="mExport" aria-label="${esc(mLbl(t('mExport')))}">${mSvg('<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8 10.5H6.5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H16"/>')}<span>${esc(t('backupNow'))}</span></button>
+      <p class="m-note" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p>
+      <p class="m-note" id="mPhotos"></p><p class="m-note" id="mBackupSize"></p></div>
+    <div class="m-h">${esc(t('reminder'))}</div>
+    ${mSeg('mIvs', Object.keys(IVS).map(k => ({ attr: `data-iv="${k}"`, label: t('iv' + k[0].toUpperCase() + k.slice(1)), on: k === backupInterval() })), t('reminder'))}
+    <div class="m-group">${mRow('mReview', 'review', 'review', mLbl(t('reviewMenu')), { nav: true })}${nArch ? mRow('mArchive', 'archive', 'archive', t('archiveTitle'), { nav: true, val: nArch }) : ''}</div>
+    <div class="m-group">${mRow('mImport', 'import', 'import', mLbl(t('mImport')))}${mRow('mCopy', 'copy', 'copy', mLbl(t('mCopy')))}${mRow('mUpdate', 'update', 'update', mLbl(t('mUpdate')))}</div>
+    <div class="m-group">${mRow('mWipe', 'wipe', 'wipe', mLbl(t('mWipe')), { danger: true })}</div>
+    <p class="m-foot" id="mVersion">${t('menuNoteHtml', { app: esc(t('appTitle')), v: APP_BUILD, d: esc(fmtDate(localDateNoon(APP_DATE))) })}<span id="mCache"></span></p>
+    <button class="m-close" type="button" data-v="no">${esc(t('close'))}</button></div>`, box => {
+      box.scrollTop = st; // Auswahl ändern: Menü bleibt an derselben Stelle
+      // Darstellung + Erinnerung: direkt im offenen Menü umschalten, der Daumen gleitet zur neuen Wahl
+      box.querySelectorAll('#mThemes, #mIvs').forEach(sg => sg.querySelectorAll('.gseg-b').forEach((b, i) => b.addEventListener('click', () => {
+        if (b.classList.contains('on')) return;
+        sg.querySelectorAll('.gseg-b').forEach(x => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
+        sg.style.setProperty('--i', i);
+        if (b.dataset.iv) { lsSet(BK_IV, b.dataset.iv); updateBanner(); } else setTheme(b.dataset.themeV);
+      })));
+      // Sprache: Menü wird neu beschriftet (gleiche Stelle), Daumen gleitet von der alten Wahl
+      const sl = $('mLangs');
+      sl.addEventListener('click', () => { menuFrom = { i: +getComputedStyle(sl).getPropertyValue('--i') || 0, st: box.scrollTop }; }, true);
+      if (from) { const to = sl.style.getPropertyValue('--i'); sl.style.setProperty('--i', from.i);
+        requestAnimationFrame(() => requestAnimationFrame(() => sl.style.setProperty('--i', to))); }
+    });
+  const f = menuFrom; menuFrom = null;
+  if (v && v.startsWith('lang:')) { setLang(v.slice(5)); menu(f ? f.st : 0, f); }
   else if (v === 'update') checkForUpdates();
   else if (v === 'review') { const ys = yearsWithData(), now = new Date().getFullYear(); navTo('y=' + (ys.includes(now) || !ys.length ? now : ys[0])); }
   else if (v === 'archive') archiveList();
   else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
   else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
-  else if (v === 'seed') { addEierSeed(); render(); toast(t('seedAdded', { name: t('seedName') })); }
   else if (v === 'wipe') {
     if (await confirmBox(t('wipeQ'), t('wipeAll'), true)) {
       db = freshDb(); db.settings.onboarded = true; save(); photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); go(null); render(); toast(t('wiped'));
@@ -2878,7 +2983,7 @@ async function archiveList() {
         w.querySelector('[data-sw=del]').onclick = () => { swClose(false); closeSheet('del:' + id); }; });
     });
   swOpen = null;
-  if (v && v.startsWith('del:')) { const r = await deleteCounterAsk(v.slice(4)); if (!r && sortedCounters().some(c => c.archived)) archiveList(); return; }
+  if (v && v.startsWith('del:')) { deleteCounterNow(v.slice(4)); return; }
   if (v && v.startsWith('open:')) go(v.slice(5));
   else if (v && v.startsWith('restore:')) { const c = counter(v.slice(8)); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); }
 }
