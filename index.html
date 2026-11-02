@@ -18,16 +18,16 @@
 <style>
   :root {
     --bg: #f2f2f7; --card: #ffffff; --ink: #1c1c1e; --muted: #8e8e93; --line: #e5e5ea;
-    --soft: #f2f2f7; --danger: #ff3b30; --accent: #007aff; --shadow: 0 1px 3px rgba(0,0,0,.07);
+    --soft: #f2f2f7; --danger: #ff3b30; --orange: #ff9500; --accent: #007aff; --shadow: 0 1px 3px rgba(0,0,0,.07);
     --toast: #1c1c1e; --seg-on: #fff; --backdrop: rgba(0,0,0,.4); color-scheme: light;
   }
   /* Dunkelmodus: folgt dem System, außer im Menü ist „Hell“/„Dunkel“ gewählt (html[data-theme]) */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #38383a; --soft: #2c2c2e; --shadow: none;
-      --accent: #0a84ff; --danger: #ff453a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
+      --accent: #0a84ff; --danger: #ff453a; --orange: #ff9f0a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
   }
   :root[data-theme="dark"] { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #38383a; --soft: #2c2c2e; --shadow: none;
-      --accent: #0a84ff; --danger: #ff453a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
+      --accent: #0a84ff; --danger: #ff453a; --orange: #ff9f0a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--ink);
     font: 17px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
@@ -39,8 +39,15 @@
   /* Kopfzeile: 8 px tiefer (relativ -> übriges Layout unverändert), ganzzahlige Zeilenhöhe -> Text auf ganzen Pixeln */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; position: relative; top: 8px; }
   h1 { font-size: 34px; margin: 4px 0 12px; letter-spacing: -0.6px; }
-  .iconbtn { border: 0; background: transparent; color: var(--accent); font-size: 17px; font-weight: 500; line-height: 24px;
-    min-height: 44px; min-width: 44px; padding: 0 6px; }
+  /* v8: Navigationsleiste wie iOS – 17 px Systemschrift, normal (400), Systemblau, ganzzahlige Zeilenhöhe, 44×44 Tippfläche, gedrückt = transparent */
+  .iconbtn { border: 0; background: transparent; color: var(--accent); font: 400 17px/22px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.41px; min-height: 44px; min-width: 44px; padding: 0 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    -webkit-tap-highlight-color: transparent; transition: opacity .3s ease-out; -webkit-font-smoothing: antialiased; }
+  .iconbtn:active { opacity: .25; transition: none; }
+  .iconbtn.nav-back { padding: 0 8px 0 0; margin-left: -1px; gap: 6px; }
+  .iconbtn.nav-back svg { width: 12px; height: 21px; flex: none; display: block; }
+  .top .iconbtn:last-child:not(:first-child) { padding-right: 0; margin-right: -1px; }
+  .top .iconbtn:first-child:not(.nav-back) { padding-left: 0; }
   .iconbtn.big { font-size: 24px; }
 
   /* Kacheln */
@@ -331,6 +338,28 @@
   .rv-grid b { font-size: 16px; font-variant-numeric: tabular-nums; }
   .rv-hint { text-align: center; color: var(--muted); font-size: 13px; margin: 16px 0 0; }
   #rvYears { margin-bottom: 14px; }
+  /* v8: Wischen nach links (Aktionen wie in iOS Mail) */
+  .swipe { position: relative; border-radius: 18px; }
+  .swipe > .tile, .swipe > .sw-front { position: relative; z-index: 1; touch-action: pan-y; }
+  .swipe.sw-anim > .tile, .swipe.sw-anim > .sw-front { transition: transform .26s cubic-bezier(.2,.8,.2,1); }
+  .sw-acts { position: absolute; top: 0; bottom: 0; right: 0; display: flex; border-radius: 0 18px 18px 0; overflow: hidden; visibility: hidden; }
+  .swipe.sw-on > .sw-acts { visibility: visible; }
+  .sw-acts button { border: 0; min-width: 84px; padding: 0 10px; color: #fff; font-size: 13px; font-weight: 600; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px; line-height: 1.15; }
+  .sw-acts button .sw-ic { font-size: 22px; line-height: 1; }
+  .sw-acts button:active { filter: brightness(.88); }
+  .sw-acts .sw-arch { background: var(--orange); }
+  .sw-acts .sw-del { background: var(--danger); }
+  .sw-acts .sw-rest { background: var(--accent); }
+  .sw-row { border-radius: 12px; }
+  .sw-row > .sw-acts { border-radius: 0 12px 12px 0; }
+  .sw-row > .sw-front { background: var(--card); }
+  .sw-row .sw-acts button { min-width: 76px; font-size: 12px; }
+  #sheet .sw-ask { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+  #sheet .sw-col { display: grid; gap: 10px; margin-top: 16px; }
+  #sheet .sw-col .btn { width: 100%; }
+  .swipe.sw-on:not(.sw-anim) > .tile, .swipe.sw-on:not(.sw-anim) > .sw-front { transition: none; }
+  .swipe.dragging > .tile { box-shadow: 0 8px 24px rgba(0,0,0,.18); outline: 2px solid var(--c); }
   /* Toast */
   #toast { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 16px); margin: 0 auto; max-width: 500px;
     background: var(--toast); color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
@@ -344,6 +373,138 @@
   #sheet .langs .btn.on { background: var(--accent); color: #fff; }
   .langlist .btn { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 0 14px; }
   #sheet .langlist .btn.on { background: var(--accent); color: #fff; }
+  /* ================= v8: „Liquid Glass“ (iOS 26) – durchscheinende Flächen, Glanzkante, weiche Schatten ================= */
+  :root {
+    --bg: #eef1f7;
+    --glass-bg: rgba(255,255,255,.60); --glass-strong: rgba(255,255,255,.72); --glass-fill: rgba(120,120,128,.14);
+    --glass-hl: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.35), inset 0 0 0 .5px rgba(255,255,255,.7);
+    --glass-shadow: 0 12px 32px -12px rgba(28,40,90,.20), 0 1px 3px rgba(28,40,90,.07);
+    --glass-blur: blur(24px) saturate(180%);
+    --glass-line: rgba(60,60,67,.14);
+    --blobs: radial-gradient(42% 32% at 8% 6%, rgba(0,122,255,.26), transparent 72%),
+             radial-gradient(40% 30% at 96% 22%, rgba(255,45,85,.18), transparent 72%),
+             radial-gradient(48% 34% at 12% 62%, rgba(52,199,89,.16), transparent 72%),
+             radial-gradient(46% 36% at 92% 84%, rgba(175,82,222,.20), transparent 72%),
+             radial-gradient(40% 30% at 50% 100%, rgba(255,159,10,.14), transparent 72%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #000;
+      --glass-bg: rgba(44,44,48,.50); --glass-strong: rgba(36,36,40,.70); --glass-fill: rgba(120,120,128,.26);
+      --glass-hl: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.04), inset 0 0 0 .5px rgba(255,255,255,.10);
+      --glass-shadow: 0 12px 32px -12px rgba(0,0,0,.70), 0 1px 2px rgba(0,0,0,.40); --glass-line: rgba(84,84,88,.45);
+      --blobs: radial-gradient(42% 32% at 8% 6%, rgba(10,132,255,.32), transparent 72%), radial-gradient(40% 30% at 96% 22%, rgba(255,55,95,.20), transparent 72%),
+               radial-gradient(48% 34% at 12% 62%, rgba(48,209,88,.14), transparent 72%), radial-gradient(46% 36% at 92% 84%, rgba(191,90,242,.26), transparent 72%),
+               radial-gradient(40% 30% at 50% 100%, rgba(255,159,10,.12), transparent 72%); }
+  }
+  :root[data-theme="dark"] { --bg: #000;
+      --glass-bg: rgba(44,44,48,.50); --glass-strong: rgba(36,36,40,.70); --glass-fill: rgba(120,120,128,.26);
+      --glass-hl: inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(255,255,255,.04), inset 0 0 0 .5px rgba(255,255,255,.10);
+      --glass-shadow: 0 12px 32px -12px rgba(0,0,0,.70), 0 1px 2px rgba(0,0,0,.40); --glass-line: rgba(84,84,88,.45);
+      --blobs: radial-gradient(42% 32% at 8% 6%, rgba(10,132,255,.32), transparent 72%), radial-gradient(40% 30% at 96% 22%, rgba(255,55,95,.20), transparent 72%),
+               radial-gradient(48% 34% at 12% 62%, rgba(48,209,88,.14), transparent 72%), radial-gradient(46% 36% at 92% 84%, rgba(191,90,242,.26), transparent 72%),
+               radial-gradient(40% 30% at 50% 100%, rgba(255,159,10,.12), transparent 72%); }
+  html { background: var(--bg); }
+  body { background: transparent; }
+  /* farbige, weiche Flecken hinter dem Glas (fest, ohne Weichzeichner -> günstig) */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--blobs), var(--bg); }
+  /* Große Überschrift wie iOS */
+  h1 { font: 700 34px/41px -apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: .37px;
+    margin: 6px 0 12px; -webkit-font-smoothing: antialiased; }
+  .d-head h1 { font: 700 28px/34px -apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; letter-spacing: .36px; }
+  /* Schwebende Navigationsleiste: oben durchsichtig, beim Scrollen Glas */
+  .top { position: sticky; top: 0; z-index: 15; margin: calc(-10px - env(safe-area-inset-top)) -16px 0; padding: calc(env(safe-area-inset-top) + 14px) 16px 8px;
+    transition: background-color .25s, box-shadow .25s; }
+  html.scrolled .top { background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: 0 .5px 0 var(--glass-line); }
+  /* Glas-Kapseln für Kopfzeilen-Knöpfe (🌐 DE, Daten, 🔍, Zurück, Bearbeiten) */
+  .top .iconbtn, #searchBtn { background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 22px; padding: 0 15px; margin: 0; }
+  .top .iconbtn.nav-back { padding: 0 15px 0 11px; gap: 6px; }
+  .top .iconbtn:first-child:not(.nav-back), .top .iconbtn:last-child:not(:first-child) { padding: 0 15px; margin: 0; }
+  #searchBtn { width: 44px; padding: 0; font-size: 18px; right: 0; top: -2px; }
+  .search::before { z-index: 1; }
+  /* Kacheln: helles Glas (ohne Weichzeichner, damit Scrollen flüssig bleibt), Farbe als Tönung */
+  .tile { background: var(--glass-bg); border-left: 0; border-radius: 26px; box-shadow: var(--glass-hl), var(--glass-shadow);
+    background-image: linear-gradient(100deg, color-mix(in srgb, var(--c) 13%, transparent), transparent 46%); }
+  .tile.goal-done { background-color: color-mix(in srgb, var(--c) 12%, var(--glass-bg)); }
+  .tile-main { padding: 14px 8px 14px 16px; }
+  .emoji { border-radius: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  /* +1: getöntes Glas (Zählerfarbe + Glanz) als schwebende Kapsel */
+  .plus { margin: 8px; width: 84px; border-radius: 20px; background-color: var(--c);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 48%, rgba(0,0,0,.04));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.28), 0 6px 16px -6px color-mix(in srgb, var(--c) 70%, transparent);
+    text-shadow: 0 1px 1px rgba(0,0,0,.12); }
+  .plus:active { transform: scale(.96); filter: brightness(.95); }
+  #dPlus { border-radius: 30px; background-color: var(--c);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 50%, rgba(0,0,0,.05));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.28), 0 12px 28px -10px color-mix(in srgb, var(--c) 70%, transparent); }
+  /* Karten, Statistik, Knöpfe */
+  .card, .stat, .since { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
+  .card { border-radius: 26px; } .stat { border-radius: 20px; } .since { border-radius: 20px; }
+  .btn { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 25px; }
+  .btn.primary { background: var(--accent); background-image: linear-gradient(180deg, rgba(255,255,255,.25), rgba(255,255,255,0) 55%); }
+  #newBtn { border-radius: 26px; border: 1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--glass-bg) 60%, transparent); }
+  ol.rows li { border-top-color: var(--glass-line); }
+  .seg { background: var(--glass-fill); border-radius: 12px; }
+  .seg button { border-radius: 10px; }
+  .amt-row button { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 24px; }
+  .amt-row input { background: var(--glass-fill); border-color: transparent; border-radius: 24px; }
+  /* Filter-Chips + Suche */
+  .chips button { background: var(--glass-bg); box-shadow: var(--glass-hl), 0 1px 3px rgba(0,0,0,.06); border-radius: 18px; }
+  .chips button.on { background: var(--accent); background-image: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 60%); }
+  .search input { border-radius: 22px; background: var(--glass-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-hl), var(--glass-shadow); min-height: 44px; }
+  .search input:focus { box-shadow: var(--glass-hl), 0 0 0 2px var(--accent); }
+  .hits { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 22px; }
+  /* Dialoge: schwebendes Glas-Blatt */
+  #sheet { background: color-mix(in srgb, var(--backdrop) 75%, transparent); }
+  #sheet .box { width: calc(100% - 16px); margin: 0 8px calc(env(safe-area-inset-bottom) + 8px); border-radius: 34px;
+    background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%);
+    box-shadow: var(--glass-hl), 0 20px 60px -10px rgba(0,0,0,.35); padding: 22px 18px 18px; max-height: calc(92vh - 8px); }
+  #sheet .btn { background: var(--glass-fill); box-shadow: inset 0 0 0 .5px rgba(255,255,255,.18); border-radius: 25px; }
+  #sheet .btn.primary { background: var(--accent); }
+  .sw-row > .sw-front { background: transparent; }
+  .sw-row.sw-on > .sw-front { background: var(--card); border-radius: 14px; }
+  /* Meldung: dunkle Glas-Kapsel */
+  #toast { background: rgba(28,28,30,.72); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
+    border-radius: 26px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 .5px rgba(255,255,255,.10), 0 12px 30px -8px rgba(0,0,0,.4); }
+  #toast button { border-radius: 18px; background: rgba(255,255,255,.16); }
+  /* Wisch-Aktionen: getönte Glas-Kapseln */
+  .sw-acts { gap: 8px; padding-left: 8px; border-radius: 0; overflow: visible; }
+  .sw-acts button { border-radius: 24px; min-width: 80px;
+    background-image: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.04) 55%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 0 0 .5px rgba(255,255,255,.25), var(--glass-shadow); }
+  .sw-row > .sw-acts { gap: 6px; padding-left: 6px; } .sw-row .sw-acts button { border-radius: 14px; }
+  .swipe.sw-on > .tile { border-radius: 26px; }
+  /* Weniger Transparenz: einfarbige Flächen */
+  @media (prefers-reduced-transparency: reduce) {
+    :root:root:root { --glass-bg: var(--card); --glass-strong: var(--card); --blobs: linear-gradient(var(--bg), var(--bg)); }
+    *, *::before { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+    #toast { background: var(--toast); }
+  }
+  /* Weniger Bewegung */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+  /* v8: Runterwischen zum Schließen (Griff, Seite folgt dem Finger, Startseite dahinter) */
+  html { overscroll-behavior-y: none; }
+  #sheet .box { overscroll-behavior: contain; }
+  .grabber { display: block; width: 36px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--muted) 55%, transparent); margin: 0 auto; pointer-events: none; }
+  .top > .grabber { position: absolute; left: 50%; top: calc(env(safe-area-inset-top) + 5px); margin-left: -18px; }
+  #sheet .box::before { content: ""; display: block; width: 36px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--muted) 55%, transparent); margin: -12px auto 12px; }
+  main.pulled { position: relative; z-index: 3; background: var(--blobs), var(--bg); background-attachment: fixed; border-radius: 38px; overflow: hidden;
+    margin: 0 -16px; padding: 0 16px; transform-origin: 50% 0; box-shadow: 0 -2px 30px rgba(0,0,0,.18); will-change: transform; }
+  main.pulled .top { position: relative; }
+  #home.behind { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; transform-origin: 50% 0; transform: scale(.94);
+    padding: calc(env(safe-area-inset-top) + 10px) calc(env(safe-area-inset-right) + 16px) 0 calc(env(safe-area-inset-left) + 16px); border-radius: 38px; }
+  #pullDim { position: fixed; inset: 0; z-index: 2; background: rgba(0,0,0,.28); pointer-events: none; }
+  .pull-anim { transition: transform .32s cubic-bezier(.2,.9,.25,1.08) !important; }
+  #home.behind.pull-anim { transition: transform .32s ease-out !important; }
+  .pull-ask { position: absolute; left: 16px; right: 16px; bottom: calc(env(safe-area-inset-bottom) + 24px); z-index: 2; padding: 16px; border-radius: 28px; display: grid; gap: 10px;
+    background: var(--glass-strong); -webkit-backdrop-filter: blur(30px) saturate(190%); backdrop-filter: blur(30px) saturate(190%); box-shadow: var(--glass-hl), 0 20px 50px -10px rgba(0,0,0,.45); }
+  .pull-ask p { margin: 0 0 4px; text-align: center; font-weight: 600; font-size: 15px; color: var(--muted); }
+  .pull-ask .btn { background: var(--glass-fill); box-shadow: none; width: 100%; }
+  #sheet { position: fixed; }
 </style>
 </head>
 <body>
@@ -372,7 +533,7 @@
 <!-- v7c: Jahresrückblick -->
 <main id="review" hidden>
   <div class="top">
-    <button class="iconbtn" id="rvBack" type="button" data-i18n="back"></button>
+    <span class="grabber" aria-hidden="true"></span><button class="iconbtn nav-back" id="rvBack" type="button"><svg viewBox="0 0 12 21" aria-hidden="true" focusable="false"><path d="M10 1.75 1.75 10.5 10 19.25" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="back"></span></button>
     <span></span>
   </div>
   <h1 id="rvTitle"></h1>
@@ -383,7 +544,7 @@
 <!-- Detailansicht -->
 <main id="detail" hidden>
   <div class="top">
-    <button class="iconbtn" id="backBtn" type="button" data-i18n="back"></button>
+    <span class="grabber" aria-hidden="true"></span><button class="iconbtn nav-back" id="backBtn" type="button"><svg viewBox="0 0 12 21" aria-hidden="true" focusable="false"><path d="M10 1.75 1.75 10.5 10 19.25" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="back"></span></button>
     <button class="iconbtn" id="editBtn" type="button" data-i18n="edit"></button>
   </div>
   <div class="d-head">
@@ -462,6 +623,7 @@
   </section>
 </main>
 
+<div id="pullDim" hidden></div>
 <div id="sheet" role="dialog" aria-modal="true"><div class="box" id="sheetBox"></div></div>
 <div id="toast" role="status"><span id="toastMsg"></span><span id="toastBtns"></span></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
@@ -477,7 +639,7 @@ de: {
   langName: 'Deutsch', flag: '🇩🇪', locale: 'de-DE',
   appTitle: 'Zähler', menuBtn: '⚙︎ Daten', menuAria: 'Menü', languageAria: 'Sprache',
   emptyState: 'Noch keine Zähler.<br>Leg deinen ersten an – egal was du zählen willst.',
-  newBtn: '＋ Neuer Zähler', back: '‹ Zähler', edit: 'Bearbeiten',
+  newBtn: '＋ Neuer Zähler', back: 'Zähler', edit: 'Bearbeiten',
   statToday: 'Heute', statWeek: 'Woche', statMonth: 'Monat', statTotal: 'Gesamt',
   undoBtn: '↩︎ Rückgängig', backdateBtn: '🕒 Nachtragen', copyOneBtn: '📋 Als Text kopieren',
   roundAbbr: 'R{r}',
@@ -536,7 +698,7 @@ en: {
   langName: 'English', flag: '🇬🇧', locale: 'en-GB',
   appTitle: 'Counter', menuBtn: '⚙︎ Data', menuAria: 'Menu', languageAria: 'Language',
   emptyState: 'No counters yet.<br>Create your first one – whatever you want to count.',
-  newBtn: '＋ New counter', back: '‹ Counters', edit: 'Edit',
+  newBtn: '＋ New counter', back: 'Counters', edit: 'Edit',
   statToday: 'Today', statWeek: 'Week', statMonth: 'Month', statTotal: 'Total',
   undoBtn: '↩︎ Undo', backdateBtn: '🕒 Add past entry', copyOneBtn: '📋 Copy as text',
   roundAbbr: 'R{r}',
@@ -595,7 +757,7 @@ it: {
   langName: 'Italiano', flag: '🇮🇹', locale: 'it-IT',
   appTitle: 'Contatore', menuBtn: '⚙︎ Dati', menuAria: 'Menu', languageAria: 'Lingua',
   emptyState: 'Ancora nessun contatore.<br>Crea il primo – qualunque cosa tu voglia contare.',
-  newBtn: '＋ Nuovo contatore', back: '‹ Contatori', edit: 'Modifica',
+  newBtn: '＋ Nuovo contatore', back: 'Contatori', edit: 'Modifica',
   statToday: 'Oggi', statWeek: 'Settimana', statMonth: 'Mese', statTotal: 'Totale',
   undoBtn: '↩︎ Annulla', backdateBtn: '🕒 Voce passata', copyOneBtn: '📋 Copia come testo',
   roundAbbr: 'C{r}',
@@ -654,7 +816,7 @@ es: {
   langName: 'Español', flag: '🇪🇸', locale: 'es-ES',
   appTitle: 'Contador', menuBtn: '⚙︎ Datos', menuAria: 'Menú', languageAria: 'Idioma',
   emptyState: 'Todavía no hay contadores.<br>Crea el primero – cuenta lo que quieras.',
-  newBtn: '＋ Nuevo contador', back: '‹ Contadores', edit: 'Editar',
+  newBtn: '＋ Nuevo contador', back: 'Contadores', edit: 'Editar',
   statToday: 'Hoy', statWeek: 'Semana', statMonth: 'Mes', statTotal: 'Total',
   undoBtn: '↩︎ Deshacer', backdateBtn: '🕒 Entrada pasada', copyOneBtn: '📋 Copiar como texto',
   roundAbbr: 'R{r}',
@@ -713,7 +875,7 @@ fr: {
   langName: 'Français', flag: '🇫🇷', locale: 'fr-FR',
   appTitle: 'Compteur', menuBtn: '⚙︎ Données', menuAria: 'Menu', languageAria: 'Langue',
   emptyState: 'Aucun compteur pour l’instant.<br>Crée le premier – compte tout ce que tu veux.',
-  newBtn: '＋ Nouveau compteur', back: '‹ Compteurs', edit: 'Modifier',
+  newBtn: '＋ Nouveau compteur', back: 'Compteurs', edit: 'Modifier',
   statToday: 'Aujourd’hui', statWeek: 'Semaine', statMonth: 'Mois', statTotal: 'Total',
   undoBtn: '↩︎ Annuler', backdateBtn: '🕒 Entrée passée', copyOneBtn: '📋 Copier en texte',
   roundAbbr: 'T{r}',
@@ -1118,6 +1280,35 @@ fr: {
 },
 };
 for (const l of Object.keys(I18N_V7C)) Object.assign(I18N[l], I18N_V7C[l]);
+/* ---------- Übersetzungen für Version 8 (Wischen: Archivieren / Löschen) ---------- */
+const I18N_V8 = {
+de: { pullDiscardQ: 'Änderungen verwerfen?', pullDiscard: 'Änderungen verwerfen', pullKeep: 'Weiter bearbeiten', swArchive: 'Archivieren', swDelete: 'Löschen', swRestore: 'Wiederherstellen', swActions: 'Aktionen für {name}',
+  swDeleteQ: 'Zähler „{name}“ mit {entries} löschen?', swDeleteQ0: 'Zähler „{name}“ löschen?',
+  swDeleteInfo: 'Alle Einträge und Fotos dieses Zählers werden gelöscht. Direkt danach kannst du es noch ein paar Sekunden rückgängig machen.',
+  swDeletePhotos: { one: 'Dabei wird auch {n} Foto gelöscht.', other: 'Dabei werden auch {n} Fotos gelöscht.' }, swDeleteTimer: 'Die laufende Zeitmessung wird vorher gestoppt.',
+  swInstead: '🗄 Stattdessen archivieren', swDeleteYes: '🗑 Löschen', swDeleted: '„{name}“ gelöscht', swUndoFail: 'Wiederherstellen nicht möglich.' },
+en: { pullDiscardQ: 'Discard changes?', pullDiscard: 'Discard changes', pullKeep: 'Keep editing', swArchive: 'Archive', swDelete: 'Delete', swRestore: 'Restore', swActions: 'Actions for {name}',
+  swDeleteQ: 'Delete counter “{name}” with {entries}?', swDeleteQ0: 'Delete counter “{name}”?',
+  swDeleteInfo: 'All entries and photos of this counter will be deleted. Right afterwards you can still undo it for a few seconds.',
+  swDeletePhotos: { one: 'This also deletes {n} photo.', other: 'This also deletes {n} photos.' }, swDeleteTimer: 'The running timer will be stopped first.',
+  swInstead: '🗄 Archive instead', swDeleteYes: '🗑 Delete', swDeleted: '“{name}” deleted', swUndoFail: 'Could not restore.' },
+it: { pullDiscardQ: 'Annullare le modifiche?', pullDiscard: 'Annulla modifiche', pullKeep: 'Continua a modificare', swArchive: 'Archivia', swDelete: 'Elimina', swRestore: 'Ripristina', swActions: 'Azioni per {name}',
+  swDeleteQ: 'Eliminare il contatore «{name}» con {entries}?', swDeleteQ0: 'Eliminare il contatore «{name}»?',
+  swDeleteInfo: 'Tutte le voci e le foto di questo contatore verranno eliminate. Subito dopo puoi ancora annullare per qualche secondo.',
+  swDeletePhotos: { one: 'Verrà eliminata anche {n} foto.', other: 'Verranno eliminate anche {n} foto.' }, swDeleteTimer: 'Il timer in corso verrà fermato prima.',
+  swInstead: '🗄 Archivia invece', swDeleteYes: '🗑 Elimina', swDeleted: '«{name}» eliminato', swUndoFail: 'Impossibile ripristinare.' },
+es: { pullDiscardQ: '¿Descartar los cambios?', pullDiscard: 'Descartar cambios', pullKeep: 'Seguir editando', swArchive: 'Archivar', swDelete: 'Eliminar', swRestore: 'Restaurar', swActions: 'Acciones para {name}',
+  swDeleteQ: '¿Eliminar el contador «{name}» con {entries}?', swDeleteQ0: '¿Eliminar el contador «{name}»?',
+  swDeleteInfo: 'Se eliminarán todas las entradas y fotos de este contador. Justo después aún puedes deshacerlo durante unos segundos.',
+  swDeletePhotos: { one: 'También se eliminará {n} foto.', other: 'También se eliminarán {n} fotos.' }, swDeleteTimer: 'Antes se detendrá el cronómetro en marcha.',
+  swInstead: '🗄 Archivar en su lugar', swDeleteYes: '🗑 Eliminar', swDeleted: '«{name}» eliminado', swUndoFail: 'No se pudo restaurar.' },
+fr: { pullDiscardQ: 'Abandonner les modifications ?', pullDiscard: 'Abandonner', pullKeep: 'Continuer la modification', swArchive: 'Archiver', swDelete: 'Supprimer', swRestore: 'Restaurer', swActions: 'Actions pour {name}',
+  swDeleteQ: 'Supprimer le compteur « {name} » avec {entries} ?', swDeleteQ0: 'Supprimer le compteur « {name} » ?',
+  swDeleteInfo: 'Toutes les entrées et photos de ce compteur seront supprimées. Juste après, vous pourrez encore annuler pendant quelques secondes.',
+  swDeletePhotos: { one: '{n} photo sera aussi supprimée.', other: '{n} photos seront aussi supprimées.' }, swDeleteTimer: 'Le chronomètre en cours sera d’abord arrêté.',
+  swInstead: '🗄 Archiver plutôt', swDeleteYes: '🗑 Supprimer', swDeleted: '« {name} » supprimé', swUndoFail: 'Restauration impossible.' },
+};
+for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
 </script>
 <script>
 (() => {
@@ -1133,7 +1324,7 @@ for (const l of Object.keys(I18N_V7C)) Object.assign(I18N[l], I18N_V7C[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 7, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 8, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
@@ -1664,6 +1855,220 @@ function setArchived(id, on) {
   save();
 }
 
+/* ---------- v8: Wischen nach links → Aktionen (Archivieren / Löschen; im Archiv: Wiederherstellen / Löschen) ---------- */
+let swOpen = null; // { wrap, front, close } der aktuell offenen Zeile
+const SW_START = 14; // px; erst ab hier und wenn waagerecht klar überwiegt (Lang-Druck bricht schon bei 12 px ab)
+function swClose(anim = true) { if (swOpen) { const o = swOpen; swOpen = null; o.close(anim); } }
+/** wrap = .swipe (relativ), front = verschiebbares Element, enabled() = darf gewischt werden */
+function bindSwipe(wrap, front, enabled = () => true) {
+  const acts = wrap.querySelector('.sw-acts');
+  let st = null, x = 0, suppress = false;
+  const W = () => acts.offsetWidth || 168;
+  const set = (v, anim) => { x = v; wrap.classList.toggle('sw-anim', !!anim); wrap.classList.toggle('sw-on', v < 0 || !!st);
+    front.style.transform = v ? `translateX(${v}px)` : ''; };
+  const close = (anim = true) => { set(0, anim); wrap.classList.remove('sw-open'); front.removeAttribute('aria-describedby');
+    setTimeout(() => { if (x === 0 && !st) wrap.classList.remove('sw-on', 'sw-anim'); }, anim ? 280 : 0); };
+  const open = () => { if (swOpen && swOpen.wrap !== wrap) swClose(); wrap.classList.add('sw-on', 'sw-open'); set(-W(), true);
+    swOpen = { wrap, front, close }; };
+  wrap.__sw = { open, close };
+  front.addEventListener('pointerdown', e => {
+    if (e.button > 0 || !enabled() || st) return;
+    st = { id: e.pointerId, sx: e.clientX, sy: e.clientY, base: x, active: false, dead: false, t0: e.timeStamp, lx: e.clientX, lt: e.timeStamp };
+  });
+  front.addEventListener('pointermove', e => {
+    if (!st || e.pointerId !== st.id || st.dead) return;
+    const dx = e.clientX - st.sx, dy = e.clientY - st.sy;
+    if (!st.active) {
+      if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { st.dead = true; return; } // senkrecht → Seite scrollt
+      if (Math.abs(dx) < SW_START || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+      if (dx > 0 && st.base === 0) { st.dead = true; return; } // nach rechts bei geschlossener Kachel: nichts
+      st.active = true; suppress = true; if (swOpen && swOpen.wrap !== wrap) swClose();
+      wrap.classList.add('sw-on'); try { front.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    e.preventDefault();
+    let v = st.base + dx; const w = W();
+    if (v > 0) v = 0; if (v < -w) v = -w + (v + w) * 0.3; // Gummiband über die Knöpfe hinaus
+    st.vx = (e.clientX - st.lx) / Math.max(1, e.timeStamp - st.lt); st.lx = e.clientX; st.lt = e.timeStamp;
+    set(v, false);
+  });
+  const end = e => {
+    if (!st || e.pointerId !== st.id) return;
+    const s = st; st = null;
+    if (!s.active) return;
+    const w = W(), fling = s.vx || 0;
+    if ((s.base === 0 && (x < -w * 0.4 || fling < -0.5)) || (s.base !== 0 && x < -w * 0.6 && fling < 0.5)) open(); else { close(); if (swOpen && swOpen.wrap === wrap) swOpen = null; }
+    setTimeout(() => { suppress = false; }, 60);
+  };
+  front.addEventListener('pointerup', end); front.addEventListener('pointercancel', e => { if (st && e.pointerId === st.id && !st.active) { st = null; return; } end(e); });
+  front.addEventListener('click', e => { if (suppress) { e.preventDefault(); e.stopPropagation(); suppress = false; } }, true);
+}
+// Tippen woanders, Scrollen oder eine andere Kachel schließt die offene Zeile. Tippen auf die offene Kachel selbst schließt nur (kein +1).
+document.addEventListener('pointerdown', e => {
+  if (!swOpen) return;
+  const o = swOpen;
+  if (o.wrap.querySelector('.sw-acts').contains(e.target)) return;
+  swClose();
+  if (o.front.contains(e.target)) { e.stopPropagation(); const eat = ev => { ev.preventDefault(); ev.stopPropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 600); }
+}, true);
+document.addEventListener('scroll', () => { if (swOpen) swClose(); }, true);
+// v8: Navigationsleiste wird beim Scrollen zu Glas
+const syncScrolled = () => document.documentElement.classList.toggle('scrolled', window.scrollY > 4);
+window.addEventListener('scroll', syncScrolled, { passive: true }); syncScrolled();
+const swActs = (btns, name) => `<div class="sw-acts" role="group" aria-label="${esc(t('swActions', { name }))}">${btns.map(([cls, ic, label, v]) =>
+  `<button type="button" class="${cls}" data-sw="${v}"><span class="sw-ic" aria-hidden="true">${ic}</span><span>${esc(label)}</span></button>`).join('')}</div>`;
+function archiveWithUndo(cid) {
+  const c = counter(cid); if (!c) return;
+  setArchived(cid, true); go(null); render();
+  toast(t('toastArchived', { name: c.name }), [[t('undo'), () => { setArchived(cid, false); render(); }]], 5000);
+}
+/** Löschen mit Rückfrage („Stattdessen archivieren“) und Rückgängig (inkl. Fotos aus IndexedDB). Ergebnis: 'del' | 'arch' | null */
+async function deleteCounterAsk(cid) {
+  const c = counter(cid); if (!c) return null;
+  const es = entriesOf(cid), nPh = es.filter(e => e.photo).length;
+  const q = es.length ? t('swDeleteQ', { name: c.name, entries: t('entriesWith', { n: es.length }) }) : t('swDeleteQ0', { name: c.name });
+  const info = [t('swDeleteInfo'), nPh ? t('swDeletePhotos', { n: nPh }) : '', c.runningSince ? t('swDeleteTimer') : ''].filter(Boolean).join(' ');
+  const v = await openSheet(`<p class="sw-ask" id="swAsk">${esc(q)}</p><p class="small" id="swInfo">${esc(info)}</p><div class="sw-col">
+    <button class="btn danger" type="button" data-v="del" id="sheetYes">${esc(t('swDeleteYes'))}</button>
+    ${c.archived ? '' : `<button class="btn" type="button" data-v="arch" id="swArch">${esc(t('swInstead'))}</button>`}
+    <button class="btn" type="button" data-v="no" id="swNo">${esc(t('cancel'))}</button></div>`);
+  if (v === 'arch') { archiveWithUndo(cid); return 'arch'; }
+  if (v !== 'del' || !counter(cid)) return null;
+  if (c.runningSince) stopTimerCore(c); // laufende Uhr zuerst anhalten (Sitzung wird Eintrag und kann mit wiederhergestellt werden)
+  const pos = db.counters.indexOf(c), snapC = JSON.parse(JSON.stringify(c)), snapE = JSON.parse(JSON.stringify(entriesOf(cid)));
+  const ids = [...new Set(snapE.map(e => e.photo).filter(Boolean))];
+  const recs = (await Promise.all(ids.map(id => photoGet(id).catch(() => null)))).filter(Boolean);
+  deleteCounter(cid);
+  ids.forEach(id => { photoDel(id).catch(() => {}); forgetPhoto(id); });
+  go(null); render();
+  toast(t('swDeleted', { name: c.name }), [[t('undo'), async () => {
+    if (counter(snapC.id)) return;
+    db.counters.splice(Math.min(pos, db.counters.length), 0, snapC);
+    const have = new Set(db.entries.map(e => e.id)); db.entries.push(...snapE.filter(e => !have.has(e.id)));
+    let lost = 0;
+    for (const r of recs) { try { await photoPut(r); } catch (err) { lost++; snapE.forEach(e => { if (e.photo === r.id) { const x = db.entries.find(y => y.id === e.id); if (x) delete x.photo; } }); } }
+    snapE.forEach(e => { if (e.photo && !recs.some(r => r.id === e.photo)) { const x = db.entries.find(y => y.id === e.id); if (x) delete x.photo; } });
+    save(); render(); toast(lost ? t('photoQuota') : t('toastRestored', { name: snapC.name }));
+  }]], 6000);
+  return 'del';
+}
+
+/* ---------- v8: Runterwischen schließt Seite (Detail, Rückblick) bzw. Blatt (Dialog, Menü, Archiv) – wie iOS-Sheets ---------- */
+// Verlauf: Seiten, die von der Startseite aus geöffnet wurden, merken sich das im history.state; „Zurück“ geht dann per history.back()
+// (kein neuer Verlaufseintrag, Browser-Zurück/Vor bleiben stimmig).
+function navTo(hash) {
+  const fromHome = !location.hash || location.hash === '#';
+  location.hash = hash;
+  history.replaceState({ zBack: fromHome }, '');
+}
+function goHome() { if (history.state && history.state.zBack && location.hash) history.back(); else go(null); }
+const PULL_START = 12, PULL_CLOSE = 0.25, PULL_FLICK = 0.65; // px, Anteil der Höhe, px/ms
+const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isField = el => !!(el && el.closest && el.closest('input, textarea, select, [contenteditable="true"]'));
+const fieldFocused = root => { const a = document.activeElement; return !!(a && a !== document.body && root.contains(a) && isField(a) && a.type !== 'file' && a.type !== 'checkbox' && a.type !== 'radio'); };
+// Formular-Zustand eines Blatts (für „Änderungen verwerfen?“)
+function formState(box) {
+  return JSON.stringify([...box.querySelectorAll('input, textarea, select')].map(x => (x.type === 'checkbox' || x.type === 'radio') ? x.checked : x.type === 'file' ? x.files.length : x.value)
+    .concat([...box.querySelectorAll('.on, [aria-pressed="true"], [aria-checked="true"]')].map(x => x.dataset.v || x.dataset.color || x.dataset.emoji || x.textContent)),
+    [box.querySelector('#phPrev') && box.querySelector('#phPrev').getAttribute('src')]);
+}
+let sheetSnap = null;
+const guardedSheet = box => !!box.querySelector('#fSave, #eSave, #noteSave');
+let pull = null; // laufende Geste
+function pullTarget(target) {
+  if ($('sheet').classList.contains('show')) {
+    const box = $('sheetBox');
+    if (!box.contains(target) || box.scrollTop > 0 || isField(target) || fieldFocused(box) || $('pullAsk')) return null;
+    return { kind: 'sheet', el: box };
+  }
+  const page = !$('detail').hidden ? $('detail') : !$('review').hidden ? $('review') : null;
+  if (!page || window.scrollY > 0 || !page.contains(target) || isField(target) || fieldFocused(page)) return null;
+  return { kind: 'page', el: page };
+}
+function pullBegin(x, y, target, t0) {
+  const tg = pullTarget(target); if (!tg) return false;
+  pull = { ...tg, sx: x, sy: y, active: false, dead: false, d: 0, lt: t0, ly: y, v: 0 };
+  return true;
+}
+function pullApply(d, p = pull) {
+  const H = p.kind === 'sheet' ? p.el.offsetHeight : window.innerHeight, f = Math.max(0, Math.min(1, d / H));
+  p.d = d;
+  if (p.kind === 'sheet') {
+    p.el.style.transform = `translateY(${d}px)`;
+    $('sheet').style.backgroundColor = `color-mix(in srgb, var(--backdrop) ${Math.round((1 - f * 1.4) * 75)}%, transparent)`;
+  } else {
+    p.el.style.transform = `translateY(${d}px) scale(${1 - f * 0.06})`;
+    $('home').style.transform = `scale(${0.94 + f * 0.06})`;
+    $('pullDim').style.opacity = String(Math.max(0, 1 - f * 1.8));
+  }
+}
+function pullActivate() {
+  const p = pull; p.active = true;
+  document.documentElement.classList.add('pulling');
+  if (p.kind === 'page') { renderHome(); $('home').hidden = false; $('home').classList.add('behind'); $('pullDim').hidden = false; p.el.classList.add('pulled'); }
+  else p.el.classList.add('pulled');
+}
+function pullMove(x, y, ts) {
+  const p = pull; if (!p || p.dead) return false;
+  const dx = x - p.sx, dy = y - p.sy;
+  if (!p.active) {
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { p.dead = true; return false; } // waagerecht: z. B. Kachel-/Zeilenwischen
+    if (dy < -6) { p.dead = true; return false; } // nach oben: normales Scrollen
+    if (dy < PULL_START || dy < Math.abs(dx) * 1.5) return dy > 0; // noch unentschieden; Scrollen nach unten verhindern
+    pullActivate();
+  }
+  const raw = dy - PULL_START, d = raw >= 0 ? raw : -Math.min(24, Math.sqrt(-raw) * 3); // Gummiband nach oben
+  const dt = Math.max(1, ts - p.lt); p.v = 0.7 * ((y - p.ly) / dt) + 0.3 * p.v; p.lt = ts; p.ly = y;
+  pullApply(d); return true;
+}
+function pullReset(p) {
+  p.el.classList.remove('pulled', 'pull-anim'); p.el.style.transform = '';
+  $('sheet').style.backgroundColor = ''; $('home').style.transform = '';
+  if ($('home').classList.contains('behind')) { $('home').classList.remove('behind', 'pull-anim'); $('home').hidden = true; } $('pullDim').hidden = true; $('pullDim').style.opacity = '';
+  document.documentElement.classList.remove('pulling');
+}
+function pullEnd() {
+  const p = pull; pull = null; if (!p || !p.active) return false;
+  const H = p.kind === 'sheet' ? p.el.offsetHeight : window.innerHeight;
+  const close = p.d > H * PULL_CLOSE || (p.v > PULL_FLICK && p.d > 24);
+  const ms = reducedMotion() ? 0 : close ? 240 : 360;
+  p.el.classList.add('pull-anim'); if (p.kind === 'page') $('home').classList.add('pull-anim');
+  if (close && p.kind === 'sheet' && guardedSheet(p.el) && sheetSnap !== null && formState(p.el) !== sheetSnap) { // ungespeicherte Änderungen → nachfragen
+    pullApply(0, p); setTimeout(() => { pullReset(p); askDiscard(); }, ms); return true;
+  }
+  pullApply(close ? H + 40 : 0, p);
+  setTimeout(() => {
+    if (close && p.kind === 'sheet') { closeSheet(null); pullReset(p); }
+    else if (close) { p.el.hidden = true; pullReset(p); $('home').hidden = false; goHome(); }
+    else pullReset(p);
+  }, ms);
+  return true;
+}
+function askDiscard() {
+  const box = $('sheetBox'); if ($('pullAsk')) return;
+  const d = document.createElement('div'); d.className = 'pull-ask'; d.id = 'pullAsk'; d.setAttribute('role', 'alertdialog');
+  d.innerHTML = `<p>${esc(t('pullDiscardQ'))}</p><button class="btn danger" type="button" id="pullDiscard">${esc(t('pullDiscard'))}</button>
+    <button class="btn" type="button" id="pullKeep">${esc(t('pullKeep'))}</button>`;
+  $('sheet').appendChild(d);
+  d.querySelector('#pullDiscard').onclick = () => { d.remove(); closeSheet(null); };
+  d.querySelector('#pullKeep').onclick = () => { d.remove(); };
+  setTimeout(() => d.querySelector('#pullKeep').focus(), 30);
+}
+// Touch: touchmove nicht passiv, damit iOS/Chrome beim Runterziehen oben nicht selbst „gummibandeln“
+let eatClick = false;
+document.addEventListener('touchstart', e => { if (e.touches.length !== 1) { pull = null; return; } const tt = e.touches[0]; pullBegin(tt.clientX, tt.clientY, e.target, e.timeStamp); }, { passive: true });
+document.addEventListener('touchmove', e => {
+  if (!pull) return; const tt = e.touches[0];
+  if (pullMove(tt.clientX, tt.clientY, e.timeStamp) && e.cancelable) e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchend', () => { if (pull && pull.active) eatClick = true; if (pullEnd()) setTimeout(() => { eatClick = false; }, 400); else { pull = null; eatClick = false; } });
+document.addEventListener('touchcancel', () => { pullEnd(); });
+// Maus (zum Testen am Computer)
+document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button === 0) pullBegin(e.clientX, e.clientY, e.target, e.timeStamp); });
+document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && pull && pullMove(e.clientX, e.clientY, e.timeStamp)) e.preventDefault(); });
+document.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') return; if (pull && pull.active) { eatClick = true; setTimeout(() => { eatClick = false; }, 400); } pullEnd(); pull = null; });
+document.addEventListener('click', e => { if (eatClick) { eatClick = false; e.preventDefault(); e.stopPropagation(); } }, true);
+document.addEventListener('contextmenu', e => { if (pull && pull.active) e.preventDefault(); }, true);
+
 /* ---------- v7c: Suche (ohne Groß-/Kleinschreibung und Akzente) ---------- */
 const norm = s => String(s ?? '').normalize('NFD').replace(/\p{M}/gu, '').replace(/ß/g, 'ss').toLowerCase();
 const matchAll = (hay, toks) => { const h = norm(hay); return toks.every(k => h.includes(k)); };
@@ -1752,13 +2157,15 @@ let sheetResolve = null;
 function openSheet(html, onMount) {
   return new Promise(res => {
     if (sheetResolve) sheetResolve(null);
-    sheetResolve = res; hideToast(); $('sheetBox').innerHTML = html; $('sheet').classList.add('show');
+    sheetResolve = res; hideToast(); $('sheetBox').innerHTML = html; $('sheet').classList.add('show'); $('sheetBox').scrollTop = 0; // neues Blatt beginnt oben
     $('sheetBox').querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => closeSheet(b.dataset.v)));
     if (onMount) onMount($('sheetBox'));
+    sheetSnap = formState($('sheetBox')); // v8: für „Änderungen verwerfen?“ beim Runterwischen
   });
 }
 function closeSheet(v = null) {
   if (reloadPending) setTimeout(() => { if (reloadPending && !$('sheet').classList.contains('show')) location.reload(); }, 600); // Update nachholen, nachdem gespeichert wurde
+  { const pa = $('pullAsk'); if (pa) pa.remove(); } sheetSnap = null;
   $('sheet').classList.remove('show'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
 $('sheet').addEventListener('click', e => { if (e.target.id === 'sheet' && !ignoreBackdrop) closeSheet(null); });
 const confirmBox = (text, yes = t('ok'), danger = false, no = t('cancel')) =>
@@ -1768,7 +2175,7 @@ const buzz = () => { try { navigator.vibrate && navigator.vibrate(15); } catch (
 
 /* ---------- Routing ---------- */
 const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
-const go = id => { location.hash = id ? 'c=' + encodeURIComponent(id) : ''; };
+const go = id => { if (id) navTo('c=' + encodeURIComponent(id)); else location.hash = ''; };
 window.addEventListener('hashchange', () => { arranging = false; window.scrollTo(0, 0); render(); });
 
 /* ---------- Rendering ---------- */
@@ -1782,6 +2189,7 @@ function render() {
 }
 const FILTER_KEY = 'zaehler-filter';
 function renderHome() {
+  swOpen = null;
   const list = $('list'); list.innerHTML = '';
   const all = sortedCounters(), cs = all.filter(c => !c.archived), arch = all.filter(c => c.archived), cats = categories();
   // v7c: Suche – Feld ab 4 Zählern, sonst hinter 🔍
@@ -1810,7 +2218,7 @@ function renderHome() {
     const sec = document.createElement('section'); sec.className = 'group'; if (g.k !== null) sec.dataset.cat = g.k;
     if (g.k !== null) { const h = document.createElement('h2'); h.className = 'cat-h'; h.textContent = g.k || t('uncategorized'); sec.appendChild(h); }
     const gl = document.createElement('div'); gl.className = 'group-list'; sec.appendChild(gl);
-    g.items.forEach((c, idx) => gl.appendChild(tileEl(c, idx, g.items.length)));
+    g.items.forEach((c, idx) => gl.appendChild(tileEl(c, idx, g.items.length, true)));
     list.appendChild(sec);
   }
 }
@@ -1836,7 +2244,7 @@ function renderSearch(q, cs, arch) {
   if (!mc.length && !ma.length && !notes.length) box.innerHTML = `<p class="search-empty">${esc(t('searchNone', { q }))}</p>`;
   box.querySelectorAll('[data-open-c]').forEach(b => b.onclick = () => { focusEntryId = b.dataset.entry || null; go(b.dataset.openC); });
 }
-function tileEl(c, idx, count) {
+function tileEl(c, idx, count, swipe = false) {
   const es = entriesOf(c.id), L = ledger(es), lab = countLabel(c, es), last = es[es.length - 1], st = stats(es, L);
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
   const el = document.createElement('div');
@@ -1860,8 +2268,17 @@ function tileEl(c, idx, count) {
   bindPlus(el.querySelector('[data-plus]'), c.id);
   el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
   el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
-  bindDrag(el.querySelector('[data-handle]'), el);
-  return el;
+  // v8: Hülle mit Wisch-Aktionen (nur Startseite; nicht in Suche/Anordnen)
+  const w = document.createElement('div'); w.className = 'swipe'; w.dataset.id = c.id;
+  if (swipe) {
+    w.innerHTML = swActs([['sw-arch', '🗄', t('swArchive'), 'arch'], ['sw-del', '🗑', t('swDelete'), 'del']], c.name);
+    w.querySelector('[data-sw=arch]').onclick = () => { swClose(false); archiveWithUndo(c.id); };
+    w.querySelector('[data-sw=del]').onclick = () => { swClose(false); deleteCounterAsk(c.id); };
+    bindSwipe(w, el, () => !arranging);
+  }
+  w.appendChild(el);
+  bindDrag(el.querySelector('[data-handle]'), w);
+  return w;
 }
 function renderDetail(c) {
   const d = $('detail'); d.style.setProperty('--c', c.color);
@@ -2256,17 +2673,11 @@ async function editCounter(cid = null) {
     });
   if (v === 'arch') {
     const on = !c.archived; setArchived(cid, on);
-    if (on) { go(null); render(); toast(t('toastArchived', { name: c.name }), [[t('undo'), () => { setArchived(cid, false); render(); }]], 5000); }
+    if (on) { setArchived(cid, false); archiveWithUndo(cid); }
     else { render(); toast(t('toastRestored', { name: c.name })); }
     return;
   }
-  if (v === 'del') {
-    const n = entriesOf(cid).length;
-    if (await confirmBox(t('deleteCounterQ', { name: c.name, entries: t('entriesWith', { n }) }), t('deleteForever'), true)) {
-      deleteCounter(cid); go(null); render(); toast(t('counterDeleted', { name: c.name }));
-    }
-    return;
-  }
+  if (v === 'del') { await deleteCounterAsk(cid); return; } // v8: gleiche Rückfrage wie beim Wischen (mit Rückgängig + Fotos)
   if (!v || typeof v !== 'object') return;
   const saved = upsertCounter({ id: cur.id, ...v }); render();
   toast(c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
@@ -2442,7 +2853,7 @@ async function menu() {
   else if (v && v.startsWith('iv:')) { lsSet(BK_IV, v.slice(3)); updateBanner(); menu(); }
   else if (v && v.startsWith('theme:')) { setTheme(v.slice(6)); menu(); }
   else if (v === 'update') checkForUpdates();
-  else if (v === 'review') { const ys = yearsWithData(), now = new Date().getFullYear(); location.hash = 'y=' + (ys.includes(now) || !ys.length ? now : ys[0]); }
+  else if (v === 'review') { const ys = yearsWithData(), now = new Date().getFullYear(); navTo('y=' + (ys.includes(now) || !ys.length ? now : ys[0])); }
   else if (v === 'archive') archiveList();
   else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
@@ -2457,11 +2868,17 @@ async function menu() {
 async function archiveList() {
   const arch = sortedCounters().filter(c => c.archived);
   const v = await openSheet(`<h2>🗄 ${esc(t('archiveTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('archiveHelp'))}</p>
-    <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="hit" data-id="${esc(c.id)}">
+    <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="swipe sw-row" data-row="${esc(c.id)}">${swActs([['sw-rest', '↩︎', t('swRestore'), 'restore'], ['sw-del', '🗑', t('swDelete'), 'del']], c.name)}<div class="hit sw-front" data-id="${esc(c.id)}">
       <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
         <span class="hit-t"><b>${esc(c.name)}</b><span>${esc(t('entriesCount', { n: entriesOf(c.id).length }))}${catOf(c) ? ' · ' + esc(catOf(c)) : ''}</span></span></button>
-      <button class="btn" type="button" data-v="restore:${esc(c.id)}">${esc(t('unarchive'))}</button></div>`).join('') : `<p>${esc(t('archiveEmpty'))}</p>`}</div>
-    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+      <button class="btn" type="button" data-v="restore:${esc(c.id)}">${esc(t('unarchive'))}</button></div></div>`).join('') : `<p>${esc(t('archiveEmpty'))}</p>`}</div>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`, box => {
+      box.querySelectorAll('.sw-row').forEach(w => { const id = w.dataset.row; bindSwipe(w, w.querySelector('.sw-front'));
+        w.querySelector('[data-sw=restore]').onclick = () => { swClose(false); closeSheet('restore:' + id); };
+        w.querySelector('[data-sw=del]').onclick = () => { swClose(false); closeSheet('del:' + id); }; });
+    });
+  swOpen = null;
+  if (v && v.startsWith('del:')) { const r = await deleteCounterAsk(v.slice(4)); if (!r && sortedCounters().some(c => c.archived)) archiveList(); return; }
   if (v && v.startsWith('open:')) go(v.slice(5));
   else if (v && v.startsWith('restore:')) { const c = counter(v.slice(8)); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); }
 }
@@ -2578,8 +2995,8 @@ $('newBtn').onclick = () => editCounter();
 // v7c
 $('archiveBtn').onclick = () => archiveList();
 $('unarchBtn').onclick = () => { const c = counter(currentId()); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); };
-$('rvBack').onclick = () => go(null);
-$('rvYears').addEventListener('click', e => { const b = e.target.closest('[data-year]'); if (b) location.hash = 'y=' + b.dataset.year; });
+$('rvBack').onclick = () => goHome();
+$('rvYears').addEventListener('click', e => { const b = e.target.closest('[data-year]'); if (b) { history.replaceState(history.state, '', '#y=' + b.dataset.year); window.scrollTo(0, 0); render(); } }); // Jahr wechseln ersetzt den Eintrag (Zurück → Startseite)
 $('searchIn').addEventListener('input', () => { searchQ = $('searchIn').value; renderHome(); tickClocks(); });
 $('searchIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('searchIn').blur(); } else if (e.key === 'Escape') $('searchX').click(); });
 $('searchX').onclick = () => { searchQ = ''; $('searchIn').value = ''; searchOpen = false; renderHome(); };
@@ -2588,7 +3005,7 @@ $('bbNow').onclick = () => exportJson();
 $('bbLater').onclick = () => { lsSet(BK_SNOOZE, isoNow(new Date(Date.now() + 864e5))); updateBanner(); };
 $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
-$('backBtn').onclick = () => go(null);
+$('backBtn').onclick = () => goHome();
 $('editBtn').onclick = () => editCounter(currentId());
 bindPlus($('dPlus'), null);
 $('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
