@@ -7,7 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Zähler">
-<meta name="theme-color" content="#f2f2f7">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<script>/* Darstellung vor dem ersten Zeichnen setzen (kein Aufblitzen) */try{var m=localStorage.getItem('zaehler-theme');if(m==='light'||m==='dark')document.documentElement.dataset.theme=m;}catch(e){}</script>
 <meta name="format-detection" content="telephone=no">
 <title>Zähler</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -17,10 +19,15 @@
   :root {
     --bg: #f2f2f7; --card: #ffffff; --ink: #1c1c1e; --muted: #8e8e93; --line: #e5e5ea;
     --soft: #f2f2f7; --danger: #ff3b30; --accent: #007aff; --shadow: 0 1px 3px rgba(0,0,0,.07);
+    --toast: #1c1c1e; --seg-on: #fff; --backdrop: rgba(0,0,0,.4); color-scheme: light;
   }
+  /* Dunkelmodus: folgt dem System, außer im Menü ist „Hell“/„Dunkel“ gewählt (html[data-theme]) */
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #2c2c2e; --soft: #2c2c2e; --shadow: none; }
+    :root:not([data-theme="light"]) { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #38383a; --soft: #2c2c2e; --shadow: none;
+      --accent: #0a84ff; --danger: #ff453a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
   }
+  :root[data-theme="dark"] { --bg: #000; --card: #1c1c1e; --ink: #f2f2f7; --muted: #98989f; --line: #38383a; --soft: #2c2c2e; --shadow: none;
+      --accent: #0a84ff; --danger: #ff453a; --toast: #3a3a3c; --seg-on: #636366; --backdrop: rgba(0,0,0,.6); color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--ink);
     font: 17px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
@@ -37,7 +44,7 @@
   .iconbtn.big { font-size: 24px; }
 
   /* Kacheln */
-  #list { display: grid; gap: 12px; }
+  #list { display: block; }
   .tile { display: flex; align-items: stretch; background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
     overflow: hidden; border-left: 6px solid var(--c); transition: transform .1s; }
   .tile.pulse { animation: pulse .5s; }
@@ -110,7 +117,7 @@
   .hint { color: var(--muted); font-size: 14px; margin: 6px 16px 12px; }
 
   /* Sheet / Dialog */
-  #sheet { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
+  #sheet { position: fixed; inset: 0; background: var(--backdrop); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
   #sheet.show { display: flex; }
   #sheet .box { background: var(--card); width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
     border-radius: 22px 22px 0 0; padding: 18px 16px calc(env(safe-area-inset-bottom) + 18px); animation: up .22s ease-out; }
@@ -163,9 +170,170 @@
   .ivs .btn { margin: 0; font-size: 15px; padding: 0 6px; }
   #sheet .ivs .btn.on { background: var(--accent); color: #fff; }
   .menu-sec { margin: 4px 0 12px; }
+  /* v7: Ziele, Diagramm, Erinnerungen, Anordnen */
+  .goal { margin-top: 6px; }
+  .goal .bar { margin-top: 0; }
+  .goal-txt { display: block; font-size: 13px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile.goal-done { background: color-mix(in srgb, var(--c) 9%, var(--card)); }
+  .goal-done .goal-txt, .goal-card.done .goal-txt { color: var(--c); font-weight: 600; }
+  .tile-sub.due { color: var(--c); font-weight: 600; }
+  .goal-card { padding: 12px 16px 14px; }
+  .goal-card h2 { padding: 0 0 8px !important; }
+  .goal-card .bar { width: 100%; height: 10px; border-radius: 5px; }
+  .goal-card .goal-txt { font-size: 15px; margin-top: 6px; }
+  .goal-card.done { background: color-mix(in srgb, var(--c) 9%, var(--card)); }
+  .chart-card { padding-bottom: 12px; }
+  .chart-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 0 16px; }
+  .chart-head h2 { padding: 4px 0 !important; }
+  .seg { display: inline-flex; background: var(--soft); border-radius: 10px; padding: 2px; }
+  .seg button { border: 0; background: transparent; border-radius: 8px; min-height: 32px; padding: 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: var(--seg-on); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  #chart { display: block; width: 100%; height: auto; margin-top: 6px; }
+  #chart text { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--muted); }
+  #chart .val { fill: var(--ink); font-weight: 600; }
+  .chart-foot { display: flex; justify-content: space-between; gap: 8px; padding: 2px 16px 0; font-size: 14px; color: var(--muted); }
+  .chart-foot b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .rem-card { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 15px; }
+  .rem-card .btn { flex: none; min-height: 40px; font-size: 14px; }
+  .lp-hint { margin: 8px 4px 0; font-size: 13px; color: var(--muted); text-align: center; }
+  .goal-row, .rem-row { display: flex; gap: 8px; align-items: center; }
+  .goal-row input { flex: 1; min-width: 0; }
+  .goal-row span { color: var(--muted); }
+  .field select, .field input[type=time] { font: inherit; font-size: 17px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--ink); min-height: 48px; }
+  .field label.check { text-transform: none; letter-spacing: normal; font-size: 16px; color: inherit; margin: 0; }
+  .wdays { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .wdays button { border: 0; background: var(--soft); color: var(--ink); border-radius: 10px; min-width: 42px; min-height: 38px; padding: 0 8px; font-size: 14px; font-weight: 600; }
+  .wdays button.on { background: var(--accent); color: #fff; }
+  #remBox .btn { display: block; width: 100%; margin-top: 4px; }
+  .plus, #dPlus { -webkit-touch-callout: none; }
+  /* Anordnen */
+  #arrangeBtn { display: block; margin: 10px auto 0; border: 0; background: transparent; color: var(--accent); font-weight: 600; min-height: 44px; padding: 0 12px; }
+  #arrangeHint { text-align: center; color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  .arr { display: none; flex: none; align-items: center; gap: 2px; padding: 0 6px; }
+  #list.arranging .arr { display: flex; }
+  #list.arranging .plus { display: none; }
+  #list.arranging .tile-main { pointer-events: none; }
+  .arr button { border: 0; background: var(--soft); color: var(--ink); border-radius: 10px; width: 40px; height: 40px; font-size: 16px; padding: 0; }
+  .arr button:disabled { opacity: .3; }
+  .arr .handle { background: transparent; font-size: 22px; color: var(--muted); touch-action: none; cursor: grab; }
+  .tile.dragging { box-shadow: 0 8px 24px rgba(0,0,0,.18); outline: 2px solid var(--c); }
+  /* v7b: Kategorien, Minus/Mehrfach, Serien, Kosten */
+  .chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 12px; padding: 2px 16px 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button { flex: none; border: 0; border-radius: 17px; min-height: 34px; padding: 0 14px; background: var(--card); color: var(--ink);
+    font-size: 15px; font-weight: 600; box-shadow: var(--shadow); white-space: nowrap; }
+  .chips button.on { background: var(--accent); color: #fff; }
+  .group + .group { margin-top: 18px; }
+  .cat-h { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; margin: 0 4px 8px; }
+  .group-list { display: grid; gap: 12px; }
+  .tile-sub.streak { color: var(--ink); font-weight: 600; }
+  .amt-row { display: flex; gap: 8px; margin-top: 10px; }
+  .amt-row button { flex: 1; min-height: 48px; border: 0; border-radius: 14px; background: var(--card); color: var(--ink); font-size: 18px;
+    font-weight: 700; box-shadow: var(--shadow); font-variant-numeric: tabular-nums; }
+  .amt-row button:active { filter: brightness(.92); }
+  .amt-row button:disabled { opacity: .35; }
+  #dMinus { color: var(--danger); }
+  .amt-row input { width: 92px; flex: none; text-align: center; font: inherit; font-size: 18px; border-radius: 14px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink); min-height: 48px; -webkit-user-select: text; user-select: text; padding: 0 6px; }
+  .cost-card { padding: 12px 16px 14px; }
+  .cost-card h2 { padding: 0 0 8px !important; }
+  .cost-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .cost-grid b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cost-grid span { font-size: 12px; color: var(--muted); }
+  .streak-txt { display: block; font-size: 15px; font-weight: 600; margin-top: 8px; }
+  .streak-txt small { font-weight: 400; color: var(--muted); font-size: 14px; }
+  .chart-sub { display: flex; justify-content: flex-end; padding: 6px 12px 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .price-wrap { position: relative; }
+  .field .price-wrap input { padding-right: 30px; }
+  .price-wrap span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .cat-sugg { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .cat-sugg button { border: 0; background: var(--soft); color: var(--ink); border-radius: 14px; min-height: 32px; padding: 0 12px; font-size: 14px; font-weight: 600; }
+  .when .meta { display: block; font-size: 14px; line-height: 1.3; }
+  .amt { font-weight: 700; color: var(--c); margin-right: 8px; }
+  .amt.neg { color: var(--danger); }
+  .when .cost { color: var(--muted); font-size: 13px; }
+  .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 4px; }
+  .themes .btn { margin: 0; font-size: 15px; padding: 0 4px; }
+  #sheet .themes .btn.on { background: var(--accent); color: #fff; }
+  /* v7c: Suche, Archiv, Zeit messen, Fotos, Jahresrückblick */
+  .h1wrap { position: relative; }
+  #searchBtn { position: absolute; right: -6px; top: 2px; font-size: 22px; }
+  .search { position: relative; margin: 0 0 12px; }
+  .search::before { content: "🔍"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; opacity: .55; pointer-events: none; }
+  .search input { width: 100%; font: inherit; font-size: 17px; padding: 10px 42px 10px 38px; border-radius: 12px; border: 0; background: var(--card); color: var(--ink);
+    box-shadow: var(--shadow); min-height: 44px; -webkit-user-select: text; user-select: text; -webkit-appearance: none; appearance: none; outline: none; }
+  .search input:focus { box-shadow: 0 0 0 2px var(--accent); }
+  .search input::-webkit-search-cancel-button { display: none; }
+  .search button { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); min-width: 40px; min-height: 40px; font-size: 16px; }
+  .hits { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+  .hit { display: flex; gap: 12px; align-items: center; width: 100%; border: 0; background: transparent; text-align: left; padding: 8px 14px; min-height: 56px;
+    border-top: 1px solid var(--line); color: var(--ink); }
+  .hit:first-child { border-top: 0; }
+  .hit .emoji { width: 38px; height: 38px; font-size: 24px; border-radius: 11px; }
+  .hit-t { flex: 1; min-width: 0; display: block; }
+  .hit-t b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hit-t span { display: block; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hit-t .hl { color: var(--ink); }
+  .hit-t .badge, .rv-c-head .badge { display: inline-block; width: auto; color: var(--muted); font-size: 11px; }
+  .chart-foot { flex-wrap: wrap; }
+  #chartRange { margin-left: auto; white-space: nowrap; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); background: var(--soft);
+    border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+  .search-empty { text-align: center; color: var(--muted); padding: 24px 10px; }
+  .search-more { color: var(--muted); font-size: 13px; text-align: center; margin: 8px 0 0; }
+  #searchRes .group + .group { margin-top: 18px; }
+  #archiveBtn { display: block; margin: 4px auto 0; border: 0; background: transparent; color: var(--muted); font-weight: 600; min-height: 44px; padding: 0 12px; }
+  .arch-card { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 15px; margin: 0 0 14px; }
+  .arch-card .btn { flex: none; min-height: 40px; font-size: 14px; }
+  .arch-list .hit { padding: 6px 0; }
+  .arch-list .hit-main { flex: 1; min-width: 0; display: flex; gap: 12px; align-items: center; border: 0; background: transparent; text-align: left; padding: 0; color: var(--ink); min-height: 48px; }
+  #sheet .arch-list .btn { flex: none; min-height: 40px; font-size: 14px; padding: 0 12px; }
+  .plus.timer { font-size: 15px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; line-height: 1.1; letter-spacing: 0; }
+  .plus.timer .ic { font-size: 26px; line-height: 1; }
+  .plus.timer.running, #dPlus.running { background: color-mix(in srgb, var(--c) 78%, #000); }
+  .clock { font-variant-numeric: tabular-nums; }
+  .tile-count.dur { font-size: 21px; }
+  .tile-sub.run { color: var(--c); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stats.dur b { font-size: 15px; line-height: 1.2; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+  .dur-row { display: flex; gap: 8px; align-items: center; }
+  .dur-row input { flex: 1; min-width: 0; }
+  .dur-row span { color: var(--muted); }
+  .type-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #sheet .type-seg .btn.on { background: var(--accent); color: #fff; }
+  .two.one { grid-template-columns: 1fr; }
+  .photo-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .photo-box img { width: 72px; height: 72px; object-fit: cover; border-radius: 12px; flex: none; }
+  #sheet .photo-box .btn { flex: 1 1 130px; min-height: 44px; display: flex; align-items: center; justify-content: center; font-size: 15px; text-transform: none; letter-spacing: normal; color: var(--ink); margin: 0; }
+  #sheet .photo-box .btn.danger { color: var(--danger); }
+  .thumb { flex: none; width: 44px; height: 44px; border-radius: 10px; border: 0; padding: 0; overflow: hidden; background: var(--soft); color: var(--muted); font-size: 18px; }
+  .when .thumb { display: block; width: 64px; height: 64px; margin-top: 6px; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo-view { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 14px; background: var(--soft); display: block; }
+  .rv-sum { display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 8px; margin-top: 0; }
+  .rv-sum .stat b { font-size: 22px; white-space: nowrap; }
+  .rv-card { padding: 12px 16px 14px; }
+  .rv-card h2 { padding: 0 0 8px !important; }
+  .rv-chart { display: block; width: 100%; height: auto; }
+  .rv-chart text { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--muted); }
+  .rv-chart .val { fill: var(--ink); font-weight: 600; }
+  .rv-top { list-style: none; margin: 0; padding: 0; }
+  .rv-top li { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 16px; }
+  .rv-top li b { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rv-top li span { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 15px; white-space: nowrap; }
+  .rv-c { border-left: 6px solid var(--c); }
+  .rv-c-head { display: flex; align-items: center; gap: 10px; }
+  .rv-c-head .emoji { width: 40px; height: 40px; font-size: 26px; border-radius: 12px; }
+  .rv-c-head b { font-size: 17px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0 6px; }
+  .rv-grid span { display: block; font-size: 12px; color: var(--muted); }
+  .rv-grid b { font-size: 16px; font-variant-numeric: tabular-nums; }
+  .rv-hint { text-align: center; color: var(--muted); font-size: 13px; margin: 16px 0 0; }
+  #rvYears { margin-bottom: 14px; }
   /* Toast */
   #toast { position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom) + 16px); margin: 0 auto; max-width: 500px;
-    background: #1c1c1e; color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
+    background: var(--toast); color: #fff; padding: 10px 10px 10px 16px; border-radius: 16px; display: flex; align-items: center; gap: 8px;
     opacity: 0; transform: translateY(30px); transition: all .25s; pointer-events: none; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
   #toast.show { opacity: 1; transform: none; pointer-events: auto; }
   #toastMsg { flex: 1; font-weight: 600; font-size: 15px; }
@@ -188,10 +356,28 @@
     <button class="iconbtn" id="langBtn" type="button"></button>
     <button class="iconbtn" id="menuBtn" type="button" data-i18n="menuBtn" data-i18n-aria="menuAria"></button>
   </div>
-  <h1 data-i18n="appTitle"></h1>
+  <div class="h1wrap"><h1 data-i18n="appTitle"></h1><button class="iconbtn" id="searchBtn" type="button" data-i18n-aria="searchOpen" hidden>🔍</button></div>
+  <div class="search" id="searchWrap" hidden><input type="search" id="searchIn" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" data-i18n-ph="searchPh" data-i18n-aria="searchAria">
+    <button type="button" id="searchX" data-i18n-aria="searchClear" hidden>✕</button></div>
+  <div class="chips" id="chips" role="group" hidden></div>
+  <p id="arrangeHint" data-i18n="arrangeHint" hidden></p>
   <div id="list"></div>
+  <div id="searchRes" hidden></div>
   <div class="empty-state" id="emptyState" hidden><div>🔢</div><p data-i18n-html="emptyState"></p></div>
   <button id="newBtn" type="button" data-i18n="newBtn"></button>
+  <button id="arrangeBtn" type="button" hidden></button>
+  <button id="archiveBtn" type="button" hidden></button>
+</main>
+
+<!-- v7c: Jahresrückblick -->
+<main id="review" hidden>
+  <div class="top">
+    <button class="iconbtn" id="rvBack" type="button" data-i18n="back"></button>
+    <span></span>
+  </div>
+  <h1 id="rvTitle"></h1>
+  <div class="chips" id="rvYears" role="group"></div>
+  <div id="rvBody"></div>
 </main>
 
 <!-- Detailansicht -->
@@ -204,14 +390,54 @@
     <div class="emoji" id="dEmoji"></div>
     <div><h1 id="dName"></h1><div class="tile-sub" id="dSub"></div></div>
   </div>
+  <section class="card arch-card" id="archCard" hidden>
+    <span data-i18n="archivedNote"></span>
+    <button class="btn" id="unarchBtn" type="button" data-i18n="unarchive"></button>
+  </section>
   <button id="dPlus" type="button">+1</button>
-  <div class="stats">
+  <div class="amt-row" id="amtRow">
+    <button type="button" id="dMinus">−1</button>
+    <input type="number" id="dAmt" inputmode="numeric" min="1" max="9999" step="1" placeholder="1" data-i18n-aria="amountAria">
+    <button type="button" id="dAddN">+1</button>
+  </div>
+  <p class="lp-hint" id="lpHint" data-i18n="longPressHint"></p>
+  <p class="lp-hint" id="timerHint" data-i18n="timerHint" hidden></p>
+  <div class="stats" id="statsBox">
     <div class="stat"><b id="sToday">0</b><span data-i18n="statToday"></span></div>
     <div class="stat"><b id="sWeek">0</b><span data-i18n="statWeek"></span></div>
     <div class="stat"><b id="sMonth">0</b><span data-i18n="statMonth"></span></div>
     <div class="stat"><b id="sTotal">0</b><span data-i18n="statTotal"></span></div>
   </div>
   <div class="since" id="sSince"></div>
+
+  <section class="card goal-card" id="goalCard" hidden>
+    <h2 data-i18n="goalLabel"></h2>
+    <div class="bar"><i id="goalFill"></i></div>
+    <span class="goal-txt" id="goalTxt"></span>
+    <span class="streak-txt" id="streakTxt" hidden></span>
+  </section>
+  <section class="card cost-card" id="costCard" hidden>
+    <h2 data-i18n="costsTitle"></h2>
+    <div class="cost-grid">
+      <div><b id="cMonth"></b><span data-i18n="costMonth"></span></div>
+      <div><b id="cYear"></b><span data-i18n="costYear"></span></div>
+      <div><b id="cTotal"></b><span data-i18n="costTotal"></span></div>
+    </div>
+  </section>
+  <section class="card rem-card" id="remCard" hidden>
+    <span id="remInfo"></span>
+    <button class="btn" id="remIcsBtn" type="button" data-i18n="addToCalendar"></button>
+  </section>
+  <section class="card chart-card" id="chartCard">
+    <div class="chart-head"><h2 data-i18n="chartTitle"></h2>
+      <div class="seg" id="chartSeg" role="group">
+        <button type="button" data-mode="day" data-i18n="chartDays"></button><button type="button" data-mode="week" data-i18n="chartWeeks"></button><button type="button" data-mode="month" data-i18n="chartMonths"></button>
+      </div></div>
+    <div class="chart-sub" id="chartWhatRow" hidden><div class="seg" id="chartWhat" role="group">
+      <button type="button" data-what="count" data-i18n="chartCount"></button><button type="button" data-what="cost" data-i18n="chartCost"></button></div></div>
+    <svg id="chart" viewBox="0 0 340 150" role="img"></svg>
+    <div class="chart-foot"><span><span data-i18n="avgPerWeek"></span>: <b id="avgWeek">0</b></span><span id="chartRange"></span></div>
+  </section>
 
   <section class="card" id="roundCard">
     <h2 id="roundTitle"></h2>
@@ -257,7 +483,7 @@ de: {
   roundAbbr: 'R{r}',
   relToday: 'heute', relYesterday: 'gestern', relDayBefore: 'vorgestern', relDaysAgo: 'vor {n} Tagen',
   noEntryYet: 'noch kein Eintrag', lastLabel: 'zuletzt: {t}',
-  justNow: 'gerade eben', durMin: '{n} Min.', durHours: '{n} Std.', durDays: { one: '{n} Tag', other: '{n} Tagen' },
+  justNow: 'gerade eben', durMin: '{n} Min.', durHours: '{n} Std.', durDays: { one: '{n} Tag', other: '{n} Tage' },
   tileRoundFull: 'Runde {r} voll · nächste: Nr. 1', tileRound: 'Runde {r} · nächste Nr. {next}',
   detailRound: '{i}/{n} in Runde {r} · nächste Nr. {next}', detailNewRound: ' (neue Runde)',
   entriesCount: { one: '{n} Eintrag', other: '{n} Einträge' },
@@ -291,8 +517,8 @@ de: {
   errBackupFile: 'Keine gültige Zähler-Backup-Datei.', errBackupCounter: 'Ungültiger Zähler in der Datei.',
   importFailed: '⚠️ Import fehlgeschlagen: {msg}', fileUnreadable: 'Datei unlesbar',
   importTitle: 'Backup importieren',
-  importBodyHtml: 'Die Datei enthält {c} Zähler und {e} Einträge.\n\n<b>Ersetzen</b>: alle aktuellen Daten werden durch das Backup ersetzt.\n<b>Zusammenführen</b>: Backup wird ergänzt, gleiche Einträge nicht doppelt.',
-  merge: 'Zusammenführen', replace: 'Ersetzen', importDone: 'Import fertig: {n} Zähler',
+  importBodyHtml: 'Die Datei enthält {c} und {e}.\n\n<b>Ersetzen</b>: alle aktuellen Daten werden durch das Backup ersetzt.\n<b>Zusammenführen</b>: Backup wird ergänzt, gleiche Einträge nicht doppelt.',
+  merge: 'Zusammenführen', replace: 'Ersetzen', importDone: 'Import fertig: {c}',
   txtNoEntries: '(keine Einträge)', txtRound: 'Runde {r}:', txtRoundFull: 'Runde {r} (voll):', txtRoundPart: 'Runde {r} ({i}/{n}):', txtTotal: 'Gesamt: {n}', txtNoCounters: '(keine Zähler)',
   copied: '📋 In die Zwischenablage kopiert', textTitle: 'Text', close: 'Schließen',
   menuTitle: 'Daten', language: 'Sprache', mExport: '💾 Jetzt sichern (Backup-Datei)', mImport: '📂 Backup importieren', mCopy: '📋 Alles als Text kopieren',
@@ -350,8 +576,8 @@ en: {
   errBackupFile: 'Not a valid counter backup file.', errBackupCounter: 'Invalid counter in the file.',
   importFailed: '⚠️ Import failed: {msg}', fileUnreadable: 'file unreadable',
   importTitle: 'Import backup',
-  importBodyHtml: 'The file contains {c} counters and {e} entries.\n\n<b>Replace</b>: all current data is replaced by the backup.\n<b>Merge</b>: the backup is added, identical entries are not duplicated.',
-  merge: 'Merge', replace: 'Replace', importDone: 'Import done: {n} counters',
+  importBodyHtml: 'The file contains {c} and {e}.\n\n<b>Replace</b>: all current data is replaced by the backup.\n<b>Merge</b>: the backup is added, identical entries are not duplicated.',
+  merge: 'Merge', replace: 'Replace', importDone: 'Import done: {c}',
   txtNoEntries: '(no entries)', txtRound: 'Round {r}:', txtRoundFull: 'Round {r} (full):', txtRoundPart: 'Round {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(no counters)',
   copied: '📋 Copied to clipboard', textTitle: 'Text', close: 'Close',
   menuTitle: 'Data', language: 'Language', mExport: '💾 Back up now (backup file)', mImport: '📂 Import backup', mCopy: '📋 Copy everything as text',
@@ -409,8 +635,8 @@ it: {
   errBackupFile: 'File di backup non valido.', errBackupCounter: 'Contatore non valido nel file.',
   importFailed: '⚠️ Importazione non riuscita: {msg}', fileUnreadable: 'file illeggibile',
   importTitle: 'Importa backup',
-  importBodyHtml: 'Il file contiene {c} contatori e {e} voci.\n\n<b>Sostituisci</b>: tutti i dati attuali vengono sostituiti dal backup.\n<b>Unisci</b>: il backup viene aggiunto, le voci uguali non vengono duplicate.',
-  merge: 'Unisci', replace: 'Sostituisci', importDone: 'Importazione completata: {n} contatori',
+  importBodyHtml: 'Il file contiene {c} e {e}.\n\n<b>Sostituisci</b>: tutti i dati attuali vengono sostituiti dal backup.\n<b>Unisci</b>: il backup viene aggiunto, le voci uguali non vengono duplicate.',
+  merge: 'Unisci', replace: 'Sostituisci', importDone: 'Importazione completata: {c}',
   txtNoEntries: '(nessuna voce)', txtRound: 'Ciclo {r}:', txtRoundFull: 'Ciclo {r} (completo):', txtRoundPart: 'Ciclo {r} ({i}/{n}):', txtTotal: 'Totale: {n}', txtNoCounters: '(nessun contatore)',
   copied: '📋 Copiato negli appunti', textTitle: 'Testo', close: 'Chiudi',
   menuTitle: 'Dati', language: 'Lingua', mExport: '💾 Salva ora (file di backup)', mImport: '📂 Importa backup', mCopy: '📋 Copia tutto come testo',
@@ -468,8 +694,8 @@ es: {
   errBackupFile: 'No es un archivo de copia de seguridad válido.', errBackupCounter: 'Contador no válido en el archivo.',
   importFailed: '⚠️ Error al importar: {msg}', fileUnreadable: 'archivo ilegible',
   importTitle: 'Importar copia de seguridad',
-  importBodyHtml: 'El archivo contiene {c} contadores y {e} entradas.\n\n<b>Reemplazar</b>: todos los datos actuales se sustituyen por la copia.\n<b>Combinar</b>: la copia se añade, las entradas iguales no se duplican.',
-  merge: 'Combinar', replace: 'Reemplazar', importDone: 'Importación terminada: {n} contadores',
+  importBodyHtml: 'El archivo contiene {c} y {e}.\n\n<b>Reemplazar</b>: todos los datos actuales se sustituyen por la copia.\n<b>Combinar</b>: la copia se añade, las entradas iguales no se duplican.',
+  merge: 'Combinar', replace: 'Reemplazar', importDone: 'Importación terminada: {c}',
   txtNoEntries: '(sin entradas)', txtRound: 'Ronda {r}:', txtRoundFull: 'Ronda {r} (completa):', txtRoundPart: 'Ronda {r} ({i}/{n}):', txtTotal: 'Total: {n}', txtNoCounters: '(sin contadores)',
   copied: '📋 Copiado al portapapeles', textTitle: 'Texto', close: 'Cerrar',
   menuTitle: 'Datos', language: 'Idioma', mExport: '💾 Guardar ahora (archivo de copia)', mImport: '📂 Importar copia', mCopy: '📋 Copiar todo como texto',
@@ -527,8 +753,8 @@ fr: {
   errBackupFile: 'Fichier de sauvegarde non valide.', errBackupCounter: 'Compteur non valide dans le fichier.',
   importFailed: '⚠️ Échec de l’import : {msg}', fileUnreadable: 'fichier illisible',
   importTitle: 'Importer une sauvegarde',
-  importBodyHtml: 'Le fichier contient {c} compteurs et {e} entrées.\n\n<b>Remplacer</b> : toutes les données actuelles sont remplacées par la sauvegarde.\n<b>Fusionner</b> : la sauvegarde est ajoutée, les entrées identiques ne sont pas dupliquées.',
-  merge: 'Fusionner', replace: 'Remplacer', importDone: 'Import terminé : {n} compteurs',
+  importBodyHtml: 'Le fichier contient {c} et {e}.\n\n<b>Remplacer</b> : toutes les données actuelles sont remplacées par la sauvegarde.\n<b>Fusionner</b> : la sauvegarde est ajoutée, les entrées identiques ne sont pas dupliquées.',
+  merge: 'Fusionner', replace: 'Remplacer', importDone: 'Import terminé : {c}',
   txtNoEntries: '(aucune entrée)', txtRound: 'Tour {r} :', txtRoundFull: 'Tour {r} (complet) :', txtRoundPart: 'Tour {r} ({i}/{n}) :', txtTotal: 'Total : {n}', txtNoCounters: '(aucun compteur)',
   copied: '📋 Copié dans le presse-papiers', textTitle: 'Texte', close: 'Fermer',
   menuTitle: 'Données', language: 'Langue', mExport: '💾 Sauvegarder maintenant (fichier)', mImport: '📂 Importer une sauvegarde', mCopy: '📋 Tout copier en texte',
@@ -545,6 +771,353 @@ fr: {
 };
 const LANGS = ['de', 'en', 'it', 'es', 'fr'];
 const LANG_KEY = 'zaehler-lang';
+/* ---------- Übersetzungen für Version 7 (Statistik, Ziele, Erinnerungen, Notizen, Anordnen) ---------- */
+const I18N_V7 = {
+de: {
+  chartTitle: 'Verlauf', chartDays: 'Tage', chartWeeks: 'Wochen', chartMonths: 'Monate', chartEmpty: 'Noch keine Einträge im Zeitraum.',
+  chartBar: '{label}: {n}', avgPerWeek: 'Ø pro Woche', statThisWeek: 'Diese Woche', statThisMonth: 'Dieser Monat',
+  fieldGoal: 'Ziel (optional)', goalPh: 'kein Ziel', goalPer: 'pro', perDay: 'Tag', perWeek: 'Woche', perMonth: 'Monat', perTotal: 'insgesamt',
+  goalHelp: 'z. B. 8 pro Tag → Fortschrittsbalken auf Kachel und Detailseite.',
+  goalDay: '{c} / {g} heute', goalWeek: '{c} / {g} diese Woche', goalMonth: '{c} / {g} diesen Monat', goalTotal: '{c} / {g} insgesamt',
+  goalReached: '✓ Ziel erreicht', goalLabel: 'Ziel', errGoal: 'Ziel: ganze Zahl von 1 bis 9999 oder leer lassen.',
+  fieldReminder: 'Erinnerung (optional)', reminderOn: 'An bestimmten Tagen erinnern', reminderTime: 'Uhrzeit', everyDay: 'Täglich',
+  reminderHelp: 'Die Erinnerung kommt über die Kalender-App: „Zum Kalender hinzufügen“ antippen und den Termin übernehmen. Die Web-App selbst kann auf dem iPhone keine Mitteilungen senden.',
+  addToCalendar: '📅 Zum Kalender hinzufügen', icsTitle: '{emoji} {name} eintragen', icsDesc: 'Erinnerung aus der Zähler-App – zum Eintragen öffnen:',
+  calendarDone: '📅 Kalenderdatei erstellt – im Kalender übernehmen', errReminderDays: 'Bitte mindestens einen Wochentag wählen.', errReminderTime: 'Bitte eine Uhrzeit wählen.',
+  reminderDue: '⏰ Heute noch nicht eingetragen', reminderInfo: '⏰ {days} um {time}',
+  longPressHint: 'Tipp: +1 gedrückt halten, um gleich eine Notiz dazuzuschreiben.', addNoteAria: 'Notiz hinzufügen',
+  arrangeBtn: '↕︎ Anordnen', arrangeDone: 'Fertig', moveUp: 'Nach oben', moveDown: 'Nach unten', dragHandle: 'Zum Verschieben ziehen',
+  arrangeHint: 'Ziehe am Griff ☰ oder nutze ▲ ▼. Danach „Fertig“.',
+},
+en: {
+  chartTitle: 'History', chartDays: 'Days', chartWeeks: 'Weeks', chartMonths: 'Months', chartEmpty: 'No entries in this period yet.',
+  chartBar: '{label}: {n}', avgPerWeek: 'Ø per week', statThisWeek: 'This week', statThisMonth: 'This month',
+  fieldGoal: 'Goal (optional)', goalPh: 'no goal', goalPer: 'per', perDay: 'day', perWeek: 'week', perMonth: 'month', perTotal: 'in total',
+  goalHelp: 'e.g. 8 per day → progress bar on the tile and the detail page.',
+  goalDay: '{c} / {g} today', goalWeek: '{c} / {g} this week', goalMonth: '{c} / {g} this month', goalTotal: '{c} / {g} in total',
+  goalReached: '✓ Goal reached', goalLabel: 'Goal', errGoal: 'Goal: whole number from 1 to 9999, or leave empty.',
+  fieldReminder: 'Reminder (optional)', reminderOn: 'Remind me on certain days', reminderTime: 'Time', everyDay: 'Daily',
+  reminderHelp: 'The reminder comes from the Calendar app: tap “Add to calendar” and accept the event. The web app itself cannot send notifications on the iPhone.',
+  addToCalendar: '📅 Add to calendar', icsTitle: 'Log {emoji} {name}', icsDesc: 'Reminder from the Counter app – open to log:',
+  calendarDone: '📅 Calendar file created – add it in Calendar', errReminderDays: 'Please choose at least one weekday.', errReminderTime: 'Please choose a time.',
+  reminderDue: '⏰ Not logged yet today', reminderInfo: '⏰ {days} at {time}',
+  longPressHint: 'Tip: press and hold +1 to add a note right away.', addNoteAria: 'Add note',
+  arrangeBtn: '↕︎ Arrange', arrangeDone: 'Done', moveUp: 'Move up', moveDown: 'Move down', dragHandle: 'Drag to move',
+  arrangeHint: 'Drag the ☰ handle or use ▲ ▼. Then tap “Done”.',
+},
+it: {
+  chartTitle: 'Andamento', chartDays: 'Giorni', chartWeeks: 'Settimane', chartMonths: 'Mesi', chartEmpty: 'Ancora nessuna voce in questo periodo.',
+  chartBar: '{label}: {n}', avgPerWeek: 'Ø a settimana', statThisWeek: 'Questa settimana', statThisMonth: 'Questo mese',
+  fieldGoal: 'Obiettivo (facoltativo)', goalPh: 'nessun obiettivo', goalPer: 'per', perDay: 'giorno', perWeek: 'settimana', perMonth: 'mese', perTotal: 'in totale',
+  goalHelp: 'es. 8 al giorno → barra di avanzamento sul riquadro e nella pagina di dettaglio.',
+  goalDay: '{c} / {g} oggi', goalWeek: '{c} / {g} questa settimana', goalMonth: '{c} / {g} questo mese', goalTotal: '{c} / {g} in totale',
+  goalReached: '✓ Obiettivo raggiunto', goalLabel: 'Obiettivo', errGoal: 'Obiettivo: numero intero da 1 a 9999, oppure lascia vuoto.',
+  fieldReminder: 'Promemoria (facoltativo)', reminderOn: 'Ricordamelo in certi giorni', reminderTime: 'Ora', everyDay: 'Ogni giorno',
+  reminderHelp: 'Il promemoria arriva dall’app Calendario: tocca «Aggiungi al calendario» e accetta l’evento. La web app da sola non può inviare notifiche su iPhone.',
+  addToCalendar: '📅 Aggiungi al calendario', icsTitle: 'Registra {emoji} {name}', icsDesc: 'Promemoria dall’app Contatore – apri per registrare:',
+  calendarDone: '📅 File calendario creato – aggiungilo in Calendario', errReminderDays: 'Scegli almeno un giorno della settimana.', errReminderTime: 'Scegli un orario.',
+  reminderDue: '⏰ Oggi non ancora registrato', reminderInfo: '⏰ {days} alle {time}',
+  longPressHint: 'Suggerimento: tieni premuto +1 per aggiungere subito una nota.', addNoteAria: 'Aggiungi nota',
+  arrangeBtn: '↕︎ Riordina', arrangeDone: 'Fine', moveUp: 'Sposta su', moveDown: 'Sposta giù', dragHandle: 'Trascina per spostare',
+  arrangeHint: 'Trascina la maniglia ☰ oppure usa ▲ ▼. Poi tocca «Fine».',
+},
+es: {
+  chartTitle: 'Evolución', chartDays: 'Días', chartWeeks: 'Semanas', chartMonths: 'Meses', chartEmpty: 'Aún no hay entradas en este periodo.',
+  chartBar: '{label}: {n}', avgPerWeek: 'Ø por semana', statThisWeek: 'Esta semana', statThisMonth: 'Este mes',
+  fieldGoal: 'Objetivo (opcional)', goalPh: 'sin objetivo', goalPer: 'por', perDay: 'día', perWeek: 'semana', perMonth: 'mes', perTotal: 'en total',
+  goalHelp: 'p. ej. 8 por día → barra de progreso en la tarjeta y en el detalle.',
+  goalDay: '{c} / {g} hoy', goalWeek: '{c} / {g} esta semana', goalMonth: '{c} / {g} este mes', goalTotal: '{c} / {g} en total',
+  goalReached: '✓ Objetivo cumplido', goalLabel: 'Objetivo', errGoal: 'Objetivo: número entero de 1 a 9999, o déjalo vacío.',
+  fieldReminder: 'Recordatorio (opcional)', reminderOn: 'Recordármelo ciertos días', reminderTime: 'Hora', everyDay: 'Cada día',
+  reminderHelp: 'El recordatorio llega a través de la app Calendario: toca «Añadir al calendario» y acepta el evento. La web app por sí sola no puede enviar avisos en el iPhone.',
+  addToCalendar: '📅 Añadir al calendario', icsTitle: 'Registrar {emoji} {name}', icsDesc: 'Recordatorio de la app Contador – ábrela para registrar:',
+  calendarDone: '📅 Archivo de calendario creado – añádelo en Calendario', errReminderDays: 'Elige al menos un día de la semana.', errReminderTime: 'Elige una hora.',
+  reminderDue: '⏰ Hoy aún sin registrar', reminderInfo: '⏰ {days} a las {time}',
+  longPressHint: 'Consejo: mantén pulsado +1 para añadir una nota enseguida.', addNoteAria: 'Añadir nota',
+  arrangeBtn: '↕︎ Ordenar', arrangeDone: 'Listo', moveUp: 'Subir', moveDown: 'Bajar', dragHandle: 'Arrastra para mover',
+  arrangeHint: 'Arrastra el asa ☰ o usa ▲ ▼. Después toca «Listo».',
+},
+fr: {
+  chartTitle: 'Évolution', chartDays: 'Jours', chartWeeks: 'Semaines', chartMonths: 'Mois', chartEmpty: 'Aucune entrée sur cette période.',
+  chartBar: '{label} : {n}', avgPerWeek: 'Ø par semaine', statThisWeek: 'Cette semaine', statThisMonth: 'Ce mois-ci',
+  fieldGoal: 'Objectif (facultatif)', goalPh: 'aucun objectif', goalPer: 'par', perDay: 'jour', perWeek: 'semaine', perMonth: 'mois', perTotal: 'au total',
+  goalHelp: 'p. ex. 8 par jour → barre de progression sur la tuile et la page de détail.',
+  goalDay: '{c} / {g} aujourd’hui', goalWeek: '{c} / {g} cette semaine', goalMonth: '{c} / {g} ce mois-ci', goalTotal: '{c} / {g} au total',
+  goalReached: '✓ Objectif atteint', goalLabel: 'Objectif', errGoal: 'Objectif : nombre entier de 1 à 9999, ou laisser vide.',
+  fieldReminder: 'Rappel (facultatif)', reminderOn: 'Me le rappeler certains jours', reminderTime: 'Heure', everyDay: 'Tous les jours',
+  reminderHelp: 'Le rappel vient de l’app Calendrier : touche « Ajouter au calendrier » et accepte l’événement. La web app seule ne peut pas envoyer de notifications sur iPhone.',
+  addToCalendar: '📅 Ajouter au calendrier', icsTitle: 'Noter {emoji} {name}', icsDesc: 'Rappel de l’app Compteur – ouvrir pour noter :',
+  calendarDone: '📅 Fichier calendrier créé – ajoute-le dans Calendrier', errReminderDays: 'Choisis au moins un jour de la semaine.', errReminderTime: 'Choisis une heure.',
+  reminderDue: '⏰ Pas encore noté aujourd’hui', reminderInfo: '⏰ {days} à {time}',
+  longPressHint: 'Astuce : maintiens +1 appuyé pour ajouter tout de suite une note.', addNoteAria: 'Ajouter une note',
+  arrangeBtn: '↕︎ Réorganiser', arrangeDone: 'Terminé', moveUp: 'Monter', moveDown: 'Descendre', dragHandle: 'Glisser pour déplacer',
+  arrangeHint: 'Fais glisser la poignée ☰ ou utilise ▲ ▼. Puis touche « Terminé ».',
+},
+};
+for (const l of Object.keys(I18N_V7)) Object.assign(I18N[l], I18N_V7[l]);
+/* v7b: Minus/Mehrfach, Kategorien, Darstellung, Serien, Kosten */
+const I18N_V7B = {
+de: {
+  fieldStep: 'Schritt pro Tipp (optional)', stepPh: '1', stepHelp: 'z. B. 12 → die Taste auf der Kachel zählt +12 auf einmal (ganze Packung).',
+  errStep: 'Schritt: ganze Zahl von 1 bis 999 oder leer lassen.',
+  amountAria: 'Anzahl', minusAria: 'Abziehen (Korrektur)', plusNAria: 'Hinzufügen', amountHelp: 'Minus ist eine Korrektur – der Stand geht nie unter 0.',
+  errAmount: 'Bitte eine ganze Zahl von 1 bis 9999 eingeben.',
+  errMinus: { one: 'Es ist nur {n} vorhanden – mehr lässt sich nicht abziehen.', other: 'Es sind nur {n} vorhanden – mehr lässt sich nicht abziehen.' },
+  errMinusZero: 'Der Stand ist 0 – nichts zum Abziehen.', toastAmount: '{name}: {a} · jetzt {n}',
+  undoQAmount: 'Letzten Eintrag ({a} vom {d}) entfernen?', fieldAmount: 'Anzahl (minus = Korrektur)', errEntryAmount: 'Anzahl: ganze Zahl von −9999 bis 9999, nicht 0.',
+  fieldCategory: 'Kategorie (optional)', categoryPh: 'z. B. Haushalt, Sport', categoryHelp: 'Zähler mit derselben Kategorie stehen auf der Startseite zusammen.',
+  filterAll: 'Alle', uncategorized: 'Ohne Kategorie', filterAria: 'Nach Kategorie filtern',
+  appearance: 'Darstellung', themeAuto: 'Auto', themeLight: 'Hell', themeDark: 'Dunkel', themeHelp: 'Auto folgt der Einstellung des iPhones (Hell/Dunkel).',
+  streakCurDay: { one: '🔥 {n} Tag in Folge', other: '🔥 {n} Tage in Folge' }, streakCurWeek: { one: '🔥 {n} Woche in Folge', other: '🔥 {n} Wochen in Folge' },
+  streakCurMonth: { one: '🔥 {n} Monat in Folge', other: '🔥 {n} Monate in Folge' },
+  streakBestDay: { one: 'Rekord: {n} Tag', other: 'Rekord: {n} Tage' }, streakBestWeek: { one: 'Rekord: {n} Woche', other: 'Rekord: {n} Wochen' },
+  streakBestMonth: { one: 'Rekord: {n} Monat', other: 'Rekord: {n} Monate' }, streakNone: 'Noch keine Serie',
+  fieldPrice: 'Preis pro Stück (optional)', pricePh: '0,00', priceHelp: 'In Euro. Dann zeigt die Detailseite die Kosten; pro Eintrag änderbar.',
+  errPrice: 'Preis: Zahl von 0 bis 99999 mit höchstens 2 Nachkommastellen (z. B. 1,49) oder leer lassen.',
+  costsTitle: 'Kosten', costMonth: 'Diesen Monat', costYear: 'Dieses Jahr', costTotal: 'Gesamt', chartCount: 'Anzahl', chartCost: 'Kosten',
+  entryPrice: 'Preis pro Stück (optional)', entryPriceHelp: 'Leer = Preis des Zählers ({p}).', entryPriceNone: 'Leer = ohne Preis.', chartBarCost: '{label}: {v}',
+  countersCount: { one: '{n} Zähler', other: '{n} Zähler' },
+},
+en: {
+  fieldStep: 'Step per tap (optional)', stepPh: '1', stepHelp: 'e.g. 12 → the tile button adds +12 at once (a whole pack).',
+  errStep: 'Step: whole number from 1 to 999, or leave empty.',
+  amountAria: 'Amount', minusAria: 'Subtract (correction)', plusNAria: 'Add', amountHelp: 'Minus is a correction – the total never goes below 0.',
+  errAmount: 'Please enter a whole number from 1 to 9999.',
+  errMinus: { one: 'There is only {n} – you can’t subtract more.', other: 'There are only {n} – you can’t subtract more.' },
+  errMinusZero: 'The total is 0 – nothing to subtract.', toastAmount: '{name}: {a} · now {n}',
+  undoQAmount: 'Remove the last entry ({a} from {d})?', fieldAmount: 'Amount (minus = correction)', errEntryAmount: 'Amount: whole number from −9999 to 9999, not 0.',
+  fieldCategory: 'Category (optional)', categoryPh: 'e.g. Home, Sport', categoryHelp: 'Counters with the same category are grouped on the start page.',
+  filterAll: 'All', uncategorized: 'No category', filterAria: 'Filter by category',
+  appearance: 'Appearance', themeAuto: 'Auto', themeLight: 'Light', themeDark: 'Dark', themeHelp: 'Auto follows your iPhone’s setting (light/dark).',
+  streakCurDay: { one: '🔥 {n} day in a row', other: '🔥 {n} days in a row' }, streakCurWeek: { one: '🔥 {n} week in a row', other: '🔥 {n} weeks in a row' },
+  streakCurMonth: { one: '🔥 {n} month in a row', other: '🔥 {n} months in a row' },
+  streakBestDay: { one: 'Best: {n} day', other: 'Best: {n} days' }, streakBestWeek: { one: 'Best: {n} week', other: 'Best: {n} weeks' },
+  streakBestMonth: { one: 'Best: {n} month', other: 'Best: {n} months' }, streakNone: 'No streak yet',
+  fieldPrice: 'Price per item (optional)', pricePh: '0.00', priceHelp: 'In euros. The detail page then shows the costs; can be changed per entry.',
+  errPrice: 'Price: number from 0 to 99999 with at most 2 decimals (e.g. 1.49), or leave empty.',
+  costsTitle: 'Costs', costMonth: 'This month', costYear: 'This year', costTotal: 'Total', chartCount: 'Count', chartCost: 'Costs',
+  entryPrice: 'Price per item (optional)', entryPriceHelp: 'Empty = counter price ({p}).', entryPriceNone: 'Empty = no price.', chartBarCost: '{label}: {v}',
+  countersCount: { one: '{n} counter', other: '{n} counters' },
+},
+it: {
+  fieldStep: 'Passo per tocco (facoltativo)', stepPh: '1', stepHelp: 'es. 12 → il pulsante sulla scheda aggiunge +12 in una volta (una confezione intera).',
+  errStep: 'Passo: numero intero da 1 a 999 o lascia vuoto.',
+  amountAria: 'Quantità', minusAria: 'Sottrai (correzione)', plusNAria: 'Aggiungi', amountHelp: 'Il meno è una correzione – il totale non scende mai sotto 0.',
+  errAmount: 'Inserisci un numero intero da 1 a 9999.',
+  errMinus: { one: 'C’è solo {n} – non puoi sottrarre di più.', other: 'Ce ne sono solo {n} – non puoi sottrarre di più.' },
+  errMinusZero: 'Il totale è 0 – niente da sottrarre.', toastAmount: '{name}: {a} · ora {n}',
+  undoQAmount: 'Rimuovere l’ultima voce ({a} del {d})?', fieldAmount: 'Quantità (meno = correzione)', errEntryAmount: 'Quantità: numero intero da −9999 a 9999, non 0.',
+  fieldCategory: 'Categoria (facoltativa)', categoryPh: 'es. Casa, Sport', categoryHelp: 'I contatori con la stessa categoria sono raggruppati nella pagina iniziale.',
+  filterAll: 'Tutti', uncategorized: 'Senza categoria', filterAria: 'Filtra per categoria',
+  appearance: 'Aspetto', themeAuto: 'Auto', themeLight: 'Chiaro', themeDark: 'Scuro', themeHelp: 'Auto segue l’impostazione dell’iPhone (chiaro/scuro).',
+  streakCurDay: { one: '🔥 {n} giorno di fila', other: '🔥 {n} giorni di fila' }, streakCurWeek: { one: '🔥 {n} settimana di fila', other: '🔥 {n} settimane di fila' },
+  streakCurMonth: { one: '🔥 {n} mese di fila', other: '🔥 {n} mesi di fila' },
+  streakBestDay: { one: 'Record: {n} giorno', other: 'Record: {n} giorni' }, streakBestWeek: { one: 'Record: {n} settimana', other: 'Record: {n} settimane' },
+  streakBestMonth: { one: 'Record: {n} mese', other: 'Record: {n} mesi' }, streakNone: 'Ancora nessuna serie',
+  fieldPrice: 'Prezzo per pezzo (facoltativo)', pricePh: '0,00', priceHelp: 'In euro. La pagina di dettaglio mostra poi i costi; modificabile per ogni voce.',
+  errPrice: 'Prezzo: numero da 0 a 99999 con al massimo 2 decimali (es. 1,49) o lascia vuoto.',
+  costsTitle: 'Costi', costMonth: 'Questo mese', costYear: 'Quest’anno', costTotal: 'Totale', chartCount: 'Quantità', chartCost: 'Costi',
+  entryPrice: 'Prezzo per pezzo (facoltativo)', entryPriceHelp: 'Vuoto = prezzo del contatore ({p}).', entryPriceNone: 'Vuoto = senza prezzo.', chartBarCost: '{label}: {v}',
+  countersCount: { one: '{n} contatore', other: '{n} contatori' },
+},
+es: {
+  fieldStep: 'Paso por toque (opcional)', stepPh: '1', stepHelp: 'p. ej. 12 → el botón de la tarjeta suma +12 de una vez (un paquete entero).',
+  errStep: 'Paso: número entero de 1 a 999 o déjalo vacío.',
+  amountAria: 'Cantidad', minusAria: 'Restar (corrección)', plusNAria: 'Añadir', amountHelp: 'El menos es una corrección – el total nunca baja de 0.',
+  errAmount: 'Introduce un número entero de 1 a 9999.',
+  errMinus: { one: 'Solo hay {n} – no se puede restar más.', other: 'Solo hay {n} – no se puede restar más.' },
+  errMinusZero: 'El total es 0 – no hay nada que restar.', toastAmount: '{name}: {a} · ahora {n}',
+  undoQAmount: '¿Quitar la última entrada ({a} del {d})?', fieldAmount: 'Cantidad (menos = corrección)', errEntryAmount: 'Cantidad: número entero de −9999 a 9999, distinto de 0.',
+  fieldCategory: 'Categoría (opcional)', categoryPh: 'p. ej. Casa, Deporte', categoryHelp: 'Los contadores con la misma categoría se agrupan en la página de inicio.',
+  filterAll: 'Todos', uncategorized: 'Sin categoría', filterAria: 'Filtrar por categoría',
+  appearance: 'Apariencia', themeAuto: 'Auto', themeLight: 'Claro', themeDark: 'Oscuro', themeHelp: 'Auto sigue el ajuste del iPhone (claro/oscuro).',
+  streakCurDay: { one: '🔥 {n} día seguido', other: '🔥 {n} días seguidos' }, streakCurWeek: { one: '🔥 {n} semana seguida', other: '🔥 {n} semanas seguidas' },
+  streakCurMonth: { one: '🔥 {n} mes seguido', other: '🔥 {n} meses seguidos' },
+  streakBestDay: { one: 'Récord: {n} día', other: 'Récord: {n} días' }, streakBestWeek: { one: 'Récord: {n} semana', other: 'Récord: {n} semanas' },
+  streakBestMonth: { one: 'Récord: {n} mes', other: 'Récord: {n} meses' }, streakNone: 'Aún sin racha',
+  fieldPrice: 'Precio por unidad (opcional)', pricePh: '0,00', priceHelp: 'En euros. La página de detalle muestra entonces los costes; se puede cambiar en cada entrada.',
+  errPrice: 'Precio: número de 0 a 99999 con 2 decimales como máximo (p. ej. 1,49) o déjalo vacío.',
+  costsTitle: 'Costes', costMonth: 'Este mes', costYear: 'Este año', costTotal: 'Total', chartCount: 'Cantidad', chartCost: 'Costes',
+  entryPrice: 'Precio por unidad (opcional)', entryPriceHelp: 'Vacío = precio del contador ({p}).', entryPriceNone: 'Vacío = sin precio.', chartBarCost: '{label}: {v}',
+  countersCount: { one: '{n} contador', other: '{n} contadores' },
+},
+fr: {
+  fieldStep: 'Pas par appui (facultatif)', stepPh: '1', stepHelp: 'p. ex. 12 → le bouton de la tuile ajoute +12 d’un coup (un paquet entier).',
+  errStep: 'Pas : nombre entier de 1 à 999 ou laisser vide.',
+  amountAria: 'Quantité', minusAria: 'Retirer (correction)', plusNAria: 'Ajouter', amountHelp: 'Le moins est une correction – le total ne descend jamais sous 0.',
+  errAmount: 'Saisis un nombre entier de 1 à 9999.',
+  errMinus: { one: 'Il n’y en a que {n} – impossible de retirer plus.', other: 'Il n’y en a que {n} – impossible de retirer plus.' },
+  errMinusZero: 'Le total est 0 – rien à retirer.', toastAmount: '{name} : {a} · maintenant {n}',
+  undoQAmount: 'Retirer la dernière entrée ({a} du {d}) ?', fieldAmount: 'Quantité (moins = correction)', errEntryAmount: 'Quantité : nombre entier de −9999 à 9999, différent de 0.',
+  fieldCategory: 'Catégorie (facultatif)', categoryPh: 'p. ex. Maison, Sport', categoryHelp: 'Les compteurs de même catégorie sont regroupés sur la page d’accueil.',
+  filterAll: 'Tous', uncategorized: 'Sans catégorie', filterAria: 'Filtrer par catégorie',
+  appearance: 'Apparence', themeAuto: 'Auto', themeLight: 'Clair', themeDark: 'Sombre', themeHelp: 'Auto suit le réglage de l’iPhone (clair/sombre).',
+  streakCurDay: { one: '🔥 {n} jour d’affilée', other: '🔥 {n} jours d’affilée' }, streakCurWeek: { one: '🔥 {n} semaine d’affilée', other: '🔥 {n} semaines d’affilée' },
+  streakCurMonth: { one: '🔥 {n} mois d’affilée', other: '🔥 {n} mois d’affilée' },
+  streakBestDay: { one: 'Record : {n} jour', other: 'Record : {n} jours' }, streakBestWeek: { one: 'Record : {n} semaine', other: 'Record : {n} semaines' },
+  streakBestMonth: { one: 'Record : {n} mois', other: 'Record : {n} mois' }, streakNone: 'Pas encore de série',
+  fieldPrice: 'Prix à l’unité (facultatif)', pricePh: '0,00', priceHelp: 'En euros. La page de détail affiche alors les coûts ; modifiable pour chaque entrée.',
+  errPrice: 'Prix : nombre de 0 à 99999 avec 2 décimales au plus (p. ex. 1,49) ou laisser vide.',
+  costsTitle: 'Coûts', costMonth: 'Ce mois-ci', costYear: 'Cette année', costTotal: 'Total', chartCount: 'Quantité', chartCost: 'Coûts',
+  entryPrice: 'Prix à l’unité (facultatif)', entryPriceHelp: 'Vide = prix du compteur ({p}).', entryPriceNone: 'Vide = sans prix.', chartBarCost: '{label} : {v}',
+  countersCount: { one: '{n} compteur', other: '{n} compteurs' },
+},
+};
+for (const l of Object.keys(I18N_V7B)) Object.assign(I18N[l], I18N_V7B[l]);
+/* v7c: Archiv, Suche, Jahresrückblick, Zeit messen, Fotos */
+const I18N_V7C = {
+de: {
+  archive: '🗄 Archivieren', unarchive: 'Wiederherstellen', archiveTitle: 'Archiv', archiveBtn: '🗄 Archiv ({n})', archivedBadge: 'Archiviert',
+  archivedNote: '🗄 Archiviert – auf der Startseite ausgeblendet, alle Einträge bleiben erhalten.',
+  archiveHelp: 'Archivierte Zähler sind auf der Startseite, in den Filtern und bei Erinnerungen ausgeblendet. Alle Einträge bleiben erhalten und sind im Backup.',
+  archiveEmpty: 'Keine archivierten Zähler.', toastArchived: '{name} archiviert', toastRestored: '{name} wiederhergestellt',
+  searchPh: 'Suchen: Name, Kategorie, Notiz …', searchAria: 'Zähler und Notizen durchsuchen', searchOpen: 'Suche öffnen', searchClear: 'Suche löschen',
+  searchCounters: 'Zähler', searchArchived: 'Im Archiv', searchNotes: 'Notizen', searchNone: 'Nichts gefunden für „{q}“.',
+  searchMore: { one: '… und {n} weitere Notiz', other: '… und {n} weitere Notizen' },
+  reviewMenu: '📅 Jahresrückblick', reviewTitle: 'Rückblick {y}', reviewYears: 'Jahr wählen', reviewEntries: 'Einträge', reviewDays: 'Aktive Tage',
+  reviewCounters: 'Zähler', reviewCosts: 'Kosten', reviewByMonth: 'Einträge pro Monat', reviewTop: 'Top-Zähler', reviewTotal: 'Im Jahr',
+  reviewBestMonth: 'Bester Monat', reviewStreak: 'Längste Ziel-Serie', reviewStreakDays: 'Tage in Folge aktiv',
+  reviewEmpty: 'Für {y} gibt es noch keine Einträge.', reviewHint: 'Tipp: Screenshot machen und teilen.',
+  rvWeeks: { one: '{n} Woche', other: '{n} Wochen' }, rvMonths: { one: '{n} Monat', other: '{n} Monate' },
+  fieldType: 'Art', typeCount: '🔢 Anzahl', typeTime: '⏱ Zeit', typeHelp: 'Zeit: Start/Stopp-Uhr, jeder Eintrag hat eine Dauer. Die Art lässt sich später nicht ändern.',
+  typeFixed: 'Art: ⏱ Zeit (Start/Stopp, nicht änderbar)',
+  timerStart: 'Start', timerStop: 'Stopp', timerAria: '{name}: Zeit starten oder stoppen', timerRunning: '⏱ läuft seit {t}',
+  toastTimerStart: '{name}: Zeit läuft …', toastTimerStop: '{name}: {d} · heute {t}', timerTooShort: 'Unter 1 Sekunde – nichts gespeichert.',
+  timerHint: 'Dauer von Hand eintragen: „Nachtragen“. Notiz oder Foto: beim Eintrag auf ✎ tippen.',
+  fieldDuration: 'Dauer', durHoursLbl: 'Std.', durMinLbl: 'Min.', errDuration: 'Dauer: mindestens 1 Minute, höchstens 720 Stunden.', durSec: '{n} Sek.',
+  goalMinutes: 'Ziel in Minuten (optional)', fieldPriceHour: 'Preis pro Stunde (optional)', entryPriceHour: 'Preis pro Stunde (optional)',
+  priceHelpHour: 'In Euro pro Stunde. Dann zeigt die Detailseite die Kosten; pro Eintrag änderbar.', askNoteTime: 'Nach jedem Stopp nach einer Notiz fragen',
+  photoLbl: 'Foto (optional)', photoAdd: '📷 Foto hinzufügen', photoChange: '📷 Anderes Foto', photoRemove: 'Foto entfernen', photoDelete: 'Foto löschen',
+  photoDeleteQ: 'Foto löschen? Der Eintrag bleibt erhalten.', photoDeleted: 'Foto gelöscht',
+  photoQuota: 'Kein Speicherplatz mehr für Fotos. Bitte ein Backup machen und ältere Fotos löschen.', photoFail: 'Das Foto konnte nicht gelesen werden.',
+  photoMissing: 'Foto fehlt auf diesem Gerät', photoOpenAria: 'Foto ansehen', photoBusy: 'Foto wird verkleinert …',
+  photoHelp: 'Wird verkleinert (max. 1280 px) und nur auf diesem Gerät gespeichert – im Backup enthalten.',
+  photosUsed: '📷 {n} · {s} Speicher', photosNone: '📷 Noch keine Fotos.', photosCount: { one: '{n} Foto', other: '{n} Fotos' },
+  backupSize: 'Backup-Datei ca. {s}.', backupSizePhotos: 'Backup-Datei ca. {s} (inkl. {p}).', importPhotos: 'Dazu {p} ({s}).',
+  importPhotoFail: { one: '{n} Foto konnte nicht gespeichert werden (Speicher voll).', other: '{n} Fotos konnten nicht gespeichert werden (Speicher voll).' },
+},
+en: {
+  archive: '🗄 Archive', unarchive: 'Restore', archiveTitle: 'Archive', archiveBtn: '🗄 Archive ({n})', archivedBadge: 'Archived',
+  archivedNote: '🗄 Archived – hidden from the start page, all entries are kept.',
+  archiveHelp: 'Archived counters are hidden from the start page, the filters and reminders. All entries are kept and included in backups.',
+  archiveEmpty: 'No archived counters.', toastArchived: '{name} archived', toastRestored: '{name} restored',
+  searchPh: 'Search: name, category, note …', searchAria: 'Search counters and notes', searchOpen: 'Open search', searchClear: 'Clear search',
+  searchCounters: 'Counters', searchArchived: 'In the archive', searchNotes: 'Notes', searchNone: 'Nothing found for “{q}”.',
+  searchMore: { one: '… and {n} more note', other: '… and {n} more notes' },
+  reviewMenu: '📅 Year in review', reviewTitle: 'Review {y}', reviewYears: 'Choose year', reviewEntries: 'Entries', reviewDays: 'Active days',
+  reviewCounters: 'Counters', reviewCosts: 'Costs', reviewByMonth: 'Entries per month', reviewTop: 'Top counters', reviewTotal: 'In the year',
+  reviewBestMonth: 'Best month', reviewStreak: 'Longest goal streak', reviewStreakDays: 'Days active in a row',
+  reviewEmpty: 'There are no entries for {y} yet.', reviewHint: 'Tip: take a screenshot and share it.',
+  rvWeeks: { one: '{n} week', other: '{n} weeks' }, rvMonths: { one: '{n} month', other: '{n} months' },
+  fieldType: 'Type', typeCount: '🔢 Count', typeTime: '⏱ Time', typeHelp: 'Time: start/stop timer, every entry has a duration. The type can’t be changed later.',
+  typeFixed: 'Type: ⏱ Time (start/stop, can’t be changed)',
+  timerStart: 'Start', timerStop: 'Stop', timerAria: '{name}: start or stop timer', timerRunning: '⏱ running since {t}',
+  toastTimerStart: '{name}: timer running …', toastTimerStop: '{name}: {d} · today {t}', timerTooShort: 'Less than 1 second – nothing saved.',
+  timerHint: 'Add a duration by hand: “Add past entry”. Note or photo: tap ✎ on the entry.',
+  fieldDuration: 'Duration', durHoursLbl: 'h', durMinLbl: 'min', errDuration: 'Duration: at least 1 minute, at most 720 hours.', durSec: '{n} s',
+  goalMinutes: 'Goal in minutes (optional)', fieldPriceHour: 'Price per hour (optional)', entryPriceHour: 'Price per hour (optional)',
+  priceHelpHour: 'In euros per hour. The detail page then shows the costs; can be changed per entry.', askNoteTime: 'Ask for a note after every stop',
+  photoLbl: 'Photo (optional)', photoAdd: '📷 Add photo', photoChange: '📷 Other photo', photoRemove: 'Remove photo', photoDelete: 'Delete photo',
+  photoDeleteQ: 'Delete the photo? The entry is kept.', photoDeleted: 'Photo deleted',
+  photoQuota: 'No storage left for photos. Please make a backup and delete older photos.', photoFail: 'The photo could not be read.',
+  photoMissing: 'Photo missing on this device', photoOpenAria: 'View photo', photoBusy: 'Shrinking photo …',
+  photoHelp: 'Shrunk (max. 1280 px) and stored only on this device – included in backups.',
+  photosUsed: '📷 {n} · {s} storage', photosNone: '📷 No photos yet.', photosCount: { one: '{n} photo', other: '{n} photos' },
+  backupSize: 'Backup file approx. {s}.', backupSizePhotos: 'Backup file approx. {s} (incl. {p}).', importPhotos: 'Plus {p} ({s}).',
+  importPhotoFail: { one: '{n} photo could not be saved (storage full).', other: '{n} photos could not be saved (storage full).' },
+},
+it: {
+  archive: '🗄 Archivia', unarchive: 'Ripristina', archiveTitle: 'Archivio', archiveBtn: '🗄 Archivio ({n})', archivedBadge: 'Archiviato',
+  archivedNote: '🗄 Archiviato – nascosto nella pagina iniziale, tutte le voci restano salvate.',
+  archiveHelp: 'I contatori archiviati sono nascosti nella pagina iniziale, nei filtri e nei promemoria. Tutte le voci restano salvate e sono nel backup.',
+  archiveEmpty: 'Nessun contatore archiviato.', toastArchived: '{name} archiviato', toastRestored: '{name} ripristinato',
+  searchPh: 'Cerca: nome, categoria, nota …', searchAria: 'Cerca contatori e note', searchOpen: 'Apri ricerca', searchClear: 'Cancella ricerca',
+  searchCounters: 'Contatori', searchArchived: 'Nell’archivio', searchNotes: 'Note', searchNone: 'Nessun risultato per «{q}».',
+  searchMore: { one: '… e ancora {n} nota', other: '… e ancora {n} note' },
+  reviewMenu: '📅 Riepilogo annuale', reviewTitle: 'Riepilogo {y}', reviewYears: 'Scegli l’anno', reviewEntries: 'Voci', reviewDays: 'Giorni attivi',
+  reviewCounters: 'Contatori', reviewCosts: 'Costi', reviewByMonth: 'Voci al mese', reviewTop: 'Contatori top', reviewTotal: 'Nell’anno',
+  reviewBestMonth: 'Mese migliore', reviewStreak: 'Serie obiettivo più lunga', reviewStreakDays: 'Giorni attivi di fila',
+  reviewEmpty: 'Per il {y} non ci sono ancora voci.', reviewHint: 'Suggerimento: fai uno screenshot e condividilo.',
+  rvWeeks: { one: '{n} settimana', other: '{n} settimane' }, rvMonths: { one: '{n} mese', other: '{n} mesi' },
+  fieldType: 'Tipo', typeCount: '🔢 Quantità', typeTime: '⏱ Tempo', typeHelp: 'Tempo: cronometro avvia/ferma, ogni voce ha una durata. Il tipo non si può cambiare in seguito.',
+  typeFixed: 'Tipo: ⏱ Tempo (avvia/ferma, non modificabile)',
+  timerStart: 'Avvia', timerStop: 'Ferma', timerAria: '{name}: avvia o ferma il tempo', timerRunning: '⏱ in corso dalle {t}',
+  toastTimerStart: '{name}: tempo in corso …', toastTimerStop: '{name}: {d} · oggi {t}', timerTooShort: 'Meno di 1 secondo – niente salvato.',
+  timerHint: 'Inserire una durata a mano: «Voce passata». Nota o foto: tocca ✎ sulla voce.',
+  fieldDuration: 'Durata', durHoursLbl: 'h', durMinLbl: 'min', errDuration: 'Durata: almeno 1 minuto, al massimo 720 ore.', durSec: '{n} s',
+  goalMinutes: 'Obiettivo in minuti (facoltativo)', fieldPriceHour: 'Prezzo all’ora (facoltativo)', entryPriceHour: 'Prezzo all’ora (facoltativo)',
+  priceHelpHour: 'In euro all’ora. La pagina di dettaglio mostra i costi; modificabile per ogni voce.', askNoteTime: 'Chiedi una nota dopo ogni stop',
+  photoLbl: 'Foto (facoltativa)', photoAdd: '📷 Aggiungi foto', photoChange: '📷 Altra foto', photoRemove: 'Rimuovi foto', photoDelete: 'Elimina foto',
+  photoDeleteQ: 'Eliminare la foto? La voce resta.', photoDeleted: 'Foto eliminata',
+  photoQuota: 'Spazio esaurito per le foto. Fai un backup ed elimina le foto più vecchie.', photoFail: 'Impossibile leggere la foto.',
+  photoMissing: 'Foto mancante su questo dispositivo', photoOpenAria: 'Guarda foto', photoBusy: 'Riduzione della foto …',
+  photoHelp: 'Viene ridotta (max. 1280 px) e salvata solo su questo dispositivo – inclusa nel backup.',
+  photosUsed: '📷 {n} · {s} di spazio', photosNone: '📷 Ancora nessuna foto.', photosCount: { one: '{n} foto', other: '{n} foto' },
+  backupSize: 'File di backup circa {s}.', backupSizePhotos: 'File di backup circa {s} (incl. {p}).', importPhotos: 'In più {p} ({s}).',
+  importPhotoFail: { one: 'Non è stato possibile salvare {n} foto (spazio esaurito).', other: 'Non è stato possibile salvare {n} foto (spazio esaurito).' },
+},
+es: {
+  archive: '🗄 Archivar', unarchive: 'Restaurar', archiveTitle: 'Archivo', archiveBtn: '🗄 Archivo ({n})', archivedBadge: 'Archivado',
+  archivedNote: '🗄 Archivado – oculto en la página de inicio, se conservan todas las entradas.',
+  archiveHelp: 'Los contadores archivados se ocultan en la página de inicio, en los filtros y en los recordatorios. Se conservan todas las entradas y están en la copia de seguridad.',
+  archiveEmpty: 'No hay contadores archivados.', toastArchived: '{name} archivado', toastRestored: '{name} restaurado',
+  searchPh: 'Buscar: nombre, categoría, nota …', searchAria: 'Buscar contadores y notas', searchOpen: 'Abrir búsqueda', searchClear: 'Borrar búsqueda',
+  searchCounters: 'Contadores', searchArchived: 'En el archivo', searchNotes: 'Notas', searchNone: 'No se encontró nada para «{q}».',
+  searchMore: { one: '… y {n} nota más', other: '… y {n} notas más' },
+  reviewMenu: '📅 Resumen del año', reviewTitle: 'Resumen {y}', reviewYears: 'Elegir año', reviewEntries: 'Entradas', reviewDays: 'Días activos',
+  reviewCounters: 'Contadores', reviewCosts: 'Costes', reviewByMonth: 'Entradas por mes', reviewTop: 'Contadores top', reviewTotal: 'En el año',
+  reviewBestMonth: 'Mejor mes', reviewStreak: 'Racha de objetivo más larga', reviewStreakDays: 'Días activos seguidos',
+  reviewEmpty: 'Todavía no hay entradas para {y}.', reviewHint: 'Consejo: haz una captura de pantalla y compártela.',
+  rvWeeks: { one: '{n} semana', other: '{n} semanas' }, rvMonths: { one: '{n} mes', other: '{n} meses' },
+  fieldType: 'Tipo', typeCount: '🔢 Cantidad', typeTime: '⏱ Tiempo', typeHelp: 'Tiempo: cronómetro iniciar/parar, cada entrada tiene una duración. El tipo no se puede cambiar después.',
+  typeFixed: 'Tipo: ⏱ Tiempo (iniciar/parar, no se puede cambiar)',
+  timerStart: 'Iniciar', timerStop: 'Parar', timerAria: '{name}: iniciar o parar el tiempo', timerRunning: '⏱ en marcha desde las {t}',
+  toastTimerStart: '{name}: tiempo en marcha …', toastTimerStop: '{name}: {d} · hoy {t}', timerTooShort: 'Menos de 1 segundo – no se guardó nada.',
+  timerHint: 'Añadir una duración a mano: «Entrada pasada». Nota o foto: toca ✎ en la entrada.',
+  fieldDuration: 'Duración', durHoursLbl: 'h', durMinLbl: 'min', errDuration: 'Duración: al menos 1 minuto, como máximo 720 horas.', durSec: '{n} s',
+  goalMinutes: 'Objetivo en minutos (opcional)', fieldPriceHour: 'Precio por hora (opcional)', entryPriceHour: 'Precio por hora (opcional)',
+  priceHelpHour: 'En euros por hora. La página de detalle muestra los costes; se puede cambiar por entrada.', askNoteTime: 'Pedir una nota después de cada parada',
+  photoLbl: 'Foto (opcional)', photoAdd: '📷 Añadir foto', photoChange: '📷 Otra foto', photoRemove: 'Quitar foto', photoDelete: 'Eliminar foto',
+  photoDeleteQ: '¿Eliminar la foto? La entrada se conserva.', photoDeleted: 'Foto eliminada',
+  photoQuota: 'No queda espacio para fotos. Haz una copia de seguridad y elimina fotos antiguas.', photoFail: 'No se pudo leer la foto.',
+  photoMissing: 'Falta la foto en este dispositivo', photoOpenAria: 'Ver foto', photoBusy: 'Reduciendo la foto …',
+  photoHelp: 'Se reduce (máx. 1280 px) y se guarda solo en este dispositivo – incluida en la copia de seguridad.',
+  photosUsed: '📷 {n} · {s} de espacio', photosNone: '📷 Aún no hay fotos.', photosCount: { one: '{n} foto', other: '{n} fotos' },
+  backupSize: 'Archivo de copia aprox. {s}.', backupSizePhotos: 'Archivo de copia aprox. {s} (incl. {p}).', importPhotos: 'Además {p} ({s}).',
+  importPhotoFail: { one: 'No se pudo guardar {n} foto (espacio lleno).', other: 'No se pudieron guardar {n} fotos (espacio lleno).' },
+},
+fr: {
+  archive: '🗄 Archiver', unarchive: 'Restaurer', archiveTitle: 'Archives', archiveBtn: '🗄 Archives ({n})', archivedBadge: 'Archivé',
+  archivedNote: '🗄 Archivé – masqué sur la page d’accueil, toutes les entrées sont conservées.',
+  archiveHelp: 'Les compteurs archivés sont masqués sur la page d’accueil, dans les filtres et les rappels. Toutes les entrées sont conservées et incluses dans la sauvegarde.',
+  archiveEmpty: 'Aucun compteur archivé.', toastArchived: '{name} archivé', toastRestored: '{name} restauré',
+  searchPh: 'Rechercher : nom, catégorie, note …', searchAria: 'Rechercher compteurs et notes', searchOpen: 'Ouvrir la recherche', searchClear: 'Effacer la recherche',
+  searchCounters: 'Compteurs', searchArchived: 'Dans les archives', searchNotes: 'Notes', searchNone: 'Aucun résultat pour « {q} ».',
+  searchMore: { one: '… et encore {n} note', other: '… et encore {n} notes' },
+  reviewMenu: '📅 Bilan de l’année', reviewTitle: 'Bilan {y}', reviewYears: 'Choisir l’année', reviewEntries: 'Entrées', reviewDays: 'Jours actifs',
+  reviewCounters: 'Compteurs', reviewCosts: 'Coûts', reviewByMonth: 'Entrées par mois', reviewTop: 'Meilleurs compteurs', reviewTotal: 'Sur l’année',
+  reviewBestMonth: 'Meilleur mois', reviewStreak: 'Plus longue série objectif', reviewStreakDays: 'Jours actifs d’affilée',
+  reviewEmpty: 'Pas encore d’entrées pour {y}.', reviewHint: 'Astuce : fais une capture d’écran et partage-la.',
+  rvWeeks: { one: '{n} semaine', other: '{n} semaines' }, rvMonths: { one: '{n} mois', other: '{n} mois' },
+  fieldType: 'Type', typeCount: '🔢 Nombre', typeTime: '⏱ Temps', typeHelp: 'Temps : chronomètre démarrer/arrêter, chaque entrée a une durée. Le type ne peut pas être modifié ensuite.',
+  typeFixed: 'Type : ⏱ Temps (démarrer/arrêter, non modifiable)',
+  timerStart: 'Démarrer', timerStop: 'Arrêter', timerAria: '{name} : démarrer ou arrêter le temps', timerRunning: '⏱ en cours depuis {t}',
+  toastTimerStart: '{name} : temps en cours …', toastTimerStop: '{name} : {d} · aujourd’hui {t}', timerTooShort: 'Moins d’une seconde – rien enregistré.',
+  timerHint: 'Saisir une durée à la main : « Entrée passée ». Note ou photo : touche ✎ sur l’entrée.',
+  fieldDuration: 'Durée', durHoursLbl: 'h', durMinLbl: 'min', errDuration: 'Durée : au moins 1 minute, au plus 720 heures.', durSec: '{n} s',
+  goalMinutes: 'Objectif en minutes (facultatif)', fieldPriceHour: 'Prix par heure (facultatif)', entryPriceHour: 'Prix par heure (facultatif)',
+  priceHelpHour: 'En euros par heure. La page de détail affiche alors les coûts ; modifiable par entrée.', askNoteTime: 'Demander une note après chaque arrêt',
+  photoLbl: 'Photo (facultative)', photoAdd: '📷 Ajouter une photo', photoChange: '📷 Autre photo', photoRemove: 'Retirer la photo', photoDelete: 'Supprimer la photo',
+  photoDeleteQ: 'Supprimer la photo ? L’entrée est conservée.', photoDeleted: 'Photo supprimée',
+  photoQuota: 'Plus d’espace pour les photos. Fais une sauvegarde et supprime d’anciennes photos.', photoFail: 'Impossible de lire la photo.',
+  photoMissing: 'Photo absente sur cet appareil', photoOpenAria: 'Voir la photo', photoBusy: 'Réduction de la photo …',
+  photoHelp: 'Réduite (max. 1280 px) et enregistrée uniquement sur cet appareil – incluse dans la sauvegarde.',
+  photosUsed: '📷 {n} · {s} d’espace', photosNone: '📷 Pas encore de photos.', photosCount: { one: '{n} photo', other: '{n} photos' },
+  backupSize: 'Fichier de sauvegarde env. {s}.', backupSizePhotos: 'Fichier de sauvegarde env. {s} (avec {p}).', importPhotos: 'En plus {p} ({s}).',
+  importPhotoFail: { one: '{n} photo n’a pas pu être enregistrée (espace plein).', other: '{n} photos n’ont pas pu être enregistrées (espace plein).' },
+},
+};
+for (const l of Object.keys(I18N_V7C)) Object.assign(I18N[l], I18N_V7C[l]);
 </script>
 <script>
 (() => {
@@ -552,15 +1125,15 @@ const LANG_KEY = 'zaehler-lang';
 /* =========================================================================
    Datenmodell (siehe DATENMODELL.md)
    db = { version, counters: [Counter], entries: [Entry], settings: {onboarded} }
-   Counter = { id, name, emoji, color, roundSize|null, askNote, order, createdAt }
-   Entry   = { id, counterId, timestamp, note?, dateOnly? }
+   Counter = { id, name, emoji, color, roundSize|null, askNote, order, createdAt, goal?, reminder?, step?, category?, price? }
+   Entry   = { id, counterId, timestamp, note?, dateOnly?, amount? (fehlt = 1, minus = Korrektur), price? }
    Runden und Nummern werden NICHT gespeichert, sondern aus der sortierten
    Eintragsliste abgeleitet (Eintrag i -> Runde floor(i/roundSize)+1, Nr. i%roundSize+1).
    Die Sprache liegt getrennt in localStorage["zaehler-lang"] (nicht im Backup).
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 6, APP_DATE = '2026-10-29'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 7, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
@@ -618,6 +1191,7 @@ function applyStatic() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.setAttribute('placeholder', t(el.dataset.i18nPh)); });
   $('langBtn').textContent = `🌐 ${lang.toUpperCase()}`; $('langBtn').setAttribute('aria-label', t('languageAria'));
 }
 function setLang(l, remember = true) {
@@ -668,7 +1242,9 @@ let db = load();
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (s && Array.isArray(s.counters) && Array.isArray(s.entries)) { s.settings = s.settings || {}; return s; }
+    if (s && Array.isArray(s.counters) && Array.isArray(s.entries)) {
+      try { return normalizeDb(s); } catch (e) { console.warn('normalize', e); return s; } // nie mit leeren Daten überschreiben
+    }
   } catch (e) {}
   return freshDb();
 }
@@ -681,34 +1257,467 @@ const counter = id => db.counters.find(c => c.id === id);
 const sortedCounters = () => [...db.counters].sort((a, b) => a.order - b.order);
 const byTime = (a, b) => (a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0);
 const entriesOf = id => db.entries.filter(e => e.counterId === id).sort(byTime);
+/* ---------- v7b: Mengen, Schritt, Kategorie, Preis ---------- */
+function isPrice(v) { return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 99999; }
+function validAmount(a) { return Number.isInteger(a) && a !== 0 && Math.abs(a) <= 9999; }
+/* v7c: Zeit-Zähler – Einträge tragen eine Dauer in Sekunden; sie ist ihre „Menge“ (Summen, Ziele, Diagramm, Serien) */
+const MAX_DUR = 720 * 3600; // 30 Tage
+function validDuration(s) { return Number.isInteger(s) && s >= 1 && s <= 2592000; } // = MAX_DUR; Literal, weil normalizeDb schon beim Laden läuft
+const isTime = c => !!c && c.type === 'time';
+const amt = e => (validDuration(e.duration) ? e.duration : validAmount(e.amount) ? e.amount : 1); // fehlt = 1
+/** Dauer lesbar: „1 Std. 25 Min.“, unter 1 Minute in Sekunden */
+function fmtDur(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
+  if (!h && !m) return sec ? t('durSec', { n: sec }) : t('durMin', { n: 0 });
+  if (!h) return t('durMin', { n: m });
+  return m ? `${t('durHours', { n: h })} ${t('durMin', { n: m })}` : t('durHours', { n: h });
+}
+const fmtShortDur = sec => { const m = Math.round(Math.max(0, sec) / 60); return `${Math.floor(m / 60)}:${pad(m % 60)}`; }; // Diagramm: 1:25
+const fmtClock = sec => { sec = Math.max(0, Math.floor(sec)); const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), x = sec % 60; return h ? `${h}:${pad(m)}:${pad(x)}` : `${m}:${pad(x)}`; };
+const fmtVal = (c, v) => (isTime(c) ? fmtDur(v) : String(v));
+const activeCounters = () => sortedCounters().filter(c => !c.archived);
+const stepOf = c => (Number.isInteger(c.step) && c.step >= 1 && c.step <= 999 ? c.step : 1);
+const catOf = c => (typeof c.category === 'string' ? c.category.trim() : '');
+const fmtAmt = a => (a < 0 ? '−' + (-a) : '+' + a);
+const categories = () => [...new Set(db.counters.filter(c => !c.archived).map(catOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, intlLocale(), { sensitivity: 'base' }));
+/** Bestand chronologisch. Minus ist eine Korrektur und wirkt höchstens bis 0 – der Stand wird nie negativ.
+    eff[i] = tatsächlich wirksame Menge, runs[i] = Stand danach, units = ein Platz pro Stück (nur für Runden) */
+function ledger(list, withUnits = false) {
+  let run = 0; const units = withUnits ? [] : null, eff = [], runs = [];
+  for (const e of list) {
+    const a = amt(e); let d;
+    if (a > 0) { d = a; if (units) for (let i = 0; i < a; i++) units.push(e); }
+    else { d = -Math.min(run, -a); if (units && d) units.length += d; }
+    run += d; eff.push(d); runs.push(run);
+  }
+  return { total: run, eff, runs, units };
+}
 /** Runden-Info abgeleitet aus Anzahl + Rundengröße */
 function roundInfo(c, list) {
-  const total = list.length, n = c.roundSize;
-  if (!n) return { total, round: null };
+  const n = isTime(c) ? null : c.roundSize, L = ledger(list, !!n), total = L.total, u = L.units;
+  if (!n) return { total, round: null, L };
   const roundIdx = total ? Math.floor((total - 1) / n) : 0;         // 0-basiert: aktuelle (letzte belegte) Runde
   const inRound = total - roundIdx * n;                              // 0..n Einträge in aktueller Runde
   const full = total > 0 && inRound === n;
-  return { total, n, round: roundIdx + 1, inRound, full, next: (total % n) + 1,
-           current: list.slice(roundIdx * n, roundIdx * n + n), past: Array.from({ length: roundIdx }, (_, i) => list.slice(i * n, i * n + n)) };
+  return { total, n, round: roundIdx + 1, inRound, full, next: (total % n) + 1, L,
+           current: u.slice(roundIdx * n, roundIdx * n + n), past: Array.from({ length: roundIdx }, (_, i) => u.slice(i * n, i * n + n)) };
 }
-function stats(list) {
+/** Summen der Mengen (amount). Zeiträume, in denen nur korrigiert wurde, zeigen 0 statt einer negativen Zahl. */
+function stats(list, L = ledger(list)) {
   const now = new Date(), d0 = startOfDay(now), w0 = startOfWeek(now), m0 = startOfMonth(now);
   let today = 0, week = 0, month = 0;
-  for (const e of list) { const ts = new Date(e.timestamp); if (ts >= d0) today++; if (ts >= w0) week++; if (ts >= m0) month++; }
+  list.forEach((e, i) => { const ts = new Date(e.timestamp), d = L.eff[i]; if (ts >= d0) today += d; if (ts >= w0) week += d; if (ts >= m0) month += d; });
+  today = Math.max(0, today); week = Math.max(0, week); month = Math.max(0, month);
   const last = list[list.length - 1];
   const avg = list.length > 1 ? (new Date(last.timestamp) - new Date(list[0].timestamp)) / (list.length - 1) : null;
-  return { today, week, month, total: list.length, last, avg };
+  return { today, week, month, total: L.total, last, avg };
 }
 function countLabel(c, list) {
   const r = roundInfo(c, list);
   return r.round ? { big: `${r.inRound}<small>/${r.n}</small>`, sub: r.full ? t('tileRoundFull', { r: r.round }) : t('tileRound', { r: r.round, next: r.next }), r }
-                 : { big: `${r.total}`, sub: '', r };
+                 : { big: isTime(c) ? esc(fmtDur(r.total)) : `${r.total}`, sub: '', r };
+}
+
+/* ---------- v7: Ziele ---------- */
+const GOAL_PERIODS = ['day', 'week', 'month', 'total'];
+/** Ziel prüfen: { amount: 1..9999, period } oder null (ungültige/alte Werte -> null) */
+function sanitizeGoal(g) {
+  if (!g || typeof g !== 'object') return null;
+  const amount = parseInt(g.amount, 10);
+  if (!Number.isInteger(amount) || amount < 1 || amount > 9999 || !['day', 'week', 'month', 'total'].includes(g.period)) return null;
+  return { amount, period: g.period };
+}
+/** Zeit-Zähler: Ziel in Minuten, verglichen mit Sekunden */
+const goalTarget = (c, g) => (isTime(c) ? g.amount * 60 : g.amount);
+function goalProgress(c, list, st = stats(list)) {
+  const g = sanitizeGoal(c.goal); if (!g) return null;
+  const cnt = { day: st.today, week: st.week, month: st.month, total: st.total }[g.period], need = goalTarget(c, g);
+  const key = { day: 'goalDay', week: 'goalWeek', month: 'goalMonth', total: 'goalTotal' }[g.period];
+  return { count: cnt, amount: g.amount, period: g.period, pct: Math.min(100, Math.round(cnt / need * 100)), done: cnt >= need,
+           text: t(key, { c: fmtVal(c, cnt), g: fmtVal(c, need) }) };
+}
+
+/* ---------- v7b: Serien ---------- */
+const PERIOD_START = { day: startOfDay, week: startOfWeek, month: startOfMonth };
+function nextPeriod(d, p) { const x = new Date(d); if (p === 'day') x.setDate(x.getDate() + 1); else if (p === 'week') x.setDate(x.getDate() + 7); else x.setMonth(x.getMonth() + 1, 1); return x; }
+/** Aufeinanderfolgende Zeiträume (Zeitraum des Ziels), in denen das Ziel erreicht wurde.
+    Der laufende Zeitraum zählt erst, wenn er erreicht ist – solange er offen ist, bricht er die Serie aber nicht. */
+function streaks(c, list, L = ledger(list)) {
+  const g = sanitizeGoal(c.goal); if (!g || g.period === 'total') return null;
+  const start = PERIOD_START[g.period], sums = new Map();
+  list.forEach((e, i) => { const k = +start(new Date(e.timestamp)); sums.set(k, (sums.get(k) || 0) + L.eff[i]); });
+  const cur0 = +start(new Date()), need = goalTarget(c, g); let run = 0, best = 0;
+  if (list.length) for (let d = start(new Date(list[0].timestamp)); +d <= cur0; d = nextPeriod(d, g.period)) {
+    if ((sums.get(+d) || 0) >= need) { run++; if (run > best) best = run; }
+    else if (+d !== cur0) run = 0;
+  }
+  return { cur: run, best, period: g.period };
+}
+const PKEY = { day: 'Day', week: 'Week', month: 'Month' };
+const streakText = s => t('streakCur' + PKEY[s.period], { n: s.cur });
+const bestText = s => t('streakBest' + PKEY[s.period], { n: s.best });
+
+/* ---------- v7b: Kosten (Cent-genau, Euro) ---------- */
+const unitPrice = (c, e) => (isPrice(e.price) ? e.price : isPrice(c.price) ? c.price : 0);
+const costsOn = (c, list) => isPrice(c.price) || list.some(e => isPrice(e.price));
+const cents = (c, e, d) => (isTime(c) ? Math.round(unitPrice(c, e) * 100 * d / 3600) : Math.round(unitPrice(c, e) * 100) * d); // Zeit: Preis pro Stunde
+function costStats(c, list, L = ledger(list)) {
+  const now = new Date(), m0 = startOfMonth(now), y0 = new Date(now.getFullYear(), 0, 1);
+  let month = 0, year = 0, total = 0;
+  list.forEach((e, i) => { const v = cents(c, e, L.eff[i]), ts = new Date(e.timestamp); total += v; if (ts >= y0) year += v; if (ts >= m0) month += v; });
+  return { month: Math.max(0, month), year: Math.max(0, year), total: Math.max(0, total) };
+}
+const fmtMoney = (ct, whole = false) => new Intl.NumberFormat(intlLocale(), { style: 'currency', currency: 'EUR',
+  ...(whole ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {}) }).format(ct / 100);
+/** Preis-Eingabe „1,49“ oder „1.49“ (max. 2 Nachkommastellen) -> { ok, value: Zahl|null } */
+function parsePrice(str) {
+  const x = String(str ?? '').trim().replace(/[\s€]/g, '');
+  if (!x) return { ok: true, value: null };
+  if (!/^\d{1,5}([.,]\d{1,2})?$/.test(x)) return { ok: false };
+  const v = Number(x.replace(',', '.'));
+  return isPrice(v) ? { ok: true, value: Math.round(v * 100) / 100 } : { ok: false };
+}
+const priceInput = v => (isPrice(v) ? new Intl.NumberFormat(intlLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(v) : '');
+
+/* ---------- v7: Erinnerungen (über die Kalender-App, .ics) ---------- */
+const ICS_DAYS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']; // ISO-Wochentag 1..7
+/** Erinnerung prüfen: { time: 'HH:MM', days: [1..7] } oder null */
+function sanitizeReminder(r) {
+  if (!r || typeof r !== 'object' || typeof r.time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time) || !Array.isArray(r.days)) return null;
+  const days = [...new Set(r.days.map(Number).filter(d => Number.isInteger(d) && d >= 1 && d <= 7))].sort((a, b) => a - b);
+  return days.length ? { time: r.time, days } : null;
+}
+const isoWeekday = d => ((d.getDay() + 6) % 7) + 1;
+const weekdayName = iso => new Intl.DateTimeFormat(intlLocale(), { weekday: 'short' }).format(new Date(2024, 0, iso)); // 1.1.2024 = Montag
+const reminderDaysText = r => (r.days.length === 7 ? t('everyDay') : r.days.map(weekdayName).join(', '));
+const reminderTimeText = r => { const [h, m] = r.time.split(':').map(Number); return fmtTime(new Date(2024, 0, 1, h, m)); };
+function reminderDue(c, list) {
+  const r = sanitizeReminder(c.reminder); if (!r) return false;
+  const now = new Date(); if (!r.days.includes(isoWeekday(now))) return false;
+  const [h, m] = r.time.split(':').map(Number);
+  if (now < new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m)) return false;
+  const d0 = startOfDay(now);
+  return !list.some(e => new Date(e.timestamp) >= d0);
+}
+const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function icsFold(line) { // RFC 5545: max. 75 Oktette pro Zeile, Folgezeilen mit Leerzeichen
+  const enc = new TextEncoder(); const out = []; let cur = '', len = 0, limit = 75;
+  for (const ch of line) { const l = enc.encode(ch).length; if (len + l > limit) { out.push(cur); cur = ' '; len = 1; limit = 75; } cur += ch; len += l; }
+  out.push(cur); return out.join('\r\n');
+}
+const icsLocal = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+const icsUtc = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const appUrl = id => location.origin + location.pathname + (id ? '#c=' + encodeURIComponent(id) : '');
+/** Wiederkehrender Termin mit Alarm zur Uhrzeit. Lokale („floating“) Zeit = Uhrzeit des iPhones. */
+function buildIcs(c, rem) {
+  const r = sanitizeReminder(rem); if (!r) return null;
+  const [h, m] = r.time.split(':').map(Number), now = new Date();
+  let start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+  for (let i = 0; i < 7 && !r.days.includes(isoWeekday(start)); i++) start.setDate(start.getDate() + 1); // erster passender Tag ab heute
+  const end = new Date(start.getTime() + 5 * 60000);
+  const title = t('icsTitle', { emoji: c.emoji || '🔢', name: c.name }).trim(), url = appUrl(c.id);
+  const rrule = r.days.length === 7 ? 'FREQ=DAILY' : 'FREQ=WEEKLY;BYDAY=' + r.days.map(d => ICS_DAYS[d - 1]).join(',');
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Zaehler//Web-App ' + APP_BUILD + '//' + lang.toUpperCase(), 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VEVENT', `UID:${c.id}-reminder@zaehler-app`, `DTSTAMP:${icsUtc(now)}`, `DTSTART:${icsLocal(start)}`, `DTEND:${icsLocal(end)}`,
+    `RRULE:${rrule}`, `SUMMARY:${icsEsc(title)}`, `DESCRIPTION:${icsEsc(t('icsDesc') + ' ' + url)}`, `URL:${url}`, 'TRANSP:TRANSPARENT',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'];
+  return lines.map(icsFold).join('\r\n') + '\r\n';
+}
+const slug = s => (String(s).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'zaehler').slice(0, 30);
+/** .ics teilen (iPhone) oder herunterladen. Ergebnis: 'shared' | 'downloaded' | 'aborted' | null */
+async function shareFile(text, name, type) {
+  try {
+    const file = new File([text], name, { type });
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return 'shared'; }
+  } catch (e) { if (e && e.name === 'AbortError') return 'aborted'; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  return 'downloaded';
+}
+async function addToCalendar(c, rem) {
+  const ics = buildIcs(c, rem); if (!ics) return null;
+  const res = await shareFile(ics, `zaehler-erinnerung-${slug(c.name)}.ics`, 'text/calendar');
+  if (res && res !== 'aborted') toast(t('calendarDone'), [], 4000);
+  return res;
+}
+
+/* ---------- v7: Diagramm ---------- */
+const CHART_KEY = 'zaehler-chart-mode';
+const CHART_WHAT_KEY = 'zaehler-chart-value';
+function chartBuckets(list, mode, vals) {
+  const now = new Date(), b = [];
+  if (mode === 'day') for (let i = 13; i >= 0; i--) { const s = startOfDay(now); s.setDate(s.getDate() - i); const e = new Date(s); e.setDate(e.getDate() + 1); b.push({ s, e }); }
+  else if (mode === 'week') for (let i = 11; i >= 0; i--) { const s = startOfWeek(now); s.setDate(s.getDate() - 7 * i); const e = new Date(s); e.setDate(e.getDate() + 7); b.push({ s, e }); }
+  else for (let i = 11; i >= 0; i--) { const s = new Date(now.getFullYear(), now.getMonth() - i, 1); b.push({ s, e: new Date(s.getFullYear(), s.getMonth() + 1, 1) }); }
+  for (const x of b) x.n = 0;
+  list.forEach((e, i) => { const ts = new Date(e.timestamp); for (const x of b) if (ts >= x.s && ts < x.e) { x.n += vals[i]; break; } });
+  for (const x of b) x.n = Math.max(0, x.n); // reine Korrektur-Zeiträume nicht negativ zeichnen
+  return b;
+}
+/** Wochen seit der Woche des ersten Eintrags (inkl. aktueller) */
+const weeksSince = list => (list.length ? Math.max(1, Math.round((startOfWeek(new Date()) - startOfWeek(new Date(list[0].timestamp))) / (7 * 864e5)) + 1) : 1);
+function renderChart(c, list) {
+  const mode = ['day', 'week', 'month'].includes(lsGet(CHART_KEY)) ? lsGet(CHART_KEY) : 'week';
+  document.querySelectorAll('#chartSeg button').forEach(b => { b.classList.toggle('on', b.dataset.mode === mode); b.setAttribute('aria-pressed', b.dataset.mode === mode); });
+  const L = ledger(list), costs = costsOn(c, list), what = costs && lsGet(CHART_WHAT_KEY) === 'cost' ? 'cost' : 'count';
+  $('chartWhatRow').hidden = !costs;
+  document.querySelectorAll('#chartWhat button').forEach(x => { x.classList.toggle('on', x.dataset.what === what); x.setAttribute('aria-pressed', x.dataset.what === what); });
+  const vals = what === 'cost' ? list.map((e, i) => cents(c, e, L.eff[i])) : L.eff;
+  const b = chartBuckets(list, mode, vals), loc = intlLocale(), money = what === 'cost';
+  const lab = mode === 'day' ? new Intl.DateTimeFormat(loc, { day: 'numeric' }) : mode === 'week' ? new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'numeric' }) : new Intl.DateTimeFormat(loc, { month: 'short' });
+  const g = sanitizeGoal(c.goal), goalLine = !money && g && g.period === mode ? goalTarget(c, g) : null, tm = isTime(c);
+  const fv = v => (money ? fmtMoney(v, true) : tm ? fmtShortDur(v) : String(v));
+  const W = 340, H = 150, top = 18, bottom = 22, left = 4, right = 4, n = b.length, slot = (W - left - right) / n, bw = Math.max(6, Math.floor(slot * 0.62));
+  const max = Math.max(1, goalLine || 0, ...b.map(x => x.n)), ph = H - top - bottom;
+  const y = v => Math.round(top + ph - v / max * ph);
+  let svg = `<line x1="${left}" x2="${W - right}" y1="${top + ph}" y2="${top + ph}" stroke="var(--line)" stroke-width="1"/>`;
+  b.forEach((x, i) => {
+    const cx = Math.round(left + slot * i + slot / 2), h = Math.round(x.n / max * ph), cur = i === n - 1;
+    const full = mode === 'day' ? fmtDate(x.s) : mode === 'week' ? `${fmtDate(x.s)} – ${fmtDate(new Date(x.e - 864e5))}` : new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' }).format(x.s);
+    svg += `<g class="bar-g"><title>${esc(money ? t('chartBarCost', { label: full, v: fmtMoney(x.n) }) : tm ? t('chartBarCost', { label: full, v: fmtDur(x.n) }) : t('chartBar', { label: full, n: x.n }))}</title>`;
+    if (x.n) svg += `<rect x="${cx - Math.floor(bw / 2)}" y="${top + ph - h}" width="${bw}" height="${h}" rx="3" style="fill:var(--c);opacity:${cur ? 1 : 0.6}"/>`
+      + `<text class="val" x="${cx}" y="${top + ph - h - 4}" text-anchor="middle"${money || tm ? ' style="font-size:8.5px"' : ''}>${esc(fv(x.n))}</text>`;
+    const showLabel = mode !== 'week' || i % 2 === (n - 1) % 2;
+    if (showLabel) svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle"${cur ? ' style="fill:var(--ink);font-weight:600"' : ''}>${esc(lab.format(x.s))}</text>`;
+    svg += '</g>';
+  });
+  if (goalLine) svg += `<line x1="${left}" x2="${W - right}" y1="${y(goalLine)}" y2="${y(goalLine)}" stroke="var(--c)" stroke-width="1.5" stroke-dasharray="4 4"/>`
+    + `<text x="${W - right}" y="${y(goalLine) - 4}" text-anchor="end" style="fill:var(--c);font-weight:600">${esc(t('goalLabel'))} ${esc(tm ? fmtShortDur(goalLine) : String(goalLine))}</text>`;
+  const sum = b.reduce((a, x) => a + x.n, 0);
+  if (!sum) svg += `<text x="${W / 2}" y="${top + ph / 2}" text-anchor="middle">${esc(t('chartEmpty'))}</text>`;
+  $('chart').innerHTML = svg; $('chart').setAttribute('aria-label', t('chartTitle'));
+  $('chart').dataset.mode = mode; $('chart').dataset.what = what; $('chart').dataset.values = b.map(x => x.n).join(',');
+  const wk = weeksSince(list);
+  $('avgWeek').textContent = money ? fmtMoney(Math.round(costStats(c, list, L).total / wk)) : tm ? fmtDur(L.total / wk) : new Intl.NumberFormat(loc, { maximumFractionDigits: 1 }).format(L.total / wk);
+  $('chartRange').textContent = `${fmtDate(b[0].s)} – ${fmtDate(new Date(b[n - 1].e - 864e5))}`;
+}
+
+/* ---------- v7: Daten normalisieren (verlustfrei; alte Daten ohne goal/reminder bleiben gültig) ---------- */
+function normalizeDb(s) {
+  s.settings = s.settings && typeof s.settings === 'object' ? s.settings : {};
+  s.counters.forEach((c, i) => {
+    if (!Number.isFinite(c.order)) c.order = i;
+    if ('goal' in c && !(c.goal = sanitizeGoal(c.goal))) delete c.goal;
+    if ('reminder' in c && !(c.reminder = sanitizeReminder(c.reminder))) delete c.reminder;
+    if ('step' in c && !(Number.isInteger(c.step) && c.step >= 1 && c.step <= 999)) delete c.step;
+    if ('category' in c) { if (typeof c.category === 'string' && c.category.trim()) c.category = c.category.trim().slice(0, 30); else delete c.category; }
+    if ('price' in c && !isPrice(c.price)) delete c.price;
+    if ('archived' in c && c.archived !== true) delete c.archived; // v7c
+    if ('runningSince' in c && !(c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince)))) delete c.runningSince;
+  });
+  for (const e of s.entries) { // v7b: Menge/Preis pro Eintrag (fehlen bei alten Daten = 1 bzw. Zählerpreis)
+    if (e && 'amount' in e && !validAmount(e.amount)) delete e.amount;
+    if (e && 'price' in e && !isPrice(e.price)) delete e.price;
+    if (e && 'duration' in e && !validDuration(e.duration)) delete e.duration; // v7c
+    if (e && 'photo' in e && !(typeof e.photo === 'string' && e.photo && e.photo.length <= 80)) delete e.photo;
+  }
+  return s;
+}
+
+/* ---------- v7c: Fotos (IndexedDB; im localStorage steht nur die id am Eintrag) ---------- */
+const PHOTO_DB = 'zaehler-fotos', PHOTO_STORE = 'photos', PHOTO_MAX = 1280, PHOTO_Q = 0.7;
+let photoDbP = null;
+function photoDb() {
+  if (!photoDbP) photoDbP = new Promise((res, rej) => {
+    if (!window.indexedDB) { rej(new Error('no indexedDB')); return; }
+    const r = indexedDB.open(PHOTO_DB, 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(PHOTO_STORE)) r.result.createObjectStore(PHOTO_STORE, { keyPath: 'id' }); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }).catch(e => { photoDbP = null; throw e; });
+  return photoDbP;
+}
+/** Eine Transaktion; Fehler (z. B. QuotaExceededError) werden als Promise-Fehler weitergegeben */
+function photoTx(mode, fn) {
+  return photoDb().then(d => new Promise((res, rej) => {
+    let out, tx;
+    try { tx = d.transaction(PHOTO_STORE, mode); const r = fn(tx.objectStore(PHOTO_STORE)); if (r) r.onsuccess = () => { out = r.result; }; }
+    catch (e) { rej(e); return; }
+    tx.oncomplete = () => res(out);
+    tx.onerror = ev => { ev.preventDefault && ev.preventDefault(); rej(tx.error || ev.target.error); };
+    tx.onabort = () => rej(tx.error || new DOMException('abort', 'AbortError'));
+  }));
+}
+const photoPut = rec => photoTx('readwrite', st => st.put(rec));
+const photoGet = id => photoTx('readonly', st => st.get(id));
+const photoDel = id => photoTx('readwrite', st => st.delete(id));
+const photoAll = () => photoTx('readonly', st => st.getAll());
+const photoClear = () => photoTx('readwrite', st => st.clear());
+const photoUrls = new Map(), photoB64 = new Map(); // Cache: Objekt-URLs für die Anzeige, base64 für das Backup
+function forgetPhoto(id) { const u = photoUrls.get(id); if (u) URL.revokeObjectURL(u); photoUrls.delete(id); photoB64.delete(id); }
+async function photoUrl(id) {
+  if (photoUrls.has(id)) return photoUrls.get(id);
+  let r = null; try { r = await photoGet(id); } catch (e) {}
+  if (!r || !r.data) return null;
+  const u = URL.createObjectURL(new Blob([r.data], { type: r.type || 'image/jpeg' })); photoUrls.set(id, u); return u;
+}
+function abToB64(buf) { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+function b64ToAb(b64) { const s = atob(b64.replace(/\s/g, '')); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u.buffer; }
+const fmtBytes = b => { const mb = b >= 1e6; return new Intl.NumberFormat(intlLocale(), { style: 'unit', unit: mb ? 'megabyte' : 'kilobyte', unitDisplay: 'short', maximumFractionDigits: mb ? 1 : 0 }).format(Math.max(mb ? 0.1 : 1, b / (mb ? 1e6 : 1e3))); };
+/** Bild verkleinern: längste Seite max. 1280 px, JPEG 0,7 (iPhone liefert HEIC beim Auswählen als JPEG) */
+async function compressImage(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('image')); i.src = url; });
+    const w0 = img.naturalWidth, h0 = img.naturalHeight; if (!w0 || !h0) throw new Error('image');
+    const k = Math.min(1, PHOTO_MAX / Math.max(w0, h0)), w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.drawImage(img, 0, 0, w, h);
+    const blob = await new Promise(res => cv.toBlob(res, 'image/jpeg', PHOTO_Q)); if (!blob) throw new Error('encode');
+    return { data: await blob.arrayBuffer(), type: 'image/jpeg', size: blob.size, w, h };
+  } finally { URL.revokeObjectURL(url); }
+}
+/** Fotos ohne Eintrag entfernen (gelöschte Einträge/Zähler) */
+async function photoGc() {
+  const refs = new Set(db.entries.map(e => e.photo).filter(Boolean));
+  try { const all = await photoAll(); for (const r of all) if (!refs.has(r.id)) { await photoDel(r.id); forgetPhoto(r.id); } } catch (e) {}
+}
+/** base64 der referenzierten Fotos vorbereiten, damit „Backup“ ohne Warten teilen kann (iOS verlangt Teilen direkt nach dem Tippen) */
+async function preparePhotos() {
+  const refs = new Set(db.entries.map(e => e.photo).filter(Boolean)); if (!refs.size) return;
+  try { for (const id of refs) if (!photoB64.has(id)) { const r = await photoGet(id); if (r && r.data) photoB64.set(id, { id, type: r.type || 'image/jpeg', data: abToB64(r.data) }); } } catch (e) {}
+}
+function backupPhotosSync() { // null = noch nicht bereit
+  const refs = [...new Set(db.entries.map(e => e.photo).filter(Boolean))], out = [];
+  for (const id of refs) { const p = photoB64.get(id); if (p) out.push(p); }
+  return out;
+}
+async function photoStats() {
+  const refs = new Set(db.entries.map(e => e.photo).filter(Boolean)); let n = 0, bytes = 0, b64 = 0;
+  try { for (const r of await photoAll()) if (refs.has(r.id)) { n++; const sz = r.size || (r.data ? r.data.byteLength : 0); bytes += sz; b64 += Math.ceil(sz / 3) * 4 + r.id.length + 40; } } catch (e) {}
+  return { n, bytes, b64 };
+}
+/** Foto-Bereich im Notiz-/Eintrags-Dialog */
+const photoField = has => `<div class="field"><span class="lbl">${esc(t('photoLbl'))}</span>
+    <div class="photo-box"><img id="phPrev" alt="" ${has ? '' : 'hidden'}>
+      <label class="btn" id="phAdd"><input type="file" id="phFile" accept="image/*" hidden><span id="phAddTxt">${esc(t(has ? 'photoChange' : 'photoAdd'))}</span></label>
+      <button class="btn danger" type="button" id="phRemove" ${has ? '' : 'hidden'}>${esc(t('photoRemove'))}</button></div>
+    <p class="small" id="phMsg">${esc(t('photoHelp'))}</p></div>`;
+function bindPhotoField(box, e) {
+  const st = { action: 'keep', rec: null, busy: null };
+  const prev = box.querySelector('#phPrev'), rm = box.querySelector('#phRemove'), msg = box.querySelector('#phMsg'), addTxt = box.querySelector('#phAddTxt'), fi = box.querySelector('#phFile');
+  if (e && e.photo) photoUrl(e.photo).then(u => { if (u) prev.src = u; else { prev.hidden = true; msg.textContent = t('photoMissing'); } });
+  fi.addEventListener('change', () => {
+    const f = fi.files && fi.files[0]; if (!f) return;
+    msg.textContent = t('photoBusy');
+    st.busy = compressImage(f).then(r => {
+      st.action = 'set'; st.rec = r; prev.src = URL.createObjectURL(new Blob([r.data], { type: r.type })); prev.hidden = false; rm.hidden = false;
+      addTxt.textContent = t('photoChange'); msg.textContent = `${fmtBytes(r.size)} · ${r.w} × ${r.h} px`;
+    }).catch(() => { msg.textContent = t('photoFail'); }).finally(() => { st.busy = null; });
+  });
+  rm.onclick = () => { st.action = 'remove'; st.rec = null; prev.hidden = true; prev.removeAttribute('src'); rm.hidden = true; fi.value = ''; addTxt.textContent = t('photoAdd'); msg.textContent = t('photoHelp'); };
+  return st;
+}
+/** Änderung am Foto übernehmen. false = Speichern fehlgeschlagen (Meldung wurde gezeigt) */
+async function applyPhoto(e, st) {
+  if (!st || st.action === 'keep') return true;
+  const old = e.photo;
+  if (st.action === 'remove') { delete e.photo; if (old) { photoDel(old).catch(() => {}); forgetPhoto(old); } return true; }
+  const id = uuid();
+  try { await photoPut({ id, type: st.rec.type, data: st.rec.data, size: st.rec.size, w: st.rec.w, h: st.rec.h, createdAt: isoNow() }); }
+  catch (err) { toast(t(err && err.name === 'QuotaExceededError' ? 'photoQuota' : 'photoFail'), [], 6000); return false; }
+  e.photo = id; photoB64.set(id, { id, type: st.rec.type, data: abToB64(st.rec.data) });
+  if (old) { photoDel(old).catch(() => {}); forgetPhoto(old); }
+  return true;
+}
+function hydratePhotos(root = document) {
+  root.querySelectorAll('img[data-photo]').forEach(async img => {
+    const u = await photoUrl(img.dataset.photo);
+    if (u) img.src = u; else { const b = img.parentElement; img.remove(); if (b) { b.textContent = '🖼'; b.title = t('photoMissing'); } }
+  });
+}
+
+/* ---------- v7c: Zeit messen (Start/Stopp; laufende Uhr = runningSince am Zähler, übersteht Neuladen) ---------- */
+function stopTimerCore(c) {
+  if (!c.runningSince) return null;
+  const start = new Date(c.runningSince), sec = Math.min(MAX_DUR, Math.round((Date.now() - start) / 1000));
+  delete c.runningSince;
+  if (!(sec >= 1) || isNaN(start)) { save(); return null; }
+  return addEntry(c.id, { timestamp: isoNow(start), duration: sec }); // Zeitpunkt = Start; zählt zum Tag des Starts
+}
+async function toggleTimer(cid) {
+  const c = counter(cid); if (!isTime(c) || c.archived) return;
+  buzz();
+  if (!c.runningSince) {
+    c.runningSince = isoNow(); save(); render();
+    toast(`${c.emoji || ''} ${t('toastTimerStart', { name: c.name })}`, [[t('cancel'), () => { delete c.runningSince; save(); render(); }]], 4000);
+    return;
+  }
+  const since = c.runningSince, e = stopTimerCore(c); render();
+  if (!e) { toast(t('timerTooShort')); return; }
+  const tl = document.querySelector(`.tile[data-id="${cid}"]`); if (tl) { tl.classList.remove('pulse'); void tl.offsetWidth; tl.classList.add('pulse'); }
+  const msg = `${c.emoji || ''} ${t('toastTimerStop', { name: c.name, d: fmtDur(e.duration), t: fmtDur(stats(entriesOf(cid)).today) })}`;
+  const undoBtn = [t('undo'), () => { removeEntry(e.id); c.runningSince = since; save(); render(); toast(t('entryRemoved')); }]; // Uhr läuft weiter
+  if (c.askNote) { const ok = await noteFor(e.id); if (ok !== false) toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
+  toast(msg, [[t('noteBtn'), () => noteFor(e.id)], undoBtn], 4000);
+}
+function tickClocks() {
+  const now = Date.now();
+  document.querySelectorAll('[data-clock]').forEach(el => { el.textContent = fmtClock((now - Date.parse(el.dataset.clock)) / 1000); });
+}
+setInterval(tickClocks, 1000);
+
+/* ---------- v7c: Archiv ---------- */
+function setArchived(id, on) {
+  const c = counter(id); if (!c) return;
+  if (on) { stopTimerCore(c); c.archived = true; } else delete c.archived;
+  save();
+}
+
+/* ---------- v7c: Suche (ohne Groß-/Kleinschreibung und Akzente) ---------- */
+const norm = s => String(s ?? '').normalize('NFD').replace(/\p{M}/gu, '').replace(/ß/g, 'ss').toLowerCase();
+const matchAll = (hay, toks) => { const h = norm(hay); return toks.every(k => h.includes(k)); };
+let searchQ = '', searchOpen = false, focusEntryId = null;
+
+/* ---------- v7c: Jahresrückblick ---------- */
+const yearsWithData = () => [...new Set(db.entries.filter(e => counter(e.counterId)).map(e => new Date(e.timestamp).getFullYear()))].filter(Number.isFinite).sort((a, b) => b - a);
+function yearStreak(c, list, L, y) {
+  const g = sanitizeGoal(c.goal), goal = !!g && g.period !== 'total', period = goal ? g.period : 'day', start = PERIOD_START[period], need = goal ? goalTarget(c, g) : 1;
+  const sums = new Map(); list.forEach((e, i) => { const k = +start(new Date(e.timestamp)); sums.set(k, (sums.get(k) || 0) + L.eff[i]); });
+  const end = Math.min(Date.now() + 1, +new Date(y + 1, 0, 1)); let run = 0, best = 0;
+  for (let d = start(new Date(y, 0, 1)); +d < end; d = nextPeriod(d, period)) {
+    if ((sums.get(+d) || 0) >= need) { run++; if (run > best) best = run; } else if (+d !== +start(new Date())) run = 0;
+  }
+  return { best, period, goal };
+}
+function yearReview(y) {
+  const y0 = new Date(y, 0, 1), y1 = new Date(y + 1, 0, 1), days = new Set(), R = { year: y, entries: 0, days: 0, costs: 0, hasCosts: false, months: Array(12).fill(0), counters: [] };
+  for (const c of sortedCounters()) {
+    const es = entriesOf(c.id), L = ledger(es), m = Array(12).fill(0); let n = 0, ct = 0;
+    es.forEach((e, i) => { const d = new Date(e.timestamp); if (d < y0 || d >= y1) return;
+      n++; m[d.getMonth()] += L.eff[i]; R.months[d.getMonth()]++; days.add(+startOfDay(d)); ct += cents(c, e, L.eff[i]); });
+    if (!n) continue;
+    const months = m.map(v => Math.max(0, v)), total = Math.max(0, m.reduce((a, b) => a + b, 0));
+    const bi = months.reduce((b, v, i) => (v > months[b] ? i : b), 0), co = costsOn(c, es);
+    if (co) { R.hasCosts = true; R.costs += Math.max(0, ct); }
+    R.entries += n;
+    R.counters.push({ c, id: c.id, n, total, months, bestMonth: months[bi] > 0 ? bi : null, bestValue: months[bi], streak: yearStreak(c, es, L, y), cost: co ? Math.max(0, ct) : null });
+  }
+  R.days = days.size;
+  R.counters.sort((a, b) => b.n - a.n || a.c.order - b.c.order);
+  return R;
+}
+function monthChart(vals, opts = {}) {
+  const W = 340, H = opts.small ? 58 : 120, top = opts.values ? 16 : 6, bottom = 18, n = 12, slot = (W - 8) / n, bw = Math.max(6, Math.floor(slot * 0.6));
+  const max = Math.max(1, ...vals), ph = H - top - bottom, loc = intlLocale();
+  const lab = new Intl.DateTimeFormat(loc, { month: opts.small ? 'narrow' : 'short' });
+  let svg = `<line x1="4" x2="${W - 4}" y1="${top + ph}" y2="${top + ph}" stroke="var(--line)" stroke-width="1"/>`;
+  vals.forEach((v, i) => {
+    const cx = Math.round(4 + slot * i + slot / 2), h = Math.round(v / max * ph);
+    if (v > 0) svg += `<rect x="${cx - Math.floor(bw / 2)}" y="${top + ph - h}" width="${bw}" height="${Math.max(1, h)}" rx="3" style="fill:${opts.color || 'var(--accent)'}"/>`
+      + (opts.values ? `<text class="val" x="${cx}" y="${top + ph - h - 4}" text-anchor="middle">${esc(opts.fmt ? opts.fmt(v) : String(v))}</text>` : '');
+    svg += `<text x="${cx}" y="${H - 5}" text-anchor="middle">${esc(lab.format(new Date(2024, i, 1)))}</text>`;
+  });
+  return `<svg class="rv-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.label || '')}" data-values="${vals.join(',')}">${svg}</svg>`;
 }
 
 /* ---------- Mutationen ---------- */
 function addEntry(cid, extra = {}) {
   const e = { id: uuid(), counterId: cid, timestamp: isoNow(), ...extra };
   if (!e.note) delete e.note;
+  if (!validAmount(e.amount) || e.amount === 1) delete e.amount; // Standard 1 wird nicht gespeichert (wie bisher)
+  if (!isPrice(e.price)) delete e.price;
+  if (!validDuration(e.duration)) delete e.duration;
   db.entries.push(e); save(); return e;
 }
 function removeEntry(id) { db.entries = db.entries.filter(e => e.id !== id); save(); }
@@ -716,6 +1725,8 @@ function upsertCounter(data) {
   let c = data.id && counter(data.id);
   if (c) Object.assign(c, data);
   else { c = { id: uuid(), order: db.counters.reduce((m, x) => Math.max(m, x.order + 1), 0), createdAt: isoNow(), ...data }; db.counters.push(c); }
+  for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
+  if (c.step === 1) delete c.step;
   save(); return c;
 }
 function deleteCounter(id) { db.counters = db.counters.filter(c => c.id !== id); db.entries = db.entries.filter(e => e.counterId !== id); save(); }
@@ -749,7 +1760,7 @@ function openSheet(html, onMount) {
 function closeSheet(v = null) {
   if (reloadPending) setTimeout(() => { if (reloadPending && !$('sheet').classList.contains('show')) location.reload(); }, 600); // Update nachholen, nachdem gespeichert wurde
   $('sheet').classList.remove('show'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
-$('sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(null); });
+$('sheet').addEventListener('click', e => { if (e.target.id === 'sheet' && !ignoreBackdrop) closeSheet(null); });
 const confirmBox = (text, yes = t('ok'), danger = false, no = t('cancel')) =>
   openSheet(`<p>${esc(text)}</p><div class="row"><button class="btn" data-v="no" type="button">${esc(no)}</button>
     <button class="btn ${danger ? 'danger' : 'primary'}" data-v="yes" id="sheetYes" type="button">${esc(yes)}</button></div>`).then(v => v === 'yes');
@@ -758,43 +1769,117 @@ const buzz = () => { try { navigator.vibrate && navigator.vibrate(15); } catch (
 /* ---------- Routing ---------- */
 const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
 const go = id => { location.hash = id ? 'c=' + encodeURIComponent(id) : ''; };
-window.addEventListener('hashchange', () => { window.scrollTo(0, 0); render(); });
+window.addEventListener('hashchange', () => { arranging = false; window.scrollTo(0, 0); render(); });
 
 /* ---------- Rendering ---------- */
 function render() {
   updateBanner();
-  const id = currentId(), c = id && counter(id);
-  $('home').hidden = !!c; $('detail').hidden = !c;
-  if (c) renderDetail(c); else renderHome();
+  const id = currentId(), c = id && counter(id), rv = location.hash.match(/^#y=(\d{4})$/);
+  $('review').hidden = !rv || !!c;
+  $('home').hidden = !!c || !!rv; $('detail').hidden = !c;
+  if (c) renderDetail(c); else if (rv) renderReview(+rv[1]); else renderHome();
+  tickClocks();
 }
+const FILTER_KEY = 'zaehler-filter';
 function renderHome() {
   const list = $('list'); list.innerHTML = '';
-  const cs = sortedCounters();
-  $('emptyState').hidden = cs.length > 0;
-  for (const c of cs) {
-    const es = entriesOf(c.id), lab = countLabel(c, es), last = es[es.length - 1];
-    const el = document.createElement('div');
-    el.className = 'tile'; el.style.setProperty('--c', c.color); el.dataset.id = c.id;
-    el.innerHTML = `<button class="tile-main" type="button" data-open>
-        <span class="emoji">${esc(c.emoji || '🔢')}</span>
-        <span class="tile-text"><div class="tile-name">${esc(c.name)}</div>
-          <div class="tile-count">${lab.big}</div>
-          ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
-          ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div></span>
-      </button>
-      <button class="plus" type="button" data-plus aria-label="${esc(c.name)} +1">+1</button>`;
-    el.querySelector('[data-open]').onclick = () => go(c.id);
-    el.querySelector('[data-plus]').onclick = () => tapPlus(c.id, el);
-    list.appendChild(el);
+  const all = sortedCounters(), cs = all.filter(c => !c.archived), arch = all.filter(c => c.archived), cats = categories();
+  // v7c: Suche – Feld ab 4 Zählern, sonst hinter 🔍
+  const q = searchQ.trim(), searching = !!q, showSearch = all.length >= 4 || searchOpen || searching;
+  $('searchWrap').hidden = !showSearch; $('searchBtn').hidden = showSearch || !all.length; $('searchX').hidden = !searchQ && !searchOpen;
+  if (searching) arranging = false;
+  $('emptyState').hidden = cs.length > 0 || searching;
+  if (cs.length < 2) arranging = false;
+  list.classList.toggle('arranging', arranging);
+  $('arrangeBtn').hidden = cs.length < 2 || searching; $('arrangeBtn').textContent = t(arranging ? 'arrangeDone' : 'arrangeBtn');
+  $('arrangeHint').hidden = !arranging; $('newBtn').hidden = arranging || searching;
+  $('archiveBtn').hidden = !arch.length || arranging || searching; $('archiveBtn').textContent = t('archiveBtn', { n: arch.length });
+  list.hidden = searching; $('searchRes').hidden = !searching;
+  if (searching) { $('chips').hidden = true; renderSearch(q, cs, arch); return; }
+  $('searchRes').innerHTML = '';
+  // v7b: Kategorien – Filter-Chips „Alle / …“ und Gruppen (ohne Kategorie zuletzt)
+  let filter = lsGet(FILTER_KEY) || '';
+  if (!cats.includes(filter)) filter = '';
+  const chips = $('chips'); chips.hidden = !cats.length; chips.setAttribute('aria-label', t('filterAria'));
+  chips.innerHTML = cats.length ? [['', t('filterAll')], ...cats.map(k => [k, k])].map(([k, label]) =>
+    `<button type="button" data-filter="${esc(k)}" class="${k === filter ? 'on' : ''}" aria-pressed="${k === filter}">${esc(label)}</button>`).join('') : '';
+  const groups = !cats.length ? [{ k: null, items: cs }]
+    : [...cats.map(k => ({ k, items: cs.filter(c => catOf(c) === k) })), { k: '', items: cs.filter(c => !catOf(c)) }]
+      .filter(g => g.items.length && (!filter || g.k === filter));
+  for (const g of groups) {
+    const sec = document.createElement('section'); sec.className = 'group'; if (g.k !== null) sec.dataset.cat = g.k;
+    if (g.k !== null) { const h = document.createElement('h2'); h.className = 'cat-h'; h.textContent = g.k || t('uncategorized'); sec.appendChild(h); }
+    const gl = document.createElement('div'); gl.className = 'group-list'; sec.appendChild(gl);
+    g.items.forEach((c, idx) => gl.appendChild(tileEl(c, idx, g.items.length)));
+    list.appendChild(sec);
   }
+}
+function renderSearch(q, cs, arch) {
+  const box = $('searchRes'), toks = norm(q).split(/\s+/).filter(Boolean); box.innerHTML = '';
+  const hayC = c => `${c.name} ${c.emoji} ${catOf(c)}`;
+  const mc = cs.filter(c => matchAll(hayC(c), toks)), ma = arch.filter(c => matchAll(hayC(c), toks));
+  const notes = db.entries.filter(e => e.note && counter(e.counterId) && matchAll(e.note, toks)).sort((a, b) => byTime(b, a));
+  const section = (title, cls = '') => { const sec = document.createElement('section'); sec.className = 'group ' + cls;
+    const h = document.createElement('h2'); h.className = 'cat-h'; h.textContent = title; sec.appendChild(h); box.appendChild(sec); return sec; };
+  if (mc.length) { const sec = section(`${t('searchCounters')} (${mc.length})`, 'hits-counters'), gl = document.createElement('div'); gl.className = 'group-list'; sec.appendChild(gl);
+    mc.forEach((c, i) => gl.appendChild(tileEl(c, i, mc.length))); }
+  const hitBtn = (c, title, sub, attrs) => `<button type="button" class="hit" ${attrs}><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
+    <span class="hit-t"><b>${title}</b><span>${sub}</span></span></button>`;
+  if (ma.length) { const sec = section(t('searchArchived'), 'hits-archived');
+    sec.insertAdjacentHTML('beforeend', `<div class="hits">${ma.map(c => hitBtn(c, `${esc(c.name)}<span class="badge">${esc(t('archivedBadge'))}</span>`,
+      esc(t('entriesCount', { n: entriesOf(c.id).length })), `data-open-c="${esc(c.id)}"`)).join('')}</div>`); }
+  if (notes.length) { const sec = section(`${t('searchNotes')} (${notes.length})`, 'hits-notes'), shown = notes.slice(0, 50);
+    sec.insertAdjacentHTML('beforeend', `<div class="hits">${shown.map(e => { const c = counter(e.counterId);
+      return hitBtn(c, `${esc(c.name)}${c.archived ? `<span class="badge">${esc(t('archivedBadge'))}</span>` : ''}`,
+        `<span class="hl">📝 ${esc(e.note)}</span>${esc(fmtEntry(e))}${e.photo ? ' · 📷' : ''}`, `data-open-c="${esc(c.id)}" data-entry="${esc(e.id)}"`); }).join('')}</div>`
+      + (notes.length > shown.length ? `<p class="search-more">${esc(t('searchMore', { n: notes.length - shown.length }))}</p>` : '')); }
+  if (!mc.length && !ma.length && !notes.length) box.innerHTML = `<p class="search-empty">${esc(t('searchNone', { q }))}</p>`;
+  box.querySelectorAll('[data-open-c]').forEach(b => b.onclick = () => { focusEntryId = b.dataset.entry || null; go(b.dataset.openC); });
+}
+function tileEl(c, idx, count) {
+  const es = entriesOf(c.id), L = ledger(es), lab = countLabel(c, es), last = es[es.length - 1], st = stats(es, L);
+  const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
+  const el = document.createElement('div');
+  el.className = 'tile' + (gp && gp.done ? ' goal-done' : ''); el.style.setProperty('--c', c.color); el.dataset.id = c.id;
+  el.innerHTML = `<button class="tile-main" type="button" data-open>
+      <span class="emoji">${esc(c.emoji || '🔢')}</span>
+      <span class="tile-text"><div class="tile-name">${esc(c.name)}</div>
+        <div class="tile-count${tm ? ' dur' : ''}">${lab.big}</div>
+        ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
+        ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
+        ${gp ? `<div class="goal"><div class="bar goalbar"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span></div>` : ''}
+        ${sk && sk.cur ? `<div class="tile-sub streak">${esc(streakText(sk))}</div>` : ''}
+        ${run ? `<div class="tile-sub run">${esc(t('timerRunning', { t: fmtTime(new Date(c.runningSince)) }))}</div>`
+          : due ? `<div class="tile-sub due">${esc(t('reminderDue'))}</div>` : `<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div>`}</span>
+    </button>
+    ${tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
+        ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}</button>`
+      : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}</button>`}
+    <span class="arr"><button type="button" data-up aria-label="${esc(t('moveUp'))}" ${idx === 0 ? 'disabled' : ''}>▲</button><button type="button" data-down aria-label="${esc(t('moveDown'))}" ${idx === count - 1 ? 'disabled' : ''}>▼</button><button type="button" class="handle" data-handle aria-label="${esc(t('dragHandle'))}">☰</button></span>`;
+  el.querySelector('[data-open]').onclick = () => { if (!arranging) go(c.id); };
+  bindPlus(el.querySelector('[data-plus]'), c.id);
+  el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
+  el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
+  bindDrag(el.querySelector('[data-handle]'), el);
+  return el;
 }
 function renderDetail(c) {
   const d = $('detail'); d.style.setProperty('--c', c.color);
-  const es = entriesOf(c.id), lab = countLabel(c, es), st = stats(es), r = lab.r;
+  const es = entriesOf(c.id), lab = countLabel(c, es), r = lab.r, L = r.L, st = stats(es, L), step = stepOf(c);
   $('dEmoji').textContent = c.emoji || '🔢'; $('dName').textContent = c.name;
-  $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '') : t('entriesCount', { n: r.total });
-  $('dPlus').textContent = r.round ? t('plusNr', { n: r.next }) : '+1';
-  $('sToday').textContent = st.today; $('sWeek').textContent = st.week; $('sMonth').textContent = st.month; $('sTotal').textContent = st.total;
+  $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '') : t('entriesCount', { n: es.length });
+  const tm = isTime(c), arch = !!c.archived;
+  if (tm) { $('dPlus').innerHTML = c.runningSince ? `■ ${esc(t('timerStop'))} · <span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `▶ ${esc(t('timerStart'))}`;
+    $('dPlus').setAttribute('aria-label', t('timerAria', { name: c.name })); }
+  else { $('dPlus').textContent = step > 1 ? '+' + step : r.round ? t('plusNr', { n: r.next }) : '+1'; $('dPlus').removeAttribute('aria-label'); }
+  $('dPlus').classList.toggle('running', !!(tm && c.runningSince));
+  { const cb = document.querySelector('#chartWhat [data-what=count], [data-what=count]'); if (cb) cb.textContent = t(tm ? 'fieldDuration' : 'chartCount'); } // v7c: Zeit-Zähler zeigen „Dauer“
+  // v7c: archiviert = nur ansehen/bearbeiten; Zeit-Zähler ohne −/+n
+  $('archCard').hidden = !arch; $('dPlus').hidden = arch; $('amtRow').hidden = arch || tm; $('lpHint').hidden = arch || tm; $('timerHint').hidden = arch || !tm;
+  $('dMinus').disabled = st.total <= 0; syncAmt();
+  const fv = v => fmtVal(c, v);
+  $('statsBox').classList.toggle('dur', tm);
+  $('sToday').textContent = fv(st.today); $('sWeek').textContent = fv(st.week); $('sMonth').textContent = fv(st.month); $('sTotal').textContent = fv(st.total);
   $('sSince').innerHTML = st.last
     ? `${esc(t('sinceLast'))}: <b>${esc(st.last.dateOnly && dayDiff(new Date(), new Date(st.last.timestamp)) >= 1
         ? daysText(dayDiff(new Date(), new Date(st.last.timestamp)))
@@ -823,93 +1908,284 @@ function renderDetail(c) {
   }
   $('undoBtn').disabled = !es.length;
 
+  // Ziel, Erinnerung, Diagramm
+  const gp = goalProgress(c, es, st);
+  $('goalCard').hidden = !gp; $('goalCard').classList.toggle('done', !!(gp && gp.done));
+  if (gp) { $('goalFill').style.width = gp.pct + '%'; $('goalTxt').textContent = gp.text + (gp.done ? ' · ' + t('goalReached') : ''); }
+  const sk = streaks(c, es, L);
+  $('streakTxt').hidden = !sk;
+  if (sk) $('streakTxt').innerHTML = esc(sk.cur ? streakText(sk) : t('streakNone')) + (sk.best ? ` <small>· ${esc(bestText(sk))}</small>` : '');
+  const co = costsOn(c, es);
+  $('costCard').hidden = !co;
+  if (co) { const k = costStats(c, es, L); $('cMonth').textContent = fmtMoney(k.month); $('cYear').textContent = fmtMoney(k.year); $('cTotal').textContent = fmtMoney(k.total); }
+  const rem = sanitizeReminder(c.reminder);
+  $('remCard').hidden = !rem;
+  if (rem) $('remInfo').textContent = t('reminderInfo', { days: reminderDaysText(rem), time: reminderTimeText(rem) });
+  renderChart(c, es);
+
   // Alle Einträge (neueste zuerst)
   $('entriesTitle').textContent = t('allEntries', { n: es.length });
   const ol = $('entryList'); ol.innerHTML = '';
   if (!es.length) ol.innerHTML = `<li><span class="when" style="color:var(--muted)">${esc(t('noEntries'))}</span></li>`;
   es.map((e, i) => ({ e, i })).reverse().forEach(({ e, i }) => {
     const li = document.createElement('li'); li.className = 'filled'; li.dataset.id = e.id;
-    const nr = r.round ? (i % r.n) + 1 : i + 1;
-    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor(i / r.n) + 1 }))}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}</span>
+    const run = L.runs[i], a = amt(e), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run;
+    const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
+    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt=""></button>` : ''}</span>
       <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
       <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
     li.querySelector('[data-del]').onclick = () => deleteEntryAsk(e.id);
+    if (e.photo) li.querySelector('[data-photo-open]').onclick = () => viewPhoto(e.id);
     ol.appendChild(li);
   });
+  hydratePhotos(ol);
+  if (focusEntryId) { const li = ol.querySelector(`li[data-id="${CSS.escape(focusEntryId)}"]`); focusEntryId = null;
+    if (li) { li.classList.add('latest'); setTimeout(() => li.scrollIntoView({ block: 'center' }), 60); } }
+}
+async function viewPhoto(eid) {
+  const e = db.entries.find(x => x.id === eid); if (!e || !e.photo) return;
+  const u = await photoUrl(e.photo), c = counter(e.counterId);
+  const v = await openSheet(`<h2>📷 ${esc(c ? `${c.emoji} ${c.name}` : t('photoLbl'))}</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}${e.note ? ` · ${esc(e.note)}` : ''}</p>
+    ${u ? `<img class="photo-view" id="phBig" src="${u}" alt="">` : `<p>${esc(t('photoMissing'))}</p>`}
+    <div class="row"><button class="btn danger" type="button" data-v="del" id="phDel">${esc(t('photoDelete'))}</button><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v === 'del' && await confirmBox(t('photoDeleteQ'), t('delete'), true)) {
+    const id = e.photo; delete e.photo; save(); photoDel(id).catch(() => {}); forgetPhoto(id); render(); toast(t('photoDeleted'));
+  }
 }
 
 /* ---------- Aktionen ---------- */
-async function tapPlus(cid, tileEl) {
+/* ---------- v7: +1 mit Lang-Druck (Notiz) ---------- */
+let ignoreBackdrop = false;
+/** Normaler Tipp = +1 wie bisher; gedrückt halten (0,55 s) = +1 und sofort Notiz-Dialog. */
+function bindPlus(btn, cid) {
+  const id = () => cid || currentId();
+  let timer = null, longFired = false, sx = 0, sy = 0;
+  const cancel = () => { clearTimeout(timer); timer = null; };
+  btn.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    longFired = false; sx = e.clientX; sy = e.clientY; cancel();
+    if (isTime(counter(id()))) return; // Zeit-Zähler: kein Lang-Druck (Notiz nach dem Stopp über die Meldung oder ✎)
+    timer = setTimeout(() => {
+      timer = null; longFired = true; ignoreBackdrop = true; setTimeout(() => { ignoreBackdrop = false; }, 900);
+      tapPlus(id(), null, { note: true });
+    }, 550);
+  });
+  btn.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) cancel(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, cancel));
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+  btn.addEventListener('click', e => { if (longFired) { longFired = false; e.preventDefault(); return; } tapPlus(id()); });
+}
+
+/* ---------- v7b: −n / +n auf der Detailseite ---------- */
+const readAmt = () => { const x = $('dAmt').value.trim(); if (!x) return 1; const n = Number(x); return Number.isInteger(n) && n >= 1 && n <= 9999 ? n : null; };
+function syncAmt() {
+  const n = readAmt() ?? 1;
+  $('dMinus').textContent = '−' + n; $('dAddN').textContent = '+' + n;
+  $('dMinus').setAttribute('aria-label', `${t('minusAria')} ${n}`); $('dAddN').setAttribute('aria-label', `${t('plusNAria')} ${n}`);
+}
+function amountAction(sign) {
+  const cid = currentId(), n = readAmt();
+  if (!n) { toast(t('errAmount'), [], 3500); $('dAmt').focus(); return; }
+  if (sign < 0) { const m = minusError(cid, n); if (m) { toast(m, [], 3500); return; } }
+  $('dAmt').value = ''; syncAmt();
+  tapPlus(cid, null, { amount: sign * n });
+}
+
+/* ---------- v7: Anordnen ---------- */
+let arranging = false;
+function setOrder(ids) { ids.forEach((id, i) => { const c = counter(id); if (c) c.order = i; }); save(); }
+/** Mit Kategorien wird innerhalb der Gruppe sortiert; die Plätze der anderen Zähler bleiben unverändert. */
+function reorderSubset(newIds) { const all = sortedCounters().map(c => c.id), set = new Set(newIds); let k = 0; setOrder(all.map(id => (set.has(id) ? newIds[k++] : id))); }
+function groupIds(id) { const k = catOf(counter(id)), grouped = categories().length > 0; return sortedCounters().filter(x => !grouped || catOf(x) === k).map(x => x.id); }
+function moveCounter(id, delta) {
+  const ids = groupIds(id), i = ids.indexOf(id), j = i + delta;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  [ids[i], ids[j]] = [ids[j], ids[i]]; reorderSubset(ids); render();
+  const b = document.querySelector(`.tile[data-id="${id}"] [data-${delta < 0 ? 'up' : 'down'}]`); if (b && !b.disabled) b.focus();
+}
+/** Ziehen am Griff: Kachel wandert live in der Liste (ohne transform), Reihenfolge wird beim Loslassen gespeichert. */
+function bindDrag(handle, tile) {
+  handle.addEventListener('pointerdown', e => {
+    if (!arranging) return;
+    e.preventDefault(); try { handle.setPointerCapture(e.pointerId); } catch (x) {}
+    tile.classList.add('dragging');
+    const list = tile.parentElement; // Gruppe: nur innerhalb der eigenen Kategorie verschieben
+    const move = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      const y = ev.clientY;
+      const others = [...list.children].filter(x => x !== tile);
+      let before = null;
+      for (const o of others) { const r = o.getBoundingClientRect(); if (y < r.top + r.height / 2) { before = o; break; } }
+      if (before !== tile.nextSibling) list.insertBefore(tile, before);
+    };
+    const up = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      tile.classList.remove('dragging');
+      reorderSubset([...list.children].map(x => x.dataset.id)); render();
+    };
+    // am Fenster lauschen: beim Umhängen der Kachel im DOM geht die Pointer-Capture verloren
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+  });
+}
+/** Minus nur als Korrektur: nie mehr abziehen, als vorhanden ist. Ergebnis: Fehlermeldung oder null */
+function minusError(cid, n) {
+  const tot = ledger(entriesOf(cid)).total;
+  return tot <= 0 ? t('errMinusZero') : n > tot ? t('errMinus', { n: tot }) : null;
+}
+async function tapPlus(cid, tileEl, opts = {}) {
   const c = counter(cid); if (!c) return;
-  const e = addEntry(cid); buzz();
-  const es = entriesOf(cid), r = roundInfo(c, es);
-  const idx = es.findIndex(x => x.id === e.id);
-  const nr = r.round ? (idx % r.n) + 1 : idx + 1;
+  if (isTime(c)) return toggleTimer(cid);
+  if (c.archived) return;
+  const a = opts.amount ?? stepOf(c);
+  if (a < 0) { const m = minusError(cid, -a); if (m) { toast(m, [], 3500); return; } }
+  const e = addEntry(cid, a !== 1 ? { amount: a } : {}); buzz();
+  const es = entriesOf(cid), r = roundInfo(c, es), isLast = es[es.length - 1] === e;
   render();
   const tl = document.querySelector(`.tile[data-id="${cid}"]`); if (tl) { tl.classList.remove('pulse'); void tl.offsetWidth; tl.classList.add('pulse'); }
-  const msg = `${c.emoji || ''} ${t('toastNr', { name: c.name, n: nr })}${r.round && r.full && idx === es.length - 1 ? t('toastRoundFull') : ''}`;
+  const msg = a === 1
+    ? `${c.emoji || ''} ${t('toastNr', { name: c.name, n: r.round ? r.inRound : r.total })}${r.round && r.full && isLast ? t('toastRoundFull') : ''}`
+    : `${c.emoji || ''} ${t('toastAmount', { name: c.name, a: fmtAmt(a), n: r.round ? `${r.inRound}/${r.n}` : r.total })}${a > 0 && r.round && r.full ? t('toastRoundFull') : ''}`;
   const undoBtn = [t('undo'), () => { removeEntry(e.id); render(); toast(t('entryRemoved')); }];
-  if (c.askNote) { await noteFor(e.id); toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
+  if (c.askNote || opts.note) { const ok = await noteFor(e.id); if (ok !== false) toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
   toast(msg, [[t('noteBtn'), () => noteFor(e.id)], undoBtn], 4000);
 }
+const priceField = (id, v, c) => `<div class="field"><label for="${id}">${esc(t(isTime(c) ? 'entryPriceHour' : 'entryPrice'))}</label>
+    <div class="price-wrap"><input type="text" id="${id}" inputmode="decimal" autocomplete="off" placeholder="${esc(isPrice(c.price) ? priceInput(c.price) : t('pricePh'))}" value="${esc(priceInput(v))}"><span>€</span></div>
+    <p class="small">${esc(isPrice(c.price) ? t('entryPriceHelp', { p: fmtMoney(Math.round(c.price * 100)) }) : t('entryPriceNone'))}</p></div>`;
 async function noteFor(eid) {
   const e = db.entries.find(x => x.id === eid); if (!e) return;
-  const v = await openSheet(`<h2>${esc(t('noteTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}</p>
+  const c = counter(e.counterId), withPrice = !!c && costsOn(c, entriesOf(c.id)), a = amt(e);
+  let ph = null;
+  const v = await openSheet(`<h2>${esc(t('noteTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}${isTime(c) ? ` · ${esc(fmtDur(a))}` : a !== 1 ? ` · ${esc(fmtAmt(a))}` : ''}</p>
     <div class="field"><textarea id="noteIn" placeholder="${esc(t('notePh'))}">${esc(e.note || '')}</textarea></div>
+    ${withPrice ? priceField('nPrice', e.price, c) : ''}${photoField(!!e.photo)}<p class="small" id="nErr" style="color:var(--danger)"></p>
     <div class="row"><button class="btn" data-v="no" type="button">${esc(t('withoutNote'))}</button><button class="btn primary" type="button" id="noteSave">${esc(t('save'))}</button></div>`,
-    box => { const ta = box.querySelector('#noteIn'); setTimeout(() => ta.focus(), 50);
-      box.querySelector('#noteSave').onclick = () => closeSheet(ta.value); });
-  if (v === null || v === 'no') return;
-  const tx = v.trim(); if (tx) e.note = tx; else delete e.note; save(); render();
+    box => { const ta = box.querySelector('#noteIn'); setTimeout(() => ta.focus(), 50); ph = bindPhotoField(box, e);
+      box.querySelector('#noteSave').onclick = async () => {
+        const pr = withPrice ? parsePrice(box.querySelector('#nPrice').value) : { ok: true, value: e.price };
+        if (!pr.ok) { box.querySelector('#nErr').textContent = t('errPrice'); return; }
+        if (ph.busy) await ph.busy;
+        closeSheet({ note: ta.value, price: pr.value, photo: ph });
+      }; });
+  if (!v || typeof v !== 'object') return;
+  const tx = v.note.trim(); if (tx) e.note = tx; else delete e.note;
+  if (isPrice(v.price)) e.price = v.price; else delete e.price;
+  const ok = await applyPhoto(e, v.photo);
+  save(); render(); return ok;
 }
 async function editEntry(eid, isNew = false, cid = null) {
   const e = isNew ? { timestamp: isoNow(), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
-  const d = new Date(e.timestamp);
+  const c = counter(isNew ? cid : e.counterId); if (!c) return;
+  const tm = isTime(c), d = new Date(e.timestamp), a0 = isNew ? (tm ? 0 : stepOf(c)) : amt(e);
+  const oh = Math.floor(a0 / 3600), om = Math.floor(a0 % 3600 / 60); let ph = null;
   const v = await openSheet(`<h2>${esc(t(isNew ? 'backdateTitle' : 'editEntryTitle'))}</h2>
     <div class="field"><label for="eWhen">${esc(t('dateTime'))}</label><input type="datetime-local" id="eWhen" value="${toLocalInput(d)}"></div>
+    ${tm ? `<div class="field"><span class="lbl">${esc(t('fieldDuration'))}</span><div class="dur-row">
+        <input type="number" id="eDurH" inputmode="numeric" min="0" max="720" step="1" value="${isNew ? '' : oh}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durHoursLbl'))}"><span>${esc(t('durHoursLbl'))}</span>
+        <input type="number" id="eDurM" inputmode="numeric" min="0" max="59" step="1" value="${isNew ? '' : om}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durMinLbl'))}"><span>${esc(t('durMinLbl'))}</span></div></div>`
+      : `<div class="field"><label for="eAmt">${esc(t('fieldAmount'))}</label><input type="number" id="eAmt" min="-9999" max="9999" step="1" value="${a0}"></div>`}
+    ${priceField('ePrice', e.price, c)}
     <div class="field"><label for="eNote">${esc(t('noteOptional'))}</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
+    ${photoField(!!e.photo)}
+    <p class="small" id="eErr" style="color:var(--danger)"></p>
     <div class="row">${isNew ? '' : `<button class="btn danger" type="button" data-v="del">${esc(t('delete'))}</button>`}
       <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" id="eSave">${esc(t('save'))}</button></div>`,
-    box => box.querySelector('#eSave').onclick = () => {
+    box => { ph = bindPhotoField(box, isNew ? null : e); box.querySelector('#eSave').onclick = async () => {
       const w = box.querySelector('#eWhen').value; const dt = w ? new Date(w) : null;
       if (!dt || isNaN(dt)) { box.querySelector('#eWhen').focus(); return; }
-      closeSheet({ ts: isoNow(dt), note: box.querySelector('#eNote').value.trim() });
-    });
+      let n, dur = null;
+      if (tm) {
+        const hs = box.querySelector('#eDurH').value.trim(), ms = box.querySelector('#eDurM').value.trim(), h = hs ? Number(hs) : 0, m = ms ? Number(ms) : 0;
+        dur = Number.isInteger(h) && Number.isInteger(m) && h >= 0 && m >= 0 && m <= 59 ? h * 3600 + m * 60 : NaN;
+        if (!isNew && h === oh && m === om) dur = a0; // Sekunden der Stoppuhr behalten, wenn nicht geändert
+        if (!validDuration(dur) || (dur < 60 && dur !== a0)) { box.querySelector('#eErr').textContent = t('errDuration'); return; }
+      } else {
+        n = Number(box.querySelector('#eAmt').value.trim());
+        if (!validAmount(n)) { box.querySelector('#eErr').textContent = t('errEntryAmount'); return; }
+      }
+      const pr = parsePrice(box.querySelector('#ePrice').value);
+      if (!pr.ok) { box.querySelector('#eErr').textContent = t('errPrice'); return; }
+      if (ph.busy) await ph.busy;
+      closeSheet({ ts: isoNow(dt), note: box.querySelector('#eNote').value.trim(), amount: n, duration: dur, price: pr.value, photo: ph });
+    }; });
   if (v === 'del') return deleteEntryAsk(eid);
   if (!v || typeof v !== 'object') return;
-  if (isNew) { const n = addEntry(cid, { timestamp: v.ts, note: v.note }); render(); toast(t('backdated')); return n; }
-  e.timestamp = v.ts; if (v.note) e.note = v.note; else delete e.note; delete e.dateOnly; save(); render();
+  if (isNew) {
+    const n = addEntry(cid, tm ? { timestamp: v.ts, note: v.note, duration: v.duration, price: v.price } : { timestamp: v.ts, note: v.note, amount: v.amount, price: v.price });
+    const ok = await applyPhoto(n, v.photo); save(); render(); if (ok) toast(t('backdated')); return n;
+  }
+  e.timestamp = v.ts; if (v.note) e.note = v.note; else delete e.note; delete e.dateOnly;
+  if (tm) { e.duration = v.duration; delete e.amount; }
+  else if (v.amount !== 1) e.amount = v.amount; else delete e.amount;
+  if (isPrice(v.price)) e.price = v.price; else delete e.price;
+  await applyPhoto(e, v.photo);
+  save(); render();
 }
 async function deleteEntryAsk(eid) {
   const e = db.entries.find(x => x.id === eid); if (!e) return;
-  if (await confirmBox(t('deleteEntryQ', { d: fmtEntry(e) }), t('delete'), true)) { removeEntry(eid); render(); toast(t('entryDeleted')); }
+  if (await confirmBox(t('deleteEntryQ', { d: fmtEntry(e) }), t('delete'), true)) {
+    if (e.photo) { photoDel(e.photo).catch(() => {}); forgetPhoto(e.photo); }
+    removeEntry(eid); render(); toast(t('entryDeleted'));
+  }
 }
 async function undoLast(cid) {
   const es = entriesOf(cid); if (!es.length) return;
-  const e = es[es.length - 1], c = counter(cid), r = roundInfo(c, es);
-  const nr = r.round ? ((es.length - 1) % r.n) + 1 : es.length;
-  if (await confirmBox(t('undoQ', { n: nr, d: fmtEntry(e) }), t('remove'), true)) { removeEntry(e.id); render(); toast(t('undone')); }
+  const e = es[es.length - 1], c = counter(cid), r = roundInfo(c, es), a = amt(e);
+  const q = isTime(c) ? t('undoQAmount', { a: fmtDur(a), d: fmtEntry(e) }) : a === 1 ? t('undoQ', { n: r.round ? r.inRound : r.total, d: fmtEntry(e) }) : t('undoQAmount', { a: fmtAmt(a), d: fmtEntry(e) });
+  if (await confirmBox(q, t('remove'), true)) { removeEntry(e.id); render(); toast(t('undone')); }
 }
 
 async function editCounter(cid = null) {
   const c = cid ? counter(cid) : null;
-  const cur = c ? { ...c } : { name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
+  const cur = c ? { ...c } : { id: uuid(), name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
+  let type = isTime(cur) ? 'time' : 'count';
+  const g0 = sanitizeGoal(cur.goal), r0 = sanitizeReminder(cur.reminder);
+  const remDays = new Set(r0 ? r0.days : [1, 2, 3, 4, 5, 6, 7]);
   const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
     <div class="field"><label for="fName">${esc(t('fieldName'))}</label><input type="text" id="fName" maxlength="40" placeholder="${esc(t('namePh'))}" value="${esc(cur.name)}" autocomplete="off"></div>
+    ${c ? (isTime(c) ? `<p class="small" id="fTypeFixed" style="margin:-6px 2px 14px">${esc(t('typeFixed'))}</p>` : '')
+      : `<div class="field"><span class="lbl">${esc(t('fieldType'))}</span><div class="type-seg" id="fType">${['count', 'time'].map(k =>
+        `<button class="btn${k === type ? ' on' : ''}" type="button" data-type="${k}" aria-pressed="${k === type}">${esc(t(k === 'time' ? 'typeTime' : 'typeCount'))}</button>`).join('')}</div>
+        <p class="small">${esc(t('typeHelp'))}</p></div>`}
     <div class="field"><span class="lbl">${esc(t('fieldSymbol'))}</span>
       <label class="emoji-big" for="fEmoji"><input type="text" id="fEmoji" value="${esc(cur.emoji)}" aria-label="${esc(t('fieldSymbol'))}"
           inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="64">
         <span class="emoji-hint"><b>${esc(t('emojiTap'))}</b>${esc(t('emojiHint'))}</span></label>
       <span class="lbl">${esc(t('emojiQuick'))}</span><div class="picks">${EMOJIS.map(x => `<button type="button" data-pick="${x}">${x}</button>`).join('')}</div></div></div>
     <div class="field"><span class="lbl">${esc(t('fieldColor'))}</span><div class="swatches">${COLORS.map(x => `<button type="button" aria-label="${esc(t('colorAria', { c: x }))}" data-color="${x}" style="--sw:${x}" class="${x === cur.color ? 'on' : ''}"></button>`).join('')}</div></div>
-    <div class="field"><label for="fRound">${esc(t('fieldRound'))}</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="${esc(t('roundPh'))}" value="${cur.roundSize || ''}">
+    <div class="field"><label for="fCat">${esc(t('fieldCategory'))}</label><input type="text" id="fCat" maxlength="30" list="fCatList" autocomplete="off" placeholder="${esc(t('categoryPh'))}" value="${esc(catOf(cur))}">
+      <datalist id="fCatList">${categories().map(k => `<option value="${esc(k)}">`).join('')}</datalist>
+      ${categories().length ? `<div class="cat-sugg">${categories().map(k => `<button type="button" data-cat="${esc(k)}">${esc(k)}</button>`).join('')}</div>` : ''}
+      <p class="small">${esc(t('categoryHelp'))}</p></div>
+    <div class="field" id="fRoundWrap"><label for="fRound">${esc(t('fieldRound'))}</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="${esc(t('roundPh'))}" value="${cur.roundSize || ''}">
       <p class="small">${esc(t('roundHelp'))}</p></div>
-    <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> ${esc(t('askNote'))}</label>
+    <div class="two" id="fTwo">
+      <div class="field" id="fStepWrap"><label for="fStep">${esc(t('fieldStep'))}</label><input type="number" id="fStep" inputmode="numeric" min="1" max="999" placeholder="${esc(t('stepPh'))}" value="${stepOf(cur) > 1 ? stepOf(cur) : ''}"></div>
+      <div class="field"><label for="fPrice" id="fPriceLbl">${esc(t('fieldPrice'))}</label><div class="price-wrap"><input type="text" id="fPrice" inputmode="decimal" autocomplete="off" placeholder="${esc(t('pricePh'))}" value="${esc(priceInput(cur.price))}"><span>€</span></div></div>
+    </div>
+    <p class="small" id="fStepHelp" style="margin:-6px 2px 14px">${esc(t('stepHelp'))} ${esc(t('priceHelp'))}</p>
+    <div class="field"><label for="fGoal" id="fGoalLbl">${esc(t('fieldGoal'))}</label>
+      <div class="goal-row"><input type="number" id="fGoal" inputmode="numeric" min="1" max="9999" placeholder="${esc(t('goalPh'))}" value="${g0 ? g0.amount : ''}">
+        <span>${esc(t('goalPer'))}</span><select id="fGoalPer" aria-label="${esc(t('fieldGoal'))}">${['day', 'week', 'month', 'total'].map(p =>
+          `<option value="${p}" ${(g0 ? g0.period : 'day') === p ? 'selected' : ''}>${esc(t('per' + p[0].toUpperCase() + p.slice(1)))}</option>`).join('')}</select></div>
+      <p class="small">${esc(t('goalHelp'))}</p></div>
+    <div class="field"><span class="lbl">${esc(t('fieldReminder'))}</span>
+      <label class="check"><input type="checkbox" id="fRem" ${r0 ? 'checked' : ''}> ${esc(t('reminderOn'))}</label>
+      <div id="remBox" ${r0 ? '' : 'hidden'}>
+        <div class="rem-row"><label for="fRemTime" class="small" style="margin:0">${esc(t('reminderTime'))}</label><input type="time" id="fRemTime" value="${r0 ? r0.time : '19:00'}"></div>
+        <div class="wdays" id="fWdays">${[1, 2, 3, 4, 5, 6, 7].map(d => `<button type="button" data-wd="${d}" aria-pressed="${remDays.has(d)}" class="${remDays.has(d) ? 'on' : ''}">${esc(weekdayName(d))}</button>`).join('')}
+          <button type="button" data-wdall>${esc(t('everyDay'))}</button></div>
+        <button class="btn" type="button" id="fIcs">${esc(t('addToCalendar'))}</button>
+        <p class="small">${esc(t('reminderHelp'))}</p></div></div>
+    <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> <span id="fNoteLbl">${esc(t('askNote'))}</span></label>
     <p class="small">${esc(t('askNoteHelp'))}</p>
     <p class="small" id="fErr" style="color:var(--danger)"></p>
     <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" id="fSave">${esc(t('save'))}</button></div>
-    ${c ? `<div class="row"><button class="btn danger" type="button" data-v="del" id="fDelete">${esc(t('deleteCounter'))}</button></div>` : ''}`,
+    ${c ? `<div class="row"><button class="btn" type="button" data-v="arch" id="fArchive">${esc(t(c.archived ? 'unarchive' : 'archive'))}</button>
+      <button class="btn danger" type="button" data-v="del" id="fDelete">${esc(t('deleteCounter'))}</button></div>
+      <p class="small">${esc(t('archiveHelp'))}</p>` : ''}`,
     box => {
       let color = cur.color;
       const ei = box.querySelector('#fEmoji'); let emojiVal = lastEmoji(cur.emoji) || '🔢'; ei.value = emojiVal;
@@ -921,17 +2197,69 @@ async function editCounter(cid = null) {
       ei.addEventListener('focus', () => setTimeout(() => { try { ei.select(); } catch (x) {} }, 0));
       ei.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ei.blur(); } });
       box.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { emojiVal = b.dataset.pick; ei.value = emojiVal; });
+      // v7c: Art Anzahl/Zeit – bei Zeit keine Runden/Schritte, Ziel in Minuten, Preis pro Stunde
+      const syncType = () => { const tm = type === 'time';
+        box.querySelector('#fRoundWrap').hidden = tm; box.querySelector('#fStepWrap').hidden = tm; box.querySelector('#fTwo').classList.toggle('one', tm);
+        box.querySelector('#fPriceLbl').textContent = t(tm ? 'fieldPriceHour' : 'fieldPrice');
+        box.querySelector('#fStepHelp').textContent = tm ? t('priceHelpHour') : `${t('stepHelp')} ${t('priceHelp')}`;
+        box.querySelector('#fGoalLbl').textContent = t(tm ? 'goalMinutes' : 'fieldGoal');
+        box.querySelector('#fNoteLbl').textContent = t(tm ? 'askNoteTime' : 'askNote');
+        box.querySelectorAll('[data-type]').forEach(b => { b.classList.toggle('on', b.dataset.type === type); b.setAttribute('aria-pressed', b.dataset.type === type); }); };
+      box.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { type = b.dataset.type;
+        if (type === 'time' && emojiVal === '🔢') { emojiVal = '⏱️'; ei.value = emojiVal; } else if (type === 'count' && emojiVal === '⏱️') { emojiVal = '🔢'; ei.value = emojiVal; }
+        syncType(); });
+      syncType();
+      box.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { box.querySelector('#fCat').value = b.dataset.cat; box.querySelector('#fErr').textContent = ''; });
       box.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { color = b.dataset.color; box.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b)); });
+      const err = m => { box.querySelector('#fErr').textContent = m; return null; };
+      const fErr = box.querySelector('#fErr'), clrErr = () => { fErr.textContent = ''; };
+      box.querySelectorAll('input, select, textarea').forEach(el => { el.addEventListener('input', clrErr); el.addEventListener('change', clrErr); });
+      box.querySelectorAll('[data-wd], [data-wdall]').forEach(el => el.addEventListener('click', clrErr));
+      const remBox = box.querySelector('#remBox');
+      box.querySelector('#fRem').onchange = e => { remBox.hidden = !e.target.checked; };
+      const wdBtns = [...box.querySelectorAll('[data-wd]')];
+      const syncWd = () => wdBtns.forEach(b => { const on = remDays.has(+b.dataset.wd); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+      wdBtns.forEach(b => b.onclick = () => { const d = +b.dataset.wd; remDays.has(d) ? remDays.delete(d) : remDays.add(d); syncWd(); });
+      box.querySelector('[data-wdall]').onclick = () => { [1, 2, 3, 4, 5, 6, 7].forEach(d => remDays.add(d)); syncWd(); };
+      const readReminder = () => {
+        if (!box.querySelector('#fRem').checked) return { ok: true, value: null };
+        const time = box.querySelector('#fRemTime').value;
+        if (!/^([01]\d|2[0-3]):[0-5]\d/.test(time)) return { ok: false, msg: t('errReminderTime') };
+        if (!remDays.size) return { ok: false, msg: t('errReminderDays') };
+        return { ok: true, value: sanitizeReminder({ time: time.slice(0, 5), days: [...remDays] }) };
+      };
+      box.querySelector('#fIcs').onclick = () => {
+        const name = box.querySelector('#fName').value.trim(); takeEmoji();
+        if (!name) { err(t('errName')); box.querySelector('#fName').focus(); return; }
+        const rr = readReminder(); if (!rr.ok) { err(rr.msg); return; }
+        err(''); addToCalendar({ id: cur.id, name, emoji: emojiVal }, rr.value);
+      };
       box.querySelector('#fSave').onclick = () => {
         const name = box.querySelector('#fName').value.trim();
         takeEmoji(); const emoji = emojiVal;
-        const rs = box.querySelector('#fRound').value.trim(); const n = rs ? parseInt(rs, 10) : null;
-        if (!name) { box.querySelector('#fErr').textContent = t('errName'); box.querySelector('#fName').focus(); return; }
-        if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { box.querySelector('#fErr').textContent = t('errRound'); return; }
-        closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked });
+        const tmS = type === 'time', rs = tmS ? '' : box.querySelector('#fRound').value.trim(); const n = rs ? parseInt(rs, 10) : null;
+        if (!name) { err(t('errName')); box.querySelector('#fName').focus(); return; }
+        if (rs && (!Number.isInteger(n) || n < 2 || n > 999)) { err(t('errRound')); return; }
+        const gs = box.querySelector('#fGoal').value.trim(), ga = gs ? Number(gs) : null;
+        if (gs && (!Number.isInteger(ga) || ga < 1 || ga > 9999)) { err(t('errGoal')); return; }
+        const ss = tmS ? '' : box.querySelector('#fStep').value.trim(), sn = ss ? Number(ss) : 1;
+        if (!Number.isInteger(sn) || sn < 1 || sn > 999) { err(t('errStep')); return; }
+        const pr = parsePrice(box.querySelector('#fPrice').value); if (!pr.ok) { err(t('errPrice')); return; }
+        let cat = box.querySelector('#fCat').value.trim().slice(0, 30);
+        const same = categories().find(k => k.localeCompare(cat, undefined, { sensitivity: 'base' }) === 0); if (cat && same) cat = same; // „sport“ -> „Sport“
+        const rr = readReminder(); if (!rr.ok) { err(rr.msg); return; }
+        closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked,
+          goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, reminder: rr.value,
+          step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }) });
       };
       if (!c) setTimeout(() => box.querySelector('#fName').focus(), 50);
     });
+  if (v === 'arch') {
+    const on = !c.archived; setArchived(cid, on);
+    if (on) { go(null); render(); toast(t('toastArchived', { name: c.name }), [[t('undo'), () => { setArchived(cid, false); render(); }]], 5000); }
+    else { render(); toast(t('toastRestored', { name: c.name })); }
+    return;
+  }
   if (v === 'del') {
     const n = entriesOf(cid).length;
     if (await confirmBox(t('deleteCounterQ', { name: c.name, entries: t('entriesWith', { n }) }), t('deleteForever'), true)) {
@@ -940,11 +2268,15 @@ async function editCounter(cid = null) {
     return;
   }
   if (!v || typeof v !== 'object') return;
-  const saved = upsertCounter(c ? { id: c.id, ...v } : v); render();
+  const saved = upsertCounter({ id: cur.id, ...v }); render();
   toast(c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
 }
 /* ---------- Export / Import / Text ---------- */
-function backupObject() { return { format: 'zaehler-backup', version: VERSION, exportedAt: isoNow(), counters: db.counters, entries: db.entries }; }
+function backupObject(photos = []) {
+  const o = { format: 'zaehler-backup', version: VERSION, exportedAt: isoNow(), counters: db.counters, entries: db.entries };
+  if (photos.length) o.photos = photos; // v7c: Fotos als base64 (JPEG) – nur wenn vorhanden
+  return o;
+}
 /* ---------- Backup-Erinnerung (Geräte-Einstellungen, nicht Teil der Nutzerdaten/des Backups) ---------- */
 const BK_LAST = 'zaehler-backup-last', BK_IV = 'zaehler-backup-interval', BK_SNOOZE = 'zaehler-backup-snooze';
 const IVS = { off: 0, daily: 1, weekly: 7, monthly: 30 };
@@ -973,7 +2305,10 @@ function updateBanner() {
 const lastBackupText = () => { const d = lastBackup(); return d ? `${relDay(d)}, ${fmtTime(d)}` : t('never'); };
 /** Backup teilen (iPhone: „In Dateien sichern“ → iCloud Drive), sonst Download. Ergebnis: 'shared' | 'downloaded' | 'aborted' */
 async function exportJson() {
-  const json = JSON.stringify(backupObject(), null, 2);
+  const refs = new Set(db.entries.map(e => e.photo).filter(Boolean));
+  let photos = backupPhotosSync();
+  if (photos.length < refs.size) { await preparePhotos(); photos = backupPhotosSync(); } // nur falls der Vorrat noch nicht bereit war
+  const json = JSON.stringify(backupObject(photos), null, 2);
   const d = new Date(), name = `zaehler-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
   let result = null;
   try {
@@ -986,7 +2321,7 @@ async function exportJson() {
     result = 'downloaded';
   }
   lsSet(BK_LAST, isoNow()); try { localStorage.removeItem(BK_SNOOZE); } catch (e) {} updateBanner();
-  toast(t('exported'));
+  toast(photos.length ? `${t('exported')} · ${fmtBytes(new Blob([json]).size)}` : t('exported'));
   return result;
 }
 function validateBackup(o) {
@@ -994,41 +2329,74 @@ function validateBackup(o) {
   const counters = o.counters.map(c => {
     if (!c || typeof c.id !== 'string' || typeof c.name !== 'string') throw new Error(t('errBackupCounter'));
     const rs = c.roundSize == null ? null : parseInt(c.roundSize, 10);
-    return { id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
+    // unbekannte Felder (neuere App-Versionen) bleiben erhalten; bekannte werden geprüft
+    const x = { ...c, id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
       color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : COLORS[5], roundSize: rs >= 2 ? rs : null, askNote: !!c.askNote,
       order: Number.isFinite(c.order) ? c.order : 0, createdAt: typeof c.createdAt === 'string' ? c.createdAt : isoNow() };
+    for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince']) delete x[k];
+    if (c.archived === true) x.archived = true;
+    if (c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince))) x.runningSince = isoNow(new Date(c.runningSince));
+    if (sanitizeGoal(c.goal)) x.goal = sanitizeGoal(c.goal);
+    if (sanitizeReminder(c.reminder)) x.reminder = sanitizeReminder(c.reminder);
+    if (Number.isInteger(c.step) && c.step >= 2 && c.step <= 999) x.step = c.step;
+    if (typeof c.category === 'string' && c.category.trim()) x.category = c.category.trim().slice(0, 30);
+    if (isPrice(c.price)) x.price = c.price;
+    return x;
   });
   const ids = new Set(counters.map(c => c.id));
   const entries = o.entries.filter(e => e && typeof e.id === 'string' && ids.has(e.counterId) && !isNaN(new Date(e.timestamp))).map(e => {
-    const x = { id: e.id, counterId: e.counterId, timestamp: isoNow(new Date(e.timestamp)) };
-    if (typeof e.note === 'string' && e.note.trim()) x.note = e.note.trim(); if (e.dateOnly) x.dateOnly = true; return x;
+    const x = { ...e, id: e.id, counterId: e.counterId, timestamp: isoNow(new Date(e.timestamp)) };
+    for (const k of ['note', 'dateOnly', 'amount', 'price', 'duration', 'photo']) delete x[k];
+    if (validDuration(e.duration)) x.duration = e.duration;
+    if (typeof e.photo === 'string' && e.photo && e.photo.length <= 80) x.photo = e.photo;
+    if (typeof e.note === 'string' && e.note.trim()) x.note = e.note.trim(); if (e.dateOnly) x.dateOnly = true;
+    if (validAmount(e.amount) && e.amount !== 1) x.amount = e.amount; if (isPrice(e.price)) x.price = e.price;
+    return x;
   });
-  return { counters, entries };
+  // v7c: Fotos (base64) – nur die, auf die ein Eintrag verweist
+  const refs = new Set(entries.map(e => e.photo).filter(Boolean));
+  const photos = Array.isArray(o.photos) ? o.photos.filter(ph => ph && typeof ph.id === 'string' && refs.has(ph.id) && typeof ph.data === 'string'
+    && /^image\/[\w.+-]+$/.test(ph.type) && /^[A-Za-z0-9+/=\s]+$/.test(ph.data)) : [];
+  return { counters, entries, photos };
 }
 async function importJson(file) {
   let data;
   try { data = validateBackup(JSON.parse(await file.text())); }
   catch (e) { toast(t('importFailed', { msg: (e instanceof SyntaxError ? '' : e.message) || t('fileUnreadable') }), [], 4000); return; }
-  const v = await openSheet(`<h2>${esc(t('importTitle'))}</h2><p>${t('importBodyHtml', { c: data.counters.length, e: data.entries.length })}</p>
+  const phBytes = data.photos.reduce((a, p) => a + Math.floor(p.data.replace(/\s/g, '').length * 3 / 4), 0);
+  const v = await openSheet(`<h2>${esc(t('importTitle'))}</h2><p>${t('importBodyHtml', { c: esc(t('countersCount', { n: data.counters.length })), e: esc(t('entriesCount', { n: data.entries.length })) })}${data.photos.length
+      ? ` <span id="impPhotos">${esc(t('importPhotos', { p: t('photosCount', { n: data.photos.length }), s: fmtBytes(phBytes) }))}</span>` : ''}</p>
     <div class="row"><button class="btn" type="button" data-v="merge" id="impMerge">${esc(t('merge'))}</button><button class="btn danger" type="button" data-v="replace" id="impReplace">${esc(t('replace'))}</button></div>
     <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
+  if (v !== 'replace' && v !== 'merge') return;
+  // v7c: Fotos zuerst in IndexedDB schreiben; was nicht passt (Speicher voll), verliert nur den Verweis
+  const failed = new Set();
+  if (v === 'replace') { try { await photoClear(); } catch (e) {} photoUrls.forEach(u => URL.revokeObjectURL(u)); photoUrls.clear(); photoB64.clear(); }
+  for (const ph of data.photos) {
+    try { const ab = b64ToAb(ph.data); await photoPut({ id: ph.id, type: ph.type, data: ab, size: ab.byteLength, createdAt: isoNow() }); forgetPhoto(ph.id);
+      photoB64.set(ph.id, { id: ph.id, type: ph.type, data: ph.data.replace(/\s/g, '') }); }
+    catch (e) { failed.add(ph.id); }
+  }
+  for (const e of data.entries) if (e.photo && failed.has(e.photo)) delete e.photo;
   if (v === 'replace') { db.counters = data.counters; db.entries = data.entries; }
-  else if (v === 'merge') {
+  else {
     for (const c of data.counters) { const ex = counter(c.id); if (ex) Object.assign(ex, c); else db.counters.push(c); }
     const have = new Set(db.entries.map(e => e.id)); for (const e of data.entries) if (!have.has(e.id)) db.entries.push(e);
-  } else return;
-  db.settings.onboarded = true; save(); go(null); render(); toast(t('importDone', { n: data.counters.length }));
+  }
+  db.settings.onboarded = true; save(); go(null); render();
+  toast(t('importDone', { c: t('countersCount', { n: data.counters.length }) }) + (failed.size ? ' · ' + t('importPhotoFail', { n: failed.size }) : ''), [], failed.size ? 6000 : 2400);
+  if (v === 'replace') photoGc();
 }
 function counterText(c) {
   const es = entriesOf(c.id), r = roundInfo(c, es);
   const lines = [`${c.emoji} ${c.name}`];
-  const line = (e, k, sep) => `${k + 1}${sep}${fmtEntry(e)}${e.note ? ' – ' + e.note : ''}`;
+  const line = (e, k, sep, withAmt = false) => `${k + 1}${sep}${fmtEntry(e)}${withAmt && isTime(c) ? ` (${fmtDur(amt(e))})` : withAmt && amt(e) !== 1 ? ` (${fmtAmt(amt(e))})` : ''}${e.note ? ' – ' + e.note : ''}`;
   if (!es.length) lines.push(t('txtNoEntries'));
   else if (r.round) {
     r.past.forEach((rr, i) => { lines.push(t('txtRound', { r: i + 1 })); rr.forEach((e, k) => lines.push(line(e, k, ' = '))); });
     lines.push(r.full ? t('txtRoundFull', { r: r.round }) : t('txtRoundPart', { r: r.round, i: r.inRound, n: r.n }));
     r.current.forEach((e, k) => lines.push(line(e, k, ' = ')));
-  } else { es.forEach((e, k) => lines.push(line(e, k, '. '))); lines.push(t('txtTotal', { n: es.length })); }
+  } else { es.forEach((e, k) => lines.push(line(e, k, '. ', true))); lines.push(t('txtTotal', { n: fmtVal(c, r.total) })); }
   return lines.join('\n');
 }
 async function copyText(txt) {
@@ -1040,16 +2408,29 @@ async function copyText(txt) {
   else openSheet(`<h2>${esc(t('textTitle'))}</h2><div class="field"><textarea readonly style="min-height:240px">${esc(txt)}</textarea></div><div class="row"><button class="btn" data-v="no" type="button">${esc(t('close'))}</button></div>`);
 }
 async function menu() {
+  setTimeout(async () => { // v7c: Speicher der Fotos und ungefähre Backup-Größe
+    await photoGc(); const ps = await photoStats(), m = $('mPhotos'), b = $('mBackupSize'); if (!m || !b) return;
+    m.textContent = ps.n ? t('photosUsed', { n: t('photosCount', { n: ps.n }), s: fmtBytes(ps.bytes) }) : t('photosNone');
+    const size = new Blob([JSON.stringify(backupObject(), null, 2)]).size + ps.b64;
+    b.textContent = ps.n ? t('backupSizePhotos', { s: fmtBytes(size), p: t('photosCount', { n: ps.n }) }) : t('backupSize', { s: fmtBytes(size) });
+    preparePhotos();
+  }, 0);
   setTimeout(async () => { try { const ks = (await caches.keys()).filter(k => k.startsWith('zaehler-')); const el = $('mCache'); if (el && ks.length) el.textContent = ` · Cache ${ks.join(', ')}`; } catch (e) {} }, 0);
   const v = await openSheet(`<h2>${esc(t('menuTitle'))}</h2>
     <span class="lbl">🌐 ${esc(t('language'))}</span><div class="langs" id="mLangs">${langButtons()}</div>
+    <span class="lbl">🌓 ${esc(t('appearance'))}</span><div class="themes" id="mThemes">${['auto', 'light', 'dark'].map(m =>
+      `<button class="btn${m === themeMode() ? ' on' : ''}" type="button" data-v="theme:${m}" data-theme-v="${m}">${esc(t('theme' + m[0].toUpperCase() + m.slice(1)))}</button>`).join('')}</div>
+    <p class="small" style="margin:0 2px 12px">${esc(t('themeHelp'))}</p>
     <span class="lbl">💾 ${esc(t('backupSection'))}</span>
     <div class="menu menu-sec" id="mBackup">
     <button class="btn primary" type="button" data-v="export" id="mExport">${esc(t('mExport'))}</button>
-    <p class="small" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p></div>
+    <p class="small" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p>
+    <p class="small" id="mPhotos"></p><p class="small" id="mBackupSize"></p></div>
     <span class="lbl">⏰ ${esc(t('reminder'))}</span>
     <div class="ivs" id="mIvs">${Object.keys(IVS).map(k => `<button class="btn${k === backupInterval() ? ' on' : ''}" type="button" data-v="iv:${k}" data-iv="${k}">${esc(t('iv' + k[0].toUpperCase() + k.slice(1)))}</button>`).join('')}</div>
     <div class="menu">
+    <button class="btn" type="button" data-v="review" id="mReview">${esc(t('reviewMenu'))}</button>
+    ${db.counters.some(c => c.archived) ? `<button class="btn" type="button" data-v="archive" id="mArchive">${esc(t('archiveBtn', { n: db.counters.filter(c => c.archived).length }))}</button>` : ''}
     <button class="btn" type="button" data-v="import" id="mImport">${esc(t('mImport'))}</button>
     <button class="btn" type="button" data-v="copy" id="mCopy">${esc(t('mCopy'))}</button>
     <button class="btn" type="button" data-v="seed" id="mSeed">${esc(t('mSeed', { name: t('seedName') }))}</button>
@@ -1059,16 +2440,56 @@ async function menu() {
     <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
   if (v && v.startsWith('lang:')) { setLang(v.slice(5)); menu(); }
   else if (v && v.startsWith('iv:')) { lsSet(BK_IV, v.slice(3)); updateBanner(); menu(); }
+  else if (v && v.startsWith('theme:')) { setTheme(v.slice(6)); menu(); }
   else if (v === 'update') checkForUpdates();
+  else if (v === 'review') { const ys = yearsWithData(), now = new Date().getFullYear(); location.hash = 'y=' + (ys.includes(now) || !ys.length ? now : ys[0]); }
+  else if (v === 'archive') archiveList();
   else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
   else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
   else if (v === 'seed') { addEierSeed(); render(); toast(t('seedAdded', { name: t('seedName') })); }
   else if (v === 'wipe') {
     if (await confirmBox(t('wipeQ'), t('wipeAll'), true)) {
-      db = freshDb(); db.settings.onboarded = true; save(); go(null); render(); toast(t('wiped'));
+      db = freshDb(); db.settings.onboarded = true; save(); photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); go(null); render(); toast(t('wiped'));
     }
   }
+}
+async function archiveList() {
+  const arch = sortedCounters().filter(c => c.archived);
+  const v = await openSheet(`<h2>🗄 ${esc(t('archiveTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('archiveHelp'))}</p>
+    <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="hit" data-id="${esc(c.id)}">
+      <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
+        <span class="hit-t"><b>${esc(c.name)}</b><span>${esc(t('entriesCount', { n: entriesOf(c.id).length }))}${catOf(c) ? ' · ' + esc(catOf(c)) : ''}</span></span></button>
+      <button class="btn" type="button" data-v="restore:${esc(c.id)}">${esc(t('unarchive'))}</button></div>`).join('') : `<p>${esc(t('archiveEmpty'))}</p>`}</div>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v && v.startsWith('open:')) go(v.slice(5));
+  else if (v && v.startsWith('restore:')) { const c = counter(v.slice(8)); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); }
+}
+function renderReview(y) {
+  const years = yearsWithData(); if (!years.includes(y)) years.push(y); years.sort((a, b) => b - a);
+  $('rvTitle').textContent = t('reviewTitle', { y });
+  $('rvYears').setAttribute('aria-label', t('reviewYears'));
+  $('rvYears').innerHTML = years.map(x => `<button type="button" data-year="${x}" class="${x === y ? 'on' : ''}" aria-pressed="${x === y}">${x}</button>`).join('');
+  const R = yearReview(y), body = $('rvBody');
+  if (!R.counters.length) { body.innerHTML = `<div class="empty-state"><div>📅</div><p>${esc(t('reviewEmpty', { y }))}</p></div>`; return; }
+  const sum = [[R.entries, 'reviewEntries', 'rvEntries'], [R.days, 'reviewDays', 'rvDays'], [R.counters.length, 'reviewCounters', 'rvCounters']];
+  if (R.hasCosts) sum.push([fmtMoney(R.costs, R.costs >= 100000), 'reviewCosts', 'rvCosts']);
+  const medal = ['🥇', '🥈', '🥉'], loc = intlLocale(), monthName = i => new Intl.DateTimeFormat(loc, { month: 'long' }).format(new Date(2024, i, 1));
+  const streakVal = s => (!s.best ? '–' : s.period === 'week' ? t('rvWeeks', { n: s.best }) : s.period === 'month' ? t('rvMonths', { n: s.best }) : t('durDays', { n: s.best }));
+  body.innerHTML = `<div class="stats rv-sum" style="--n:${sum.length}">${sum.map(([v, k, id]) => `<div class="stat"><b id="${id}">${esc(String(v))}</b><span>${esc(t(k))}</span></div>`).join('')}</div>
+    <section class="card rv-card"><h2>${esc(t('reviewByMonth'))}</h2>${monthChart(R.months, { values: true, label: t('reviewByMonth') })}</section>
+    <section class="card rv-card"><h2>${esc(t('reviewTop'))}</h2><ol class="rv-top" id="rvTop">${R.counters.slice(0, 3).map((x, i) =>
+      `<li data-id="${esc(x.id)}">${medal[i]} <span>${esc(x.c.emoji || '🔢')}</span><b>${esc(x.c.name)}</b><span>${esc(t('entriesCount', { n: x.n }))}</span></li>`).join('')}</ol></section>
+    ${R.counters.map(x => `<section class="card rv-card rv-c" style="--c:${esc(x.c.color)}" data-id="${esc(x.id)}">
+      <div class="rv-c-head"><span class="emoji">${esc(x.c.emoji || '🔢')}</span><b>${esc(x.c.name)}</b>${x.c.archived ? `<span class="badge">${esc(t('archivedBadge'))}</span>` : ''}</div>
+      <div class="rv-grid">
+        <div><span>${esc(t('reviewTotal'))}</span><b data-k="total">${esc(fmtVal(x.c, x.total))}</b></div>
+        <div><span>${esc(t('reviewEntries'))}</span><b data-k="n">${x.n}</b></div>
+        <div><span>${esc(t('reviewBestMonth'))}</span><b data-k="best">${x.bestMonth == null ? '–' : esc(`${monthName(x.bestMonth)} · ${fmtVal(x.c, x.bestValue)}`)}</b></div>
+        <div><span>${esc(t(x.streak.goal ? 'reviewStreak' : 'reviewStreakDays'))}</span><b data-k="streak">${esc(streakVal(x.streak))}</b></div>
+        ${x.cost != null ? `<div><span>${esc(t('reviewCosts'))}</span><b data-k="cost">${esc(fmtMoney(x.cost))}</b></div>` : ''}
+      </div>${monthChart(x.months, { small: true, color: 'var(--c)', label: x.c.name })}</section>`).join('')}
+    <p class="rv-hint">${esc(t('reviewHint'))}</p>`;
 }
 async function langMenu() {
   const v = await openSheet(`<h2>🌐 ${esc(t('language'))}</h2><div class="langlist">${LANGS.map(l =>
@@ -1098,6 +2519,26 @@ async function onboarding() {
   else save();
   render();
 }
+
+/* ---------- v7b: Darstellung (Gerät, nicht im Backup): auto = iPhone-Einstellung ---------- */
+const THEME_KEY = 'zaehler-theme', THEME_BG = { light: '#f2f2f7', dark: '#000000' };
+const themeMode = () => (['light', 'dark'].includes(lsGet(THEME_KEY)) ? lsGet(THEME_KEY) : 'auto');
+function applyTheme() {
+  const m = themeMode(), root = document.documentElement;
+  if (m === 'auto') delete root.dataset.theme; else root.dataset.theme = m;
+  // Statusleiste/Browserleiste: theme-color passend zur gewählten Darstellung
+  document.querySelectorAll('meta[name="theme-color"]').forEach(el => {
+    if (!el.dataset.media) el.dataset.media = el.getAttribute('media') || '';
+    const dark = /dark/.test(el.dataset.media);
+    if (m === 'auto') { el.setAttribute('media', el.dataset.media); el.content = dark ? THEME_BG.dark : THEME_BG.light; }
+    else { el.removeAttribute('media'); el.content = THEME_BG[m]; }
+  });
+}
+function setTheme(m) {
+  if (m === 'light' || m === 'dark') lsSet(THEME_KEY, m); else { try { localStorage.removeItem(THEME_KEY); } catch (e) {} }
+  applyTheme();
+}
+if (window.matchMedia) { try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme); } catch (e) {} }
 
 /* ---------- Updates / Service Worker ---------- */
 let swReg = null, reloadPending = false;
@@ -1134,13 +2575,31 @@ if (/[?&]update=/.test(location.search)) history.replaceState(null, '', location
 
 /* ---------- Verdrahtung ---------- */
 $('newBtn').onclick = () => editCounter();
+// v7c
+$('archiveBtn').onclick = () => archiveList();
+$('unarchBtn').onclick = () => { const c = counter(currentId()); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); };
+$('rvBack').onclick = () => go(null);
+$('rvYears').addEventListener('click', e => { const b = e.target.closest('[data-year]'); if (b) location.hash = 'y=' + b.dataset.year; });
+$('searchIn').addEventListener('input', () => { searchQ = $('searchIn').value; renderHome(); tickClocks(); });
+$('searchIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('searchIn').blur(); } else if (e.key === 'Escape') $('searchX').click(); });
+$('searchX').onclick = () => { searchQ = ''; $('searchIn').value = ''; searchOpen = false; renderHome(); };
+$('searchBtn').onclick = () => { searchOpen = true; renderHome(); $('searchIn').focus(); };
 $('bbNow').onclick = () => exportJson();
 $('bbLater').onclick = () => { lsSet(BK_SNOOZE, isoNow(new Date(Date.now() + 864e5))); updateBanner(); };
 $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => go(null);
 $('editBtn').onclick = () => editCounter(currentId());
-$('dPlus').onclick = () => tapPlus(currentId());
+bindPlus($('dPlus'), null);
+$('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
+$('chips').addEventListener('click', e => { const b = e.target.closest('[data-filter]'); if (!b) return; lsSet(FILTER_KEY, b.dataset.filter); renderHome(); });
+$('chartWhat').addEventListener('click', e => { const b = e.target.closest('[data-what]'); if (!b) return; lsSet(CHART_WHAT_KEY, b.dataset.what); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
+$('dAmt').addEventListener('input', syncAmt);
+$('dAmt').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('dAmt').blur(); } });
+$('dAddN').onclick = () => amountAction(1);
+$('dMinus').onclick = () => amountAction(-1);
+$('chartSeg').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; lsSet(CHART_KEY, b.dataset.mode); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
+$('remIcsBtn').onclick = () => { const c = counter(currentId()); if (c) addToCalendar(c, c.reminder); };
 $('undoBtn').onclick = () => undoLast(currentId());
 $('backdateBtn').onclick = () => editEntry(null, true, currentId());
 $('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
@@ -1148,11 +2607,14 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { db
 setInterval(() => { if (!document.hidden && !$('sheet').classList.contains('show')) render(); }, 60000);
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+applyTheme();
 applyStatic();
 render();
 if (!db.settings.onboarded) onboarding();
 setupServiceWorker();
-window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD }; // für Tests
+setTimeout(() => { photoGc().then(preparePhotos); }, 1500); // v7c: verwaiste Fotos aufräumen, Backup vorbereiten
+window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
+  fmtDur, fmtClock, norm, yearReview, photoAll, photoGet, photoGc, photoStats, compressImage, backupPhotosSync, preparePhotos }; // für Tests
 })();
 </script>
 </body>
