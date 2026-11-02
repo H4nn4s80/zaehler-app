@@ -602,6 +602,24 @@
     .mx .m-group, .mx .m-card, .m-close { background: var(--card); }
     .gseg { background: color-mix(in srgb, var(--ink) 12%, var(--card)); }
   }
+  /* ================= v10: flüssiges Scrollen ================= */
+  /* Weichzeichner nur noch auf festen Flächen (Leiste beim Scrollen, Blatt, Meldung). Was mitscrollt, bekommt dieselbe Glasfarbe ohne Weichzeichner –
+     über dem ruhigen Farbverlauf-Hintergrund sieht das gleich aus, kostet beim Scrollen aber nichts. */
+  #newBtn, #arrangeBtn, #archiveBtn, .search input, #searchBtn { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  /* In der Glas-Leiste: Knöpfe nicht ein zweites Mal weichzeichnen (Leiste tut das schon) */
+  html.scrolled .top .iconbtn { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  /* Kacheln/Zeilen: Änderungen (laufende Uhr, Fortschritt) bleiben in der Kachel – kein Neu-Layout der ganzen Seite */
+  .tile { contain: layout style; }
+  #entryList li { contain: layout style; }
+  [data-clock] { font-variant-numeric: tabular-nums; }
+  /* Fester Hintergrund als eigene Ebene (wird beim Scrollen nicht neu gezeichnet) */
+  body::before { transform: translateZ(0); }
+  /* Blatt: Hintergrund-Seite scrollt nicht mit, Abdunklung als eigene Ebene (beim Runterziehen nur opacity) */
+  html.sheet-open, html.sheet-open body { overflow: hidden; }
+  #sheet { background: transparent !important; overscroll-behavior: contain; }
+  #sheetDim { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: color-mix(in srgb, var(--backdrop) 75%, transparent); }
+  html.pulling #sheetDim { will-change: opacity; } html.pulling #sheetCard { will-change: transform; }
+  #sheet .box { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
 </style>
 </head>
 <body>
@@ -722,7 +740,7 @@
 </main>
 
 <div id="pullDim" hidden></div>
-<div id="sheet" role="dialog" aria-modal="true"><div class="sheet-card" id="sheetCard"><div class="box" id="sheetBox"></div></div></div>
+<div id="sheet" role="dialog" aria-modal="true"><div id="sheetDim" aria-hidden="true"></div><div class="sheet-card" id="sheetCard"><div class="box" id="sheetBox"></div></div></div>
 <div id="toast" role="status"><span id="toastMsg"></span><span id="toastBtns"></span></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
@@ -1407,7 +1425,7 @@ for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 9, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 10, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
@@ -1818,7 +1836,7 @@ const photoDel = id => photoTx('readwrite', st => st.delete(id));
 const photoAll = () => photoTx('readonly', st => st.getAll());
 const photoClear = () => photoTx('readwrite', st => st.clear());
 const photoUrls = new Map(), photoB64 = new Map(); // Cache: Objekt-URLs für die Anzeige, base64 für das Backup
-function forgetPhoto(id) { const u = photoUrls.get(id); if (u) URL.revokeObjectURL(u); photoUrls.delete(id); photoB64.delete(id); }
+function forgetPhoto(id) { const u = photoUrls.get(id); if (u) URL.revokeObjectURL(u); photoUrls.delete(id); photoB64.delete(id); if (typeof forgetThumb === 'function') forgetThumb(id); }
 async function photoUrl(id) {
   if (photoUrls.has(id)) return photoUrls.get(id);
   let r = null; try { r = await photoGet(id); } catch (e) {}
@@ -1894,11 +1912,67 @@ async function applyPhoto(e, st) {
   if (old) { photoDel(old).catch(() => {}); forgetPhoto(old); }
   return true;
 }
+/* v10: Vorschaubilder statt 1280-px-Fotos in der Liste (kleiner Speicher, kein großes Dekodieren beim Scrollen),
+   erst kurz bevor sie ins Bild scrollen geladen. Die Vollansicht nutzt weiter das Originalfoto. */
+const THUMB_PX = 192, photoThumbs = new Map(), thumbOwn = new Set();
+// Verkleinern im Hintergrund-Thread (OffscreenCanvas im Worker), damit der Hauptthread beim Scrollen frei bleibt; sonst Notlösung im Hauptthread
+let thumbWorker = null, thumbSeq = 0; const thumbWait = new Map();
+function thumbInWorker(buf, type) {
+  if (thumbWorker === false || typeof OffscreenCanvas === 'undefined' || typeof Worker === 'undefined') return Promise.resolve(null);
+  try {
+    if (!thumbWorker) {
+      const src = `onmessage = async e => { const { n, buf, type, px } = e.data; try {
+        const bm = await createImageBitmap(new Blob([buf], { type })); const k = Math.min(1, px / Math.max(1, Math.min(bm.width, bm.height)));
+        const w = Math.max(1, Math.round(bm.width * k)), h = Math.max(1, Math.round(bm.height * k)), oc = new OffscreenCanvas(w, h);
+        oc.getContext('2d').drawImage(bm, 0, 0, w, h); if (bm.close) bm.close();
+        postMessage({ n, blob: await oc.convertToBlob({ type: 'image/jpeg', quality: 0.82 }) }); } catch (err) { postMessage({ n, blob: null }); } };`;
+      thumbWorker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+      thumbWorker.onmessage = e => { const f = thumbWait.get(e.data.n); thumbWait.delete(e.data.n); if (f) f(e.data.blob); };
+      thumbWorker.onerror = () => { thumbWorker = false; thumbWait.forEach(f => f(null)); thumbWait.clear(); };
+    }
+    const n = ++thumbSeq;
+    return new Promise(res => { thumbWait.set(n, res); thumbWorker.postMessage({ n, buf: buf.slice(0), type, px: THUMB_PX }); });
+  } catch (e) { thumbWorker = false; return Promise.resolve(null); }
+}
+function photoThumbUrl(id) {
+  if (photoThumbs.has(id)) return photoThumbs.get(id);
+  const pr = (async () => {
+    let r = null; try { r = await photoGet(id); } catch (e) {}
+    if (!r || !r.data) return null;
+    const wb = await thumbInWorker(r.data, r.type || 'image/jpeg');
+    if (wb) { const u = URL.createObjectURL(wb); thumbOwn.add(u); return u; }
+    try {
+      const bm = await createImageBitmap(new Blob([r.data], { type: r.type || 'image/jpeg' }));
+      const k = Math.min(1, THUMB_PX / Math.max(1, Math.min(bm.width, bm.height))), w = Math.max(1, Math.round(bm.width * k)), h = Math.max(1, Math.round(bm.height * k));
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(bm, 0, 0, w, h); if (bm.close) bm.close();
+      const tb = await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.82));
+      if (tb) { const u = URL.createObjectURL(tb); thumbOwn.add(u); return u; }
+    } catch (e) {}
+    return photoUrl(id); // Notlösung: Originalfoto
+  })();
+  photoThumbs.set(id, pr); pr.then(u => { if (!u) photoThumbs.delete(id); });
+  return pr;
+}
+function forgetThumb(id) { const pr = photoThumbs.get(id); photoThumbs.delete(id); if (pr) pr.then(u => { if (u && thumbOwn.has(u)) { URL.revokeObjectURL(u); thumbOwn.delete(u); } }); }
+// Fertige Vorschaubilder gesammelt einmal pro Bild einsetzen (höchstens ein kleines Layout pro Bild)
+const thumbApply = []; let thumbRaf = 0;
+function setThumb(img, u) {
+  thumbApply.push([img, u]);
+  if (!thumbRaf) thumbRaf = requestAnimationFrame(() => { thumbRaf = 0; thumbApply.splice(0).forEach(([im, url]) => {
+    if (!im.isConnected) return;
+    if (url) im.src = url; else { const b = im.parentElement; im.remove(); if (b) { b.textContent = '🖼'; b.title = t('photoMissing'); } }
+  }); });
+}
 function hydratePhotos(root = document) {
-  root.querySelectorAll('img[data-photo]').forEach(async img => {
-    const u = await photoUrl(img.dataset.photo);
-    if (u) img.src = u; else { const b = img.parentElement; img.remove(); if (b) { b.textContent = '🖼'; b.title = t('photoMissing'); } }
-  });
+  // Reihenfolge wie auf dem Bildschirm (oben zuerst), nacheinander im Hintergrund-Thread verkleinert – kein Arbeiten pro Scroll-Ereignis
+  const imgs = [...root.querySelectorAll('img[data-photo]')];
+  imgs.forEach(img => { img.decoding = 'async'; });
+  const next = () => {
+    const img = imgs.shift(); if (!img) return;
+    if (!img.isConnected) return next();
+    photoThumbUrl(img.dataset.photo).then(u => { setThumb(img, u); next(); });
+  };
+  next(); next(); // zwei gleichzeitig
 }
 
 /* ---------- v7c: Zeit messen (Start/Stopp; laufende Uhr = runningSince am Zähler, übersteht Neuladen) ---------- */
@@ -1927,7 +2001,7 @@ async function toggleTimer(cid) {
 }
 function tickClocks() {
   const now = Date.now();
-  document.querySelectorAll('[data-clock]').forEach(el => { el.textContent = fmtClock((now - Date.parse(el.dataset.clock)) / 1000); });
+  document.querySelectorAll('[data-clock]').forEach(el => { const s = fmtClock((now - Date.parse(el.dataset.clock)) / 1000); if (el.textContent !== s) el.textContent = s; });
 }
 setInterval(tickClocks, 1000);
 
@@ -1945,10 +2019,12 @@ function swClose(anim = true) { if (swOpen) { const o = swOpen; swOpen = null; o
 /** wrap = .swipe (relativ), front = verschiebbares Element, enabled() = darf gewischt werden */
 function bindSwipe(wrap, front, enabled = () => true) {
   const acts = wrap.querySelector('.sw-acts');
-  let st = null, x = 0, suppress = false;
+  let st = null, x = 0, suppress = false, raf = 0;
   const W = () => acts.offsetWidth || 168;
-  const set = (v, anim) => { x = v; wrap.classList.toggle('sw-anim', !!anim); wrap.classList.toggle('sw-on', v < 0 || !!st);
+  const set = (v, anim) => { if (raf) { cancelAnimationFrame(raf); raf = 0; } x = v; wrap.classList.toggle('sw-anim', !!anim); wrap.classList.toggle('sw-on', v < 0 || !!st);
     front.style.transform = v ? `translateX(${v}px)` : ''; };
+  // v10: beim Ziehen nur einmal pro Bild verschieben (kein Layout-Lesen pro Bewegung)
+  const drag = v => { x = v; if (!raf) raf = requestAnimationFrame(() => { raf = 0; front.style.transform = x ? `translateX(${x}px)` : ''; }); };
   const close = (anim = true) => { set(0, anim); wrap.classList.remove('sw-open'); front.removeAttribute('aria-describedby');
     setTimeout(() => { if (x === 0 && !st) wrap.classList.remove('sw-on', 'sw-anim'); }, anim ? 280 : 0); };
   const open = () => { if (swOpen && swOpen.wrap !== wrap) swClose(); wrap.classList.add('sw-on', 'sw-open'); set(-W(), true);
@@ -1966,13 +2042,13 @@ function bindSwipe(wrap, front, enabled = () => true) {
       if (Math.abs(dx) < SW_START || Math.abs(dx) < Math.abs(dy) * 1.6) return;
       if (dx > 0 && st.base === 0) { st.dead = true; return; } // nach rechts bei geschlossener Kachel: nichts
       st.active = true; suppress = true; if (swOpen && swOpen.wrap !== wrap) swClose();
-      wrap.classList.add('sw-on'); try { front.setPointerCapture(e.pointerId); } catch (_) {}
+      wrap.classList.add('sw-on'); wrap.classList.remove('sw-anim'); st.w = W(); try { front.setPointerCapture(e.pointerId); } catch (_) {}
     }
     e.preventDefault();
-    let v = st.base + dx; const w = W();
+    let v = st.base + dx; const w = st.w;
     if (v > 0) v = 0; if (v < -w) v = -w + (v + w) * 0.3; // Gummiband über die Knöpfe hinaus
     st.vx = (e.clientX - st.lx) / Math.max(1, e.timeStamp - st.lt); st.lx = e.clientX; st.lt = e.timeStamp;
-    set(v, false);
+    drag(v);
   });
   const end = e => {
     if (!st || e.pointerId !== st.id) return;
@@ -1993,10 +2069,21 @@ document.addEventListener('pointerdown', e => {
   swClose();
   if (o.front.contains(e.target)) { e.stopPropagation(); const eat = ev => { ev.preventDefault(); ev.stopPropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 600); }
 }, true);
-document.addEventListener('scroll', () => { if (swOpen) swClose(); }, true);
+document.addEventListener('scroll', () => { if (swOpen) swClose(); }, { capture: true, passive: true });
 // v8: Navigationsleiste wird beim Scrollen zu Glas
 const syncScrolled = () => document.documentElement.classList.toggle('scrolled', window.scrollY > 4);
-window.addEventListener('scroll', syncScrolled, { passive: true }); syncScrolled();
+// v10: Scroll-Arbeit gebündelt einmal pro Bild; merkt sich die letzte Interaktion (Minuten-Aktualisierung wartet, solange gescrollt wird)
+let lastInteract = 0, wasScrolled = null, wasTop = null;
+const onAnyScroll = e => { // Scroll-Ereignisse kommen ohnehin höchstens einmal pro Bild; hier nur billige Vergleiche, Arbeit nur beim Wechsel
+  lastInteract = e ? e.timeStamp : performance.now();
+  if (e && e.currentTarget !== window) { syncPullArm(); return; } // Blatt: Prüfung endet sofort, wenn sich nichts ändert
+  const y = window.scrollY, sc = y > 4, top = y <= 0;
+  if (sc !== wasScrolled) { wasScrolled = sc; syncScrolled(); }
+  if (top !== wasTop) { wasTop = top; syncPullArm(); }
+};
+window.addEventListener('scroll', onAnyScroll, { passive: true }); syncScrolled();
+$('sheetBox').addEventListener('scroll', onAnyScroll, { passive: true });
+document.addEventListener('touchstart', () => { lastInteract = performance.now(); }, { passive: true, capture: true });
 const swActs = (btns, name) => `<div class="sw-acts" role="group" aria-label="${esc(t('swActions', { name }))}">${btns.map(([cls, ic, label, v]) =>
   `<button type="button" class="${cls}" data-sw="${v}"><span class="sw-ic" aria-hidden="true">${ic}</span><span>${esc(label)}</span></button>`).join('')}</div>`;
 function archiveWithUndo(cid) {
@@ -2066,12 +2153,14 @@ function pullBegin(x, y, target, t0) {
   pull = { ...tg, sx: x, sy: y, active: false, dead: false, d: 0, lt: t0, ly: y, v: 0 };
   return true;
 }
+let pullRaf = 0;
 function pullApply(d, p = pull) {
-  const H = p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight, f = Math.max(0, Math.min(1, d / H));
+  if (pullRaf) { cancelAnimationFrame(pullRaf); pullRaf = 0; }
+  const H = p.H || (p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight), f = Math.max(0, Math.min(1, d / H));
   p.d = d;
   if (p.kind === 'sheet') {
     $('sheetCard').style.transform = `translateY(${d}px)`;
-    $('sheet').style.backgroundColor = `color-mix(in srgb, var(--backdrop) ${Math.round((1 - f * 1.4) * 75)}%, transparent)`;
+    $('sheetDim').style.opacity = String(Math.max(0, 1 - f * 1.4)); // v10: Abdunklung als eigene Ebene per opacity (kein Neuzeichnen, keine Stil-Neuberechnung des Blatts)
   } else {
     p.el.style.transform = `translateY(${d}px) scale(${1 - f * 0.06})`;
     $('home').style.transform = `scale(${0.94 + f * 0.06})`;
@@ -2080,6 +2169,7 @@ function pullApply(d, p = pull) {
 }
 function pullActivate() {
   const p = pull; p.active = true;
+  p.H = p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight; // einmal messen, nicht bei jeder Bewegung
   document.documentElement.classList.add('pulling');
   if (p.kind === 'page') { renderHome(); $('home').hidden = false; $('home').classList.add('behind'); $('pullDim').hidden = false; p.el.classList.add('pulled'); }
   else p.el.classList.add('pulled');
@@ -2095,17 +2185,19 @@ function pullMove(x, y, ts) {
   }
   const raw = dy - PULL_START, d = raw >= 0 ? raw : -Math.min(24, Math.sqrt(-raw) * 3); // Gummiband nach oben
   const dt = Math.max(1, ts - p.lt); p.v = 0.7 * ((y - p.ly) / dt) + 0.3 * p.v; p.lt = ts; p.ly = y;
-  pullApply(d); return true;
+  p.d = d; // v10: höchstens einmal pro Bild zeichnen
+  if (!pullRaf) pullRaf = requestAnimationFrame(() => { pullRaf = 0; if (pull === p && p.active) pullApply(p.d, p); });
+  return true;
 }
 function pullReset(p) {
   p.el.classList.remove('pulled', 'pull-anim'); p.el.style.transform = ''; $('sheetCard').classList.remove('pull-anim'); $('sheetCard').style.transform = '';
-  $('sheet').style.backgroundColor = ''; $('home').style.transform = '';
+  $('sheetDim').style.opacity = ''; $('home').style.transform = '';
   if ($('home').classList.contains('behind')) { $('home').classList.remove('behind', 'pull-anim'); $('home').hidden = true; } $('pullDim').hidden = true; $('pullDim').style.opacity = '';
   document.documentElement.classList.remove('pulling');
 }
 function pullEnd() {
   const p = pull; pull = null; if (!p || !p.active) return false;
-  const H = p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight;
+  const H = p.H || (p.kind === 'sheet' ? $('sheetCard').offsetHeight : window.innerHeight);
   const close = p.d > H * PULL_CLOSE || (p.v > PULL_FLICK && p.d > 24);
   const ms = reducedMotion() ? 0 : close ? 240 : 360;
   (p.kind === 'sheet' ? $('sheetCard') : p.el).classList.add('pull-anim'); if (p.kind === 'page') $('home').classList.add('pull-anim');
@@ -2133,12 +2225,26 @@ function askDiscard() {
 // Touch: touchmove nicht passiv, damit iOS/Chrome beim Runterziehen oben nicht selbst „gummibandeln“
 let eatClick = false;
 document.addEventListener('touchstart', e => { if (e.touches.length !== 1) { pull = null; return; } const tt = e.touches[0]; pullBegin(tt.clientX, tt.clientY, e.target, e.timeStamp); }, { passive: true });
-document.addEventListener('touchmove', e => {
+// v10: Der blockierende touchmove-Listener hängt nur dann am Dokument, wenn ein Runterwischen überhaupt starten kann
+// (Detailseite/Rückblick ganz oben oder Blatt ganz oben). Sonst scrollt der Browser ohne auf JavaScript zu warten (Startseite immer).
+const onPullTouchMove = e => {
   if (!pull) return; const tt = e.touches[0];
   if (pullMove(tt.clientX, tt.clientY, e.timeStamp) && e.cancelable) e.preventDefault();
-}, { passive: false });
-document.addEventListener('touchend', () => { if (pull && pull.active) eatClick = true; if (pullEnd()) setTimeout(() => { eatClick = false; }, 400); else { pull = null; eatClick = false; } });
-document.addEventListener('touchcancel', () => { pullEnd(); });
+};
+let pullArmed = false;
+function syncPullArm() {
+  if (pull && pull.active) return;
+  const sh = $('sheet').classList.contains('show');
+  const want = sh ? $('sheetBox').scrollTop <= 0 : (!$('detail').hidden || !$('review').hidden) && window.scrollY <= 0;
+  if (want === pullArmed) return;
+  pullArmed = want;
+  if (want) document.addEventListener('touchmove', onPullTouchMove, { passive: false });
+  else document.removeEventListener('touchmove', onPullTouchMove, { passive: false });
+}
+new MutationObserver(syncPullArm).observe($('sheet'), { attributes: true, attributeFilter: ['class'] });
+['detail', 'review'].forEach(id => new MutationObserver(syncPullArm).observe($(id), { attributes: true, attributeFilter: ['hidden'] }));
+document.addEventListener('touchend', () => { if (pull && pull.active) eatClick = true; if (pullEnd()) setTimeout(() => { eatClick = false; }, 400); else { pull = null; eatClick = false; } syncPullArm(); }, { passive: true });
+document.addEventListener('touchcancel', () => { pullEnd(); syncPullArm(); }, { passive: true });
 // Maus (zum Testen am Computer)
 document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button === 0) pullBegin(e.clientX, e.clientY, e.target, e.timeStamp); });
 document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && pull && pullMove(e.clientX, e.clientY, e.timeStamp)) e.preventDefault(); });
@@ -2234,7 +2340,7 @@ let sheetResolve = null;
 function openSheet(html, onMount) {
   return new Promise(res => {
     if (sheetResolve) sheetResolve(null);
-    sheetResolve = res; hideToast(); $('sheetBox').innerHTML = html; $('sheet').classList.add('show'); $('sheetBox').scrollTop = 0; // neues Blatt beginnt oben
+    sheetResolve = res; hideToast(); $('sheetBox').innerHTML = html; $('sheet').classList.add('show'); document.documentElement.classList.add('sheet-open'); $('sheetBox').scrollTop = 0; // neues Blatt beginnt oben
     $('sheetBox').querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => closeSheet(b.dataset.v)));
     if (onMount) onMount($('sheetBox'));
     sheetSnap = formState($('sheetBox')); // v8: für „Änderungen verwerfen?“ beim Runterwischen
@@ -2243,7 +2349,7 @@ function openSheet(html, onMount) {
 function closeSheet(v = null) {
   if (reloadPending) setTimeout(() => { if (reloadPending && !$('sheet').classList.contains('show')) location.reload(); }, 600); // Update nachholen, nachdem gespeichert wurde
   { const pa = $('pullAsk'); if (pa) pa.remove(); } sheetSnap = null;
-  $('sheet').classList.remove('show'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
+  $('sheet').classList.remove('show'); document.documentElement.classList.remove('sheet-open'); const r = sheetResolve; sheetResolve = null; if (r) r(v); }
 $('sheet').addEventListener('click', e => { if (e.target.id === 'sheet' && !ignoreBackdrop) closeSheet(null); });
 const confirmBox = (text, yes = t('ok'), danger = false, no = t('cancel')) =>
   openSheet(`<p>${esc(text)}</p><div class="row"><button class="btn" data-v="no" type="button">${esc(no)}</button>
@@ -2425,7 +2531,7 @@ function renderDetail(c) {
     const li = document.createElement('li'); li.className = 'filled'; li.dataset.id = e.id;
     const run = L.runs[i], a = amt(e), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run;
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
-    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt=""></button>` : ''}</span>
+    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
       <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
       <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
@@ -2505,17 +2611,22 @@ function bindDrag(handle, tile) {
     e.preventDefault(); try { handle.setPointerCapture(e.pointerId); } catch (x) {}
     tile.classList.add('dragging');
     const list = tile.parentElement; // Gruppe: nur innerhalb der eigenen Kategorie verschieben
-    const move = ev => {
-      if (ev.pointerId !== e.pointerId) return;
-      const y = ev.clientY;
+    let y = e.clientY, raf = 0; // v10: Positionen höchstens einmal pro Bild messen
+    const place = () => {
+      raf = 0;
       const others = [...list.children].filter(x => x !== tile);
       let before = null;
       for (const o of others) { const r = o.getBoundingClientRect(); if (y < r.top + r.height / 2) { before = o; break; } }
       if (before !== tile.nextSibling) list.insertBefore(tile, before);
     };
+    const move = ev => {
+      if (ev.pointerId !== e.pointerId) return;
+      y = ev.clientY; if (!raf) raf = requestAnimationFrame(place);
+    };
     const up = ev => {
       if (ev.pointerId !== e.pointerId) return;
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+      if (raf) { cancelAnimationFrame(raf); place(); }
       tile.classList.remove('dragging');
       reorderSubset([...list.children].map(x => x.dataset.id)); render();
     };
@@ -2859,7 +2970,7 @@ async function importJson(file) {
   if (v !== 'replace' && v !== 'merge') return;
   // v7c: Fotos zuerst in IndexedDB schreiben; was nicht passt (Speicher voll), verliert nur den Verweis
   const failed = new Set();
-  if (v === 'replace') { try { await photoClear(); } catch (e) {} photoUrls.forEach(u => URL.revokeObjectURL(u)); photoUrls.clear(); photoB64.clear(); }
+  if (v === 'replace') { try { await photoClear(); } catch (e) {} photoUrls.forEach(u => URL.revokeObjectURL(u)); photoUrls.clear(); [...photoThumbs.keys()].forEach(forgetThumb); photoB64.clear(); }
   for (const ph of data.photos) {
     try { const ab = b64ToAb(ph.data); await photoPut({ id: ph.id, type: ph.type, data: ab, size: ab.byteLength, createdAt: isoNow() }); forgetPhoto(ph.id);
       photoB64.set(ph.id, { id: ph.id, type: ph.type, data: ph.data.replace(/\s/g, '') }); }
@@ -2966,7 +3077,7 @@ async function menu(st = 0, from = null) {
   else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
   else if (v === 'wipe') {
     if (await confirmBox(t('wipeQ'), t('wipeAll'), true)) {
-      db = freshDb(); db.settings.onboarded = true; save(); photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); go(null); render(); toast(t('wiped'));
+      db = freshDb(); db.settings.onboarded = true; save(); photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); [...photoThumbs.keys()].forEach(forgetThumb); go(null); render(); toast(t('wiped'));
     }
   }
 }
@@ -3126,7 +3237,13 @@ $('undoBtn').onclick = () => undoLast(currentId());
 $('backdateBtn').onclick = () => editEntry(null, true, currentId());
 $('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { db = load(); render(); swUpdate(); } });
-setInterval(() => { if (!document.hidden && !$('sheet').classList.contains('show')) render(); }, 60000);
+// v10: Minuten-Aktualisierung nie mitten im Scrollen/Wischen – wartet, bis 1,5 s Ruhe ist
+function minuteRender() {
+  if (document.hidden || $('sheet').classList.contains('show')) return;
+  if (pull || swOpen || performance.now() - lastInteract < 1500) { setTimeout(minuteRender, 1600); return; }
+  render();
+}
+setInterval(minuteRender, 60000);
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 applyTheme();
