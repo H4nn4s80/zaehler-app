@@ -247,7 +247,7 @@
   #arrangeHint { text-align: center; color: var(--muted); font-size: 14px; margin: 0 0 10px; }
   .arr { display: none; flex: none; align-items: center; gap: 2px; padding: 0 6px; }
   #list.arranging .arr { display: flex; }
-  #list.arranging .plus { display: none; }
+  #list.arranging .plus, #list.arranging .plus-pair { display: none; }
   #list.arranging .tile-main { pointer-events: none; }
   .arr button { border: 0; background: var(--soft); color: var(--ink); border-radius: 10px; width: 40px; height: 40px; font-size: 16px; padding: 0; }
   .arr button:disabled { opacity: .3; }
@@ -772,6 +772,30 @@
   .hap .hap-sw { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: 0; padding: 0; visibility: hidden; }
   html.no-hap .hap { display: none; }
   .plus, .note-chips button { position: relative; }
+  /* Version 3.4: Getränke – Klein / Groß als zwei Glas-Tasten (Kachel: übereinander, Detail: nebeneinander, Fällig: zwei Pillen) */
+  .plus-pair { flex: none; display: flex; flex-direction: column; gap: 6px; margin: 8px; width: 84px; }
+  .plus-pair .plus.sz { margin: 0; width: 100%; flex: 1 1 0; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    font-size: 17px; font-weight: 800; letter-spacing: 0; line-height: 1.05; border-radius: 16px; }
+  .plus.sz b { font-weight: 800; } .plus.sz small, .dsz small { font-size: 12px; font-weight: 600; opacity: .88; }
+  .plus.sz-s, .dsz-s { background-color: color-mix(in srgb, var(--c) 78%, #fff); }
+  .d-sizes { display: flex; gap: 10px; } .d-sizes[hidden] { display: none; }
+  .dsz { position: relative; flex: 1 1 0; min-width: 0; min-height: 86px; border: 0; border-radius: 30px; color: #fff; background-color: var(--c);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 50%, rgba(0,0,0,.05));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 .5px rgba(255,255,255,.28), 0 12px 28px -10px color-mix(in srgb, var(--c) 70%, transparent);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font: inherit; font-size: 24px; font-weight: 800; text-shadow: 0 1px 1px rgba(0,0,0,.12);
+    transition: transform .08s; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .dsz small { font-size: 14px; }
+  .dsz:active { transform: scale(.97); }
+  .due-plus.sz { min-width: 0; padding: 0 12px; font-size: 14px; } .due-plus.sz + .due-plus.sz { margin-left: -4px; }
+  .due-plus.sz[data-size="s"] { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, #fff), color-mix(in srgb, var(--c) 82%, #fff)); }
+  .chip-sz { font-size: 12px; font-weight: 600; opacity: .75; }
+  .stat .lit { display: block; margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--c); font-variant-numeric: tabular-nums; }
+  .stat .lit[hidden] { display: none; }
+  .szt { color: var(--c); font-weight: 600; font-size: 14px; margin-right: 8px; }
+  .tile-sub.tile-lit { color: var(--c); font-weight: 600; }
+  .size-hint { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; padding: 10px 12px; border-radius: 16px; background: color-mix(in srgb, var(--c, #007aff) 12%, transparent); font-size: 14px; }
+  .size-hint span { flex: 1; } .size-hint .btn { flex: none; min-height: 36px; padding: 0 14px; font-size: 14px; }
+  .sz-seg { display: flex; } .sz-seg button { flex: 1; min-height: 40px; font-size: 15px; }
   .ov { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px 16px; border-radius: 24px; background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
   .ov.noring { padding: 12px 18px; }
   .ring-w { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; }
@@ -881,6 +905,10 @@
   </section>
   <section class="card state-card" id="stateCard" hidden></section>
   <button id="dPlus" type="button"><span id="dPlusT">+1</span><label class="hap" id="hapLbl" aria-hidden="true"><input type="checkbox" switch class="hap-sw" id="hapSw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
+  <div class="d-sizes" id="dSizes" hidden>
+    <button class="dsz dsz-s" id="dPlusS" type="button" data-size="s"><b id="dPlusST"></b><small id="dPlusSV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
+    <button class="dsz dsz-l" id="dPlusL" type="button" data-size="l"><b id="dPlusLT"></b><small id="dPlusLV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
+  </div>
   <p class="lp-hint" id="timerHint" data-i18n="timerHint" hidden></p>
   <section class="ov" id="ovBox">
     <div class="ring-w" id="ovRingW"><svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="ring-bg" cx="22" cy="22" r="18"/><circle class="ring-fg" id="ovRingFg" cx="22" cy="22" r="18" pathLength="100"/></svg><span class="ring-n" id="ovRingN"></span></div>
@@ -892,10 +920,10 @@
     <div class="note-chips" id="noteChips" hidden></div>
   </section>
   <div class="stats" id="statsBox">
-    <div class="stat"><b id="sToday">0</b><span data-i18n="statToday"></span></div>
-    <div class="stat"><b id="sWeek">0</b><span data-i18n="statWeek"></span></div>
-    <div class="stat"><b id="sMonth">0</b><span data-i18n="statMonth"></span></div>
-    <div class="stat"><b id="sTotal">0</b><span data-i18n="statTotal"></span></div>
+    <div class="stat"><b id="sToday">0</b><span data-i18n="statToday"></span><small class="lit" id="lToday" hidden></small></div>
+    <div class="stat"><b id="sWeek">0</b><span data-i18n="statWeek"></span><small class="lit" id="lWeek" hidden></small></div>
+    <div class="stat"><b id="sMonth">0</b><span data-i18n="statMonth"></span><small class="lit" id="lMonth" hidden></small></div>
+    <div class="stat"><b id="sTotal">0</b><span data-i18n="statTotal"></span><small class="lit" id="lTotal" hidden></small></div>
   </div>
   <div class="since" id="sSince"></div>
 
@@ -1705,6 +1733,15 @@ const I18N_V33 = {
   fr: {"dayTotal": "Total : {v}", "dayEmpty": "Aucune entrée ce jour-là", "periodEmpty": "Aucune entrée sur cette période", "dayLocked": "🔒 Verrouillé – entrées en lecture seule", "dayHint": "Touche pour modifier · glisse à gauche pour supprimer", "barAria": "{label} : voir les entrées", "dayAllDay": "toute la journée", "dayEditAria": "Modifier l’entrée {d}"}
 };
 for (const l of Object.keys(I18N_V33)) Object.assign(I18N[l], I18N_V33[l]);
+/* Version 3.4: Getränke mit Größen (klein / groß) */
+const I18N_V34 = {
+  de: {"sizeS": "klein", "sizeL": "groß", "sizeBtnS": "Klein", "sizeBtnL": "Groß", "sizeAria": "{name}: {s} ({v}) zählen", "sizesField": "Getränk", "sizesCheck": "Getränk mit Größen (klein / groß)", "sizesHelp": "Beim Zählen wählst du klein oder groß. Die Menge wird am Eintrag gespeichert – spätere Änderungen hier ändern alte Einträge nicht.", "sizesHint": "Sieht nach einem Getränk aus – beim Zählen klein oder groß wählen?", "sizesHintBtn": "Einschalten", "volS": "Klein (Liter)", "volL": "Groß (Liter)", "errVol": "Bitte Mengen zwischen 0,01 und 10 Litern angeben (z. B. 0,33).", "sizeLbl": "Größe", "litToday": "heute {v}", "tpl_beer": "Bier", "tplh_beer": "klein 0,33 l · groß 0,5 l"},
+  en: {"sizeS": "small", "sizeL": "large", "sizeBtnS": "Small", "sizeBtnL": "Large", "sizeAria": "{name}: count {s} ({v})", "sizesField": "Drink", "sizesCheck": "Drink with sizes (small / large)", "sizesHelp": "When counting you pick small or large. The volume is stored on the entry – changing it here later does not change old entries.", "sizesHint": "Looks like a drink – choose small or large when counting?", "sizesHintBtn": "Turn on", "volS": "Small (litres)", "volL": "Large (litres)", "errVol": "Please enter volumes between 0.01 and 10 litres (e.g. 0.33).", "sizeLbl": "Size", "litToday": "today {v}", "tpl_beer": "Beer", "tplh_beer": "small 0.33 l · large 0.5 l"},
+  it: {"sizeS": "piccolo", "sizeL": "grande", "sizeBtnS": "Piccolo", "sizeBtnL": "Grande", "sizeAria": "{name}: conta {s} ({v})", "sizesField": "Bevanda", "sizesCheck": "Bevanda con formati (piccolo / grande)", "sizesHelp": "Quando conti scegli piccolo o grande. La quantità resta salvata nella voce – cambiarla qui dopo non modifica le voci vecchie.", "sizesHint": "Sembra una bevanda – scegliere piccolo o grande quando conti?", "sizesHintBtn": "Attiva", "volS": "Piccolo (litri)", "volL": "Grande (litri)", "errVol": "Inserisci quantità tra 0,01 e 10 litri (es. 0,33).", "sizeLbl": "Formato", "litToday": "oggi {v}", "tpl_beer": "Birra", "tplh_beer": "piccola 0,33 l · grande 0,5 l"},
+  es: {"sizeS": "pequeño", "sizeL": "grande", "sizeBtnS": "Pequeño", "sizeBtnL": "Grande", "sizeAria": "{name}: contar {s} ({v})", "sizesField": "Bebida", "sizesCheck": "Bebida con tamaños (pequeño / grande)", "sizesHelp": "Al contar eliges pequeño o grande. La cantidad se guarda en la entrada – cambiarla aquí después no cambia las entradas antiguas.", "sizesHint": "Parece una bebida – ¿elegir pequeño o grande al contar?", "sizesHintBtn": "Activar", "volS": "Pequeño (litros)", "volL": "Grande (litros)", "errVol": "Indica cantidades entre 0,01 y 10 litros (p. ej. 0,33).", "sizeLbl": "Tamaño", "litToday": "hoy {v}", "tpl_beer": "Cerveza", "tplh_beer": "pequeña 0,33 l · grande 0,5 l"},
+  fr: {"sizeS": "petit", "sizeL": "grand", "sizeBtnS": "Petit", "sizeBtnL": "Grand", "sizeAria": "{name} : compter {s} ({v})", "sizesField": "Boisson", "sizesCheck": "Boisson avec tailles (petit / grand)", "sizesHelp": "En comptant, tu choisis petit ou grand. Le volume est enregistré dans l’entrée – le modifier ici plus tard ne change pas les anciennes entrées.", "sizesHint": "On dirait une boisson – choisir petit ou grand en comptant ?", "sizesHintBtn": "Activer", "volS": "Petit (litres)", "volL": "Grand (litres)", "errVol": "Indique des volumes entre 0,01 et 10 litres (ex. 0,33).", "sizeLbl": "Taille", "litToday": "aujourd’hui {v}", "tpl_beer": "Bière", "tplh_beer": "petite 0,33 l · grande 0,5 l"}
+};
+for (const l of Object.keys(I18N_V34)) Object.assign(I18N[l], I18N_V34[l]);
 </script>
 <script>
 (() => {
@@ -1720,12 +1757,13 @@ for (const l of Object.keys(I18N_V33)) Object.assign(I18N[l], I18N_V33[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 15, APP_VERSION = '3.3', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 16, APP_VERSION = '3.4', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
-  { k: 'water', emoji: '💧', color: '#007aff', goal: { amount: 8, period: 'day' }, reset: 'day' },
-  { k: 'coffee', emoji: '☕️', color: '#a2845e', goal: { amount: 3, period: 'day' }, goalType: 'limit', reset: 'day' },
+  { k: 'water', emoji: '💧', color: '#007aff', goal: { amount: 8, period: 'day' }, reset: 'day', sizes: { s: 0.25, l: 0.5 } },
+  { k: 'coffee', emoji: '☕️', color: '#a2845e', goal: { amount: 3, period: 'day' }, goalType: 'limit', reset: 'day', sizes: { s: 0.2, l: 0.3 } },
+  { k: 'beer', emoji: '🍺', color: '#ff9500', sizes: { s: 0.33, l: 0.5 } }, // Version 3.4
   { k: 'sport', emoji: '🏃', color: '#34c759', goal: { amount: 3, period: 'week' }, reset: 'week' },
   { k: 'steps', emoji: '🚶', color: '#00c7be', step: 1000, goal: { amount: 8000, period: 'day' }, reset: 'day' },
   { k: 'smoke', emoji: '🚬', color: '#8e8e93', goal: { amount: 5, period: 'day' }, goalType: 'limit', reset: 'day' },
@@ -1867,6 +1905,34 @@ function isPrice(v) { return typeof v === 'number' && Number.isFinite(v) && v >=
 const RESETS = ['day', 'week', 'month'];
 const resetOf = c => (c && RESETS.includes(c.reset) ? c.reset : null);
 const isLocked = c => !!c && c.locked === true;
+/* Version 3.4: Getränke mit Größen. Zähler: sizes { s, l } in Litern (vorhanden = eingeschaltet).
+   Eintrag: size 's' | 'l' und vol (Liter, beim Zählen festgehalten – spätere Änderungen am Zähler schreiben die Geschichte nicht um). */
+function isVol(v) { return typeof v === 'number' && Number.isFinite(v) && v >= 0.01 && v <= 10; }
+function sanitizeSizes(z) { return z && typeof z === 'object' && isVol(z.s) && isVol(z.l) ? { s: Math.round(z.s * 1000) / 1000, l: Math.round(z.l * 1000) / 1000 } : null; }
+const sizesOf = c => (c && c.type !== 'time' ? sanitizeSizes(c.sizes) : null);
+const DRINK_RX = /bier|beer|birra|cerveza|bi[eè]re|wasser|water|acqua|agua|\beau\b|kaffee|coffee|caff|caf[eé]|espresso|cappuccino|latte|saft|juice|succo|zumo|\bjus\b|wein|wine|vino|\bvin\b|cola|limo|schorle|\btee\b|\btea\b|\bt[èéh]+[eé]?\b|milch|milk|getränk|drink|bevand|bebida|boisson/i;
+const isDrinkLike = (name, cat) => DRINK_RX.test(String(name || '')) || /getränk|drink|bevand|bebida|boisson/i.test(String(cat || ''));
+function drinkDefaults(name) {
+  const n = String(name || '').toLowerCase();
+  if (/kaffee|coffee|caff|caf[eé]|espresso|cappuccino|\btee\b|\btea\b|\bt[èé]\b|thé/.test(n)) return { s: 0.2, l: 0.3 };
+  if (/wasser|water|acqua|agua|\beau\b/.test(n)) return { s: 0.25, l: 0.5 };
+  if (/wein|wine|vino|\bvin\b/.test(n)) return { s: 0.1, l: 0.2 };
+  return { s: 0.33, l: 0.5 };
+}
+const fmtL = v => `${new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 2 }).format(v)} l`;
+const sizeName = k => t(k === 'l' ? 'sizeL' : 'sizeS');
+const sizeTxt = e => (e && (e.size === 's' || e.size === 'l') ? `${sizeName(e.size)}${isVol(e.vol) ? ' ' + fmtL(e.vol) : ''}` : '');
+const hasVols = list => list.some(e => isVol(e.vol));
+/** Liter (Menge × festgehaltene Größe) der Einträge im Zeitraum [from, to) */
+function litersIn(list, from = null, to = null) {
+  let sum = 0;
+  for (const e of list) { if (!isVol(e.vol)) continue; const ts = new Date(e.timestamp); if ((from && ts < from) || (to && ts >= to)) continue; sum += e.vol * (validAmount(e.amount) ? e.amount : 1); }
+  return Math.max(0, Math.round(sum * 1000) / 1000);
+}
+const parseVol = str => { const x = String(str ?? '').trim().replace(/\s*l$/i, '').replace(',', '.'); if (!/^\d*\.?\d+$/.test(x)) return null; const v = Number(x); return isVol(v) ? Math.round(v * 1000) / 1000 : null; };
+const volInput = v => (isVol(v) ? new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 3, useGrouping: false }).format(v) : '');
+/** zuletzt benutzte Größe (für Notiz-Chips / Nachtragen ohne ausdrückliche Wahl) */
+const lastSize = (es, note = null) => { for (let i = es.length - 1; i >= 0; i--) { const e = es[i]; if ((e.size === 's' || e.size === 'l') && (note == null || (e.note || '').trim().toLocaleLowerCase() === note.toLocaleLowerCase())) return e.size; } return null; };
 /* Version 3.1: Versteck-Modus. hidden: true = unsichtbar (v3-„ausgeblendete“ Zähler sind damit automatisch unsichtbar), 'blur' = unscharf */
 const hideOf = c => (!c ? null : c.hidden === true ? 'invisible' : c.hidden === 'blur' ? 'blur' : null);
 const isHidden = c => !!hideOf(c);
@@ -2168,6 +2234,7 @@ function normalizeDb(s) {
     if ('reset' in c && !['day', 'week', 'month'].includes(c.reset)) delete c.reset; // Version 3b: Auto-Reset day|week|month
     if ('locked' in c && c.locked !== true) delete c.locked; // Version 3b: gesperrt
     if ('hidden' in c && c.hidden !== true && c.hidden !== 'blur') delete c.hidden; // Version 3.1: versteckt (true = unsichtbar, 'blur' = unscharf)
+    if ('sizes' in c && !(c.sizes = sanitizeSizes(c.sizes))) delete c.sizes; // Version 3.4
     if ('runningSince' in c && !(c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince)))) delete c.runningSince;
   });
   for (const e of s.entries) { // v7b: Menge/Preis pro Eintrag (fehlen bei alten Daten = 1 bzw. Zählerpreis)
@@ -2175,6 +2242,8 @@ function normalizeDb(s) {
     if (e && 'price' in e && !isPrice(e.price)) delete e.price;
     if (e && 'duration' in e && !validDuration(e.duration)) delete e.duration; // v7c
     if (e && 'photo' in e && !(typeof e.photo === 'string' && e.photo && e.photo.length <= 80)) delete e.photo;
+    if (e && 'size' in e && e.size !== 's' && e.size !== 'l') delete e.size; // Version 3.4
+    if (e && 'vol' in e && !isVol(e.vol)) delete e.vol;
   }
   return s;
 }
@@ -2970,7 +3039,7 @@ function upsertCounter(data) {
   let c = data.id && counter(data.id);
   if (c) Object.assign(c, data);
   else { c = { id: uuid(), order: db.counters.reduce((m, x) => Math.max(m, x.order + 1), 0), createdAt: isoNow(), ...data }; db.counters.push(c); }
-  for (const k of ['goal', 'goalType', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince', 'reset', 'locked', 'hidden']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
+  for (const k of ['goal', 'goalType', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince', 'reset', 'locked', 'hidden', 'sizes']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
   if (c.step === 1) delete c.step;
   save(); return c;
 }
@@ -3057,6 +3126,7 @@ function render() {
   if (dayView) dayView.refresh(); // Version 3.3: offenes Tagesblatt sofort mitaktualisieren (Löschen, Rückgängig, Bearbeiten)
 }
 const FILTER_KEY = 'zaehler-filter';
+const SIZE_HINT_KEY = 'zaehler-size-hint'; // Version 3.4: Geräte-Einstellung – Zähler-ids, bei denen der Getränke-Hinweis schon kam
 function renderHome() {
   swOpen = null;
   const list = $('list'); list.innerHTML = '';
@@ -3108,10 +3178,11 @@ function renderDue(cs, off) {
       return `<div class="due-row" role="listitem" data-id="${esc(c.id)}" style="--c:${esc(c.color)}"><button type="button" class="due-open" data-due-open>
         <span class="emoji">${esc(c.emoji || '🔢')}</span><span class="due-t"><b>${lk ? LOCK_SVG + ' ' : ''}${esc(c.name)}</b><span>${esc(t('dueLeft' + PKEY[x.period], { n: fmtVal(c, x.left) }))}</span>
         <span class="due-bar"><i style="width:${x.gp.pct}%"></i></span></span></button>
-        <button type="button" class="due-plus${lk ? ' locked' : ''}${tm ? ' timer' : ''}" data-due-plus aria-label="${esc(lk ? t('dueLockedAria', { name: c.name }) : tm ? t('timerAria', { name: c.name }) : t('duePlusAria', { name: c.name, n: step }))}">${lk ? LOCK_SVG : tm ? (c.runningSince ? '■' : '▶') : '+' + step}${HAP}</button></div>`; }).join('')}</div>`
+        ${!lk && sizesOf(c) ? ['s', 'l'].map(k => `<button type="button" class="due-plus sz" data-due-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sizesOf(c)[k]) }))}">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}${HAP}</button>`).join('') :
+        `<button type="button" class="due-plus${lk ? ' locked' : ''}${tm ? ' timer' : ''}" data-due-plus aria-label="${esc(lk ? t('dueLockedAria', { name: c.name }) : tm ? t('timerAria', { name: c.name }) : t('duePlusAria', { name: c.name, n: step }))}">${lk ? LOCK_SVG : tm ? (c.runningSince ? '■' : '▶') : '+' + step}${HAP}</button>`}</div>`; }).join('')}</div>`
       : `<p class="due-done">${esc(t('dueAllDone'))}</p>`);
   box.querySelectorAll('.due-row').forEach(r => { const id = r.dataset.id;
-    r.querySelector('[data-due-open]').onclick = () => go(id); bindPlus(r.querySelector('[data-due-plus]'), id); });
+    r.querySelector('[data-due-open]').onclick = () => go(id); r.querySelectorAll('[data-due-plus]').forEach(b => bindPlus(b, id, b, b.dataset.size || null)); });
 }
 function renderSearch(q, cs, arch) {
   const box = $('searchRes'), toks = norm(q).split(/\s+/).filter(Boolean); box.innerHTML = '';
@@ -3157,7 +3228,7 @@ function tileEl(c, idx, count, swipe = false) {
   if (veiled(c)) return veilTile(c, idx, count);
   const es = entriesOf(c.id), L = ledger(es), lab = countLabel(c, es), last = es[es.length - 1], st = stats(es, L);
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
-  const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null;
+  const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null, sz = sizesOf(c), litT = sz || hasVols(es) ? litersIn(es, startOfDay(new Date())) : 0;
   const el = document.createElement('div');
   el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : '') + (isHidden(c) ? ' is-hid' : ''); /* 3.2: versteckt (entsperrt) deutlich markiert */ el.style.setProperty('--c', c.color); el.dataset.id = c.id;
   el.innerHTML = `<button class="tile-main" type="button" data-open>
@@ -3167,6 +3238,7 @@ function tileEl(c, idx, count, swipe = false) {
         ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
         ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
         ${gp ? `<div class="goal"><div class="bar goalbar${gp.limit ? ' limit' + (gp.over ? ' over' : gp.near ? ' near' : '') : ''}"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span>${hs ? `<span class="tile-str" role="img" aria-label="${esc(t('strAria', { p: hs.pct }))}"><span class="ts-d" style="--p:${hs.pct}"></span>${hs.pct} %</span>` : ''}</div>` : ''}
+        ${litT ? `<div class="tile-sub tile-lit">${esc(t('litToday', { v: fmtL(litT) }))}</div>` : ''}
         ${sk && sk.cur ? `<div class="tile-sub streak">${esc(streakText(sk))}</div>` : ''}
         ${run ? `<div class="tile-sub run">${esc(t('timerRunning', { t: fmtTime(new Date(c.runningSince)) }))}</div>`
           : due ? `<div class="tile-sub due">${esc(t('reminderDue'))}</div>` : `<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div>`}</span>
@@ -3174,6 +3246,7 @@ function tileEl(c, idx, count, swipe = false) {
     ${lk ? `<button class="plus locked" type="button" data-plus aria-label="${esc(t('dueLockedAria', { name: c.name }))}">${LOCK_SVG}${HAP}</button>`
       : tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
         ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}${HAP}</button>`
+      : sz ? `<div class="plus-pair">${['s', 'l'].map(k => `<button class="plus sz sz-${k}" type="button" data-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) }))}"><b>${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}</b><small>${esc(fmtL(sz[k]))}</small>${HAP}</button>`).join('')}</div>` // Version 3.4
       : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}${HAP}</button>`}
     ${arrHtml(idx, count)}`;
   // Version 3b: gedrückt halten (0,6 s, ohne Bewegung) → Menü Sperren/Ausblenden; der Klick danach öffnet nicht die Detailseite
@@ -3186,7 +3259,7 @@ function tileEl(c, idx, count, swipe = false) {
   main.addEventListener('pointerup', () => { if (lpFired) lpSwallowUntil = performance.now() + 400; }); // nur der Klick dieses Loslassens
   main.addEventListener('contextmenu', e => e.preventDefault());
   main.onclick = () => { if (lpFired) { lpFired = false; return; } if (!arranging) go(c.id); };
-  bindPlus(el.querySelector('[data-plus]'), c.id);
+  el.querySelectorAll('[data-plus]').forEach(b => bindPlus(b, c.id, b, b.dataset.size || null));
   el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
   el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
   // v8: Hülle mit Wisch-Aktionen (nur Startseite; nicht in Suche/Anordnen)
@@ -3230,6 +3303,11 @@ function renderDetail(c) {
   { const cb = document.querySelector('#chartWhat [data-what=count], [data-what=count]'); if (cb) cb.textContent = t(tm ? 'fieldDuration' : 'chartCount'); } // v7c: Zeit-Zähler zeigen „Dauer“
   // v7c: archiviert = nur ansehen/bearbeiten; Zeit-Zähler ohne −/+n
   $('archCard').hidden = !arch; $('dPlus').hidden = arch; $('timerHint').hidden = arch || !tm;
+  { const sz = sizesOf(c), on = !!sz && !arch && !isLocked(c); $('dSizes').hidden = !on; if (on) $('dPlus').hidden = true; // Version 3.4: Klein / Groß statt +1
+    if (on) for (const k of ['s', 'l']) { const K = k.toUpperCase(); $('dPlus' + K + 'T').textContent = t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'); $('dPlus' + K + 'V').textContent = fmtL(sz[k]);
+      $('dPlus' + K).setAttribute('aria-label', t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) })); }
+    const lit = !!sz || hasVols(es), now = new Date();
+    [['Today', startOfDay(now)], ['Week', startOfWeek(now)], ['Month', startOfMonth(now)], ['Total', null]].forEach(([k, from]) => { const el = $('l' + k); el.hidden = !lit; el.textContent = lit ? fmtL(litersIn(es, from)) : ''; }); }
   const fv = v => fmtVal(c, v);
   $('statsBox').classList.toggle('dur', tm);
   $('sToday').textContent = fv(st.today); $('sWeek').textContent = fv(st.week); $('sMonth').textContent = fv(st.month); $('sTotal').textContent = fv(st.total);
@@ -3249,7 +3327,7 @@ function renderDetail(c) {
       li.className = e ? 'filled swipe sw-entry' : 'emptyrow';
       if (e && i === r.current.length) li.classList.add('latest');
       if (!e && !r.full && i === r.next) li.classList.add('next');
-      const inner = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
+      const inner = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (sizeTxt(e) ? ` <span class="rel">· ${esc(sizeTxt(e))}</span>` : '') + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
       if (e) { li.dataset.eid = e.id; li.innerHTML = `<div class="sw-front">${inner}</div>`; } else li.innerHTML = inner;
       ol.appendChild(li);
     }
@@ -3292,7 +3370,7 @@ function renderDetail(c) {
     const li = document.createElement('li'); li.className = 'filled swipe sw-entry'; li.dataset.id = li.dataset.eid = e.id;
     const run = L.runs[i], a = amt(e), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run;
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
-    li.innerHTML = `<div class="sw-front"><span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
+    li.innerHTML = `<div class="sw-front"><span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || sizeTxt(e) || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${sizeTxt(e) ? `<span class="szt">${esc(sizeTxt(e))}</span>` : ''}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
       <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
       <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button></div>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
@@ -3320,7 +3398,7 @@ async function viewPhoto(eid) {
 /* ---------- v7: +1 mit Lang-Druck (Notiz) ---------- */
 let ignoreBackdrop = false;
 /** Normaler Tipp = +1 wie bisher; gedrückt halten (0,55 s) = +1 und sofort Notiz-Dialog. */
-function bindPlus(btn, cid, hit = btn) {
+function bindPlus(btn, cid, hit = btn, size = null) { // Version 3.4: size = 's' | 'l' bei Getränken
   const id = () => cid || currentId();
   let timer = null, longFired = false, sx = 0, sy = 0;
   const cancel = () => { clearTimeout(timer); timer = null; };
@@ -3330,14 +3408,14 @@ function bindPlus(btn, cid, hit = btn) {
     if (isTime(counter(id()))) return; // Zeit-Zähler: kein Lang-Druck (Notiz nach dem Stopp über die Meldung oder ✎)
     timer = setTimeout(() => {
       timer = null; longFired = true; ignoreBackdrop = true; setTimeout(() => { ignoreBackdrop = false; }, 900);
-      tapPlus(id(), null, { note: true });
+      tapPlus(id(), null, { note: true, size });
     }, 550);
   });
   hit.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) cancel(); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => hit.addEventListener(ev, cancel));
   hit.addEventListener('contextmenu', e => e.preventDefault());
   // Version 3: gezählt wird immer über den Klick der Taste (der Label-Klick blubbert genau einmal hoch). Kein preventDefault beim normalen Tipp.
-  btn.addEventListener('click', e => { if (isHapSw(e)) return; if (longFired) { longFired = false; return; } afterHap(e, () => tapPlus(id())); });
+  btn.addEventListener('click', e => { if (isHapSw(e)) return; if (longFired) { longFired = false; return; } afterHap(e, () => tapPlus(id(), null, { size })); });
 }
 
 /* ---------- v11: Überblick + Ring ---------- */
@@ -3376,12 +3454,14 @@ function renderRecent(c, es) {
   const tm = isTime(c), step = stepOf(c), notes = tm || c.archived || isLocked(c) ? [] : topNotes(es);
   $('recentCard').hidden = !es.length;
   $('recentList').innerHTML = es.slice(-3).reverse().map(e => { const a = amt(e);
-    return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
+    return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${sizeTxt(e) ? ` <span class="rn rsz">${esc(sizeTxt(e))}</span>` : ''}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
       + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></div></li>`; }).join('');
   $('recentList').querySelectorAll('[data-rid]').forEach(b => { b.onclick = () => editEntry(b.dataset.rid); });
   const ch = $('noteChips'); ch.hidden = !notes.length;
-  ch.innerHTML = notes.map(n => `<button type="button" data-chip="${esc(n)}" aria-label="${esc(t('chipAria', { n: step, t: n }))}">+${step} ${esc(n)}${HAP}</button>`).join('');
-  ch.querySelectorAll('[data-chip]').forEach(b => { b.onclick = e => { if (!isHapSw(e)) afterHap(e, () => tapPlus(c.id, null, { text: b.dataset.chip })); }; });
+  // Version 3.4: bei Getränken zählt der Chip in der Größe, die zuletzt mit dieser Notiz benutzt wurde (sonst klein)
+  const sz = sizesOf(c), chipSize = n => (sz ? lastSize(es, n) || 's' : null);
+  ch.innerHTML = notes.map(n => `<button type="button" data-chip="${esc(n)}"${sz ? ` data-size="${chipSize(n)}"` : ''} aria-label="${esc(t('chipAria', { n: step, t: n }))}${sz ? ` (${esc(sizeName(chipSize(n)))})` : ''}">+${step} ${esc(n)}${sz ? ` <small class="chip-sz">${esc(sizeName(chipSize(n)))}</small>` : ''}${HAP}</button>`).join('');
+  ch.querySelectorAll('[data-chip]').forEach(b => { b.onclick = e => { if (!isHapSw(e)) afterHap(e, () => tapPlus(c.id, null, { text: b.dataset.chip, size: b.dataset.size || null })); }; });
 }
 /* ---------- v11: Jahres-Raster (letzte 12 Monate) + teilbares Bild ---------- */
 const ymdOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -3426,7 +3506,7 @@ function dayInner(c, s, e, kind) {
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
     const cost = co && unitPrice(c, x) ? `<span class="cost">${esc(fmtMoney(cents(c, x, a)))}</span>` : '';
     const inner = `<span class="nr">${nr}</span><span class="when"><b class="dtime">${esc(x.dateOnly ? t('dayAllDay') : fmtTime(d))}</b>${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}`
-      + `${amtTxt || cost ? `<span class="meta">${amtTxt}${cost}</span>` : ''}${x.note ? `<span class="note">📝 ${esc(x.note)}</span>` : ''}</span>`
+      + `${amtTxt || cost || sizeTxt(x) ? `<span class="meta">${amtTxt}${sizeTxt(x) ? `<span class="szt">${esc(sizeTxt(x))}</span>` : ''}${cost}</span>` : ''}${x.note ? `<span class="note">📝 ${esc(x.note)}</span>` : ''}</span>`
       + `${x.photo ? `<span class="thumb"><img data-photo="${esc(x.photo)}" alt="" decoding="async"></span>` : ''}${lk ? '' : '<span class="rchev" aria-hidden="true">›</span>'}`;
     return `<li class="filled swipe sw-entry" data-eid="${esc(x.id)}"><div class="sw-front">${lk ? `<div class="day-row">${inner}</div>`
       : `<button type="button" class="day-row" data-act="edit:${esc(x.id)}" aria-label="${esc(t('dayEditAria', { d: fmtEntry(x) }))}">${inner}</button>`}</div></li>`;
@@ -3435,10 +3515,11 @@ function dayInner(c, s, e, kind) {
   if (kind === 'day' || kind === 'yday') list = hits.length ? `<ol class="rows day-rows" id="dayList">${hits.map(row).join('')}</ol>` : '';
   else { const groups = []; hits.forEach(h => { const k = ymdOf(new Date(h.x.timestamp)); const g = groups[groups.length - 1]; if (g && g.k === k) g.items.push(h); else groups.push({ k, d: startOfDay(new Date(h.x.timestamp)), items: [h] }); });
     list = groups.length ? `<div id="dayList">${groups.map(g => { const gs = Math.max(0, g.items.reduce((a, h) => a + L.eff[h.i], 0));
-      return `<section class="day-grp" data-day="${g.k}"><h3>${esc(longDay(g.d))}<span>${esc(fmtVal(c, gs))}</span></h3><ol class="rows day-rows">${g.items.map(row).join('')}</ol></section>`; }).join('')}</div>` : ''; }
+      const gl = sizesOf(c) || hasVols(all) ? ` · ${fmtL(litersIn(g.items.map(h => h.x)))}` : '';
+      return `<section class="day-grp" data-day="${g.k}"><h3>${esc(longDay(g.d))}<span>${esc(fmtVal(c, gs) + gl)}</span></h3><ol class="rows day-rows">${g.items.map(row).join('')}</ol></section>`; }).join('')}</div>` : ''; }
   const one = kind === 'day' || kind === 'yday';
   return `<p class="day-sub"><span class="day-em">${esc(c.emoji || '🔢')}</span> ${esc(c.name)}</p><h2 id="dayTitle">${esc(periodTitle(s, e, kind))}</h2>
-    <p class="day-sum" id="daySum"><b>${esc(t('dayTotal', { v: fmtVal(c, sum) }))}</b>${co ? ` · ${esc(fmtMoney(money))}` : ''} · ${esc(t('entriesCount', { n: hits.length }))}</p>
+    <p class="day-sum" id="daySum"><b>${esc(t('dayTotal', { v: fmtVal(c, sum) }))}</b>${sizesOf(c) || hasVols(all) ? ` · <b class="day-lit" id="dayLit">${esc(fmtL(litersIn(hits.map(h => h.x))))}</b>` : ''}${co ? ` · ${esc(fmtMoney(money))}` : ''} · ${esc(t('entriesCount', { n: hits.length }))}</p>
     ${lk ? `<p class="small day-note" id="dayLock">${esc(t('dayLocked'))}</p>` : hits.length ? `<p class="small day-note">${esc(t('dayHint'))}</p>` : ''}
     ${list || `<p class="day-empty" id="dayEmpty">${esc(t(one ? 'dayEmpty' : 'periodEmpty'))}</p>`}
     <div class="row">${one && !lk ? `<button class="btn" type="button" data-act="add" id="dayAdd">${esc(t('backdateBtn'))}</button>` : ''}<button class="btn primary" type="button" data-act="no" id="dayClose">${esc(t('close'))}</button></div>`;
@@ -3609,7 +3690,8 @@ async function tapPlus(cid, tileEl, opts = {}) {
   if (c.archived) return;
   const a = stepOf(c); // v11: nur noch große Taste / Kachel-Taste (Schritt ≥ 1); Korrekturen über Historie, Rückgängig oder Nachtragen
   const es0 = entriesOf(cid), gp0 = goalProgress(c, es0), sk0 = streaks(c, es0);
-  const e = addEntry(cid, { ...(a !== 1 ? { amount: a } : {}), ...(opts.text ? { note: opts.text } : {}) }); buzz();
+  const sz = sizesOf(c), size = sz ? (opts.size === 's' || opts.size === 'l' ? opts.size : lastSize(es0) || 's') : null; // Version 3.4
+  const e = addEntry(cid, { ...(a !== 1 ? { amount: a } : {}), ...(opts.text ? { note: opts.text } : {}), ...(size ? { size, vol: sz[size] } : {}) }); buzz();
   const es = entriesOf(cid), r = roundInfo(c, es), isLast = es[es.length - 1] === e;
   render();
   const feier = feierAfterTap(c, gp0, sk0, es);
@@ -3618,7 +3700,7 @@ async function tapPlus(cid, tileEl, opts = {}) {
     ? `${c.emoji || ''} ${t('toastNr', { name: c.name, n: r.round ? r.inRound : r.cur })}${r.round && r.full && isLast ? t('toastRoundFull') : ''}`
     : `${c.emoji || ''} ${t('toastAmount', { name: c.name, a: fmtAmt(a), n: r.round ? `${r.inRound}/${r.n}` : r.cur })}${a > 0 && r.round && r.full ? t('toastRoundFull') : ''}`;
   const undoBtn = [t('undo'), () => { removeEntry(e.id); render(); toast(t('entryRemoved')); }];
-  const gp1 = goalProgress(c, es), extra = (opts.text ? ` · 📝 ${opts.text}` : '') + (gp1 && gp1.over && !(gp0 && gp0.over) ? ` · ${t('limitOverToast')}` : '');
+  const gp1 = goalProgress(c, es), extra = (size ? ` · ${sizeTxt(e)}` : '') + (opts.text ? ` · 📝 ${opts.text}` : '') + (gp1 && gp1.over && !(gp0 && gp0.over) ? ` · ${t('limitOverToast')}` : '');
   if (feier || extra) msg = (feier || msg) + extra;
   if (c.askNote || opts.note) { const ok = await noteFor(e.id); if (ok !== false) toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
   toast(msg, [[t('noteBtn'), () => noteFor(e.id)], undoBtn], 4000);
@@ -3653,19 +3735,26 @@ async function editEntry(eid, isNew = false, cid = null, at = null) {
   if (lockBlock(c)) return; // Version 3b
   const tm = isTime(c), d = new Date(e.timestamp), a0 = isNew ? (tm ? 0 : stepOf(c)) : amt(e);
   const oh = Math.floor(a0 / 3600), om = Math.floor(a0 % 3600 / 60); let ph = null;
+  // Version 3.4: Größe ändern (Liter: bleibt bei gleicher Größe der festgehaltene Wert, sonst die aktuelle Größe des Zählers)
+  const sz = sizesOf(c), size0 = isNew ? (sz ? lastSize(entriesOf(c.id)) || 's' : null) : (e.size === 's' || e.size === 'l' ? e.size : null);
+  const volFor = k => (!isNew && e.size === k && isVol(e.vol) ? e.vol : sz ? sz[k] : null);
   const v = await openSheet(`<h2>${esc(t(isNew ? 'backdateTitle' : 'editEntryTitle'))}</h2>
     <div class="field"><label for="eWhen">${esc(t('dateTime'))}</label><input type="datetime-local" id="eWhen" value="${toLocalInput(d)}"></div>
     ${tm ? `<div class="field"><span class="lbl">${esc(t('fieldDuration'))}</span><div class="dur-row">
         <input type="number" id="eDurH" inputmode="numeric" min="0" max="720" step="1" value="${isNew ? '' : oh}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durHoursLbl'))}"><span>${esc(t('durHoursLbl'))}</span>
         <input type="number" id="eDurM" inputmode="numeric" min="0" max="59" step="1" value="${isNew ? '' : om}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durMinLbl'))}"><span>${esc(t('durMinLbl'))}</span></div></div>`
       : `<div class="field"><label for="eAmt">${esc(t('fieldAmount'))}</label><input type="number" id="eAmt" min="-9999" max="9999" step="1" value="${a0}"></div>`}
+    ${sz ? `<div class="field"><span class="lbl">${esc(t('sizeLbl'))}</span><div class="seg sz-seg" id="eSize" role="group">${['s', 'l'].map(k =>
+      `<button type="button" data-sz="${k}" class="${size0 === k ? 'on' : ''}" aria-pressed="${size0 === k}">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))} · ${esc(fmtL(volFor(k)))}</button>`).join('')}</div></div>` : ''}
     ${priceField('ePrice', e.price, c)}
     <div class="field"><label for="eNote">${esc(t('noteOptional'))}</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
     ${photoField(!!e.photo)}
     <p class="small" id="eErr" style="color:var(--danger)"></p>
     <div class="row">${isNew ? '' : `<button class="btn danger" type="button" data-v="del">${esc(t('delete'))}</button>`}
       <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" id="eSave">${esc(t('save'))}</button></div>`,
-    box => { ph = bindPhotoField(box, isNew ? null : e); box.querySelector('#eSave').onclick = async () => {
+    box => { ph = bindPhotoField(box, isNew ? null : e);
+      box.querySelectorAll('#eSize [data-sz]').forEach(b => b.onclick = () => box.querySelectorAll('#eSize [data-sz]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }));
+      box.querySelector('#eSave').onclick = async () => {
       const w = box.querySelector('#eWhen').value; const dt = w ? new Date(w) : null;
       if (!dt || isNaN(dt)) { box.querySelector('#eWhen').focus(); return; }
       let n, dur = null;
@@ -3681,15 +3770,17 @@ async function editEntry(eid, isNew = false, cid = null, at = null) {
       const pr = parsePrice(box.querySelector('#ePrice').value);
       if (!pr.ok) { box.querySelector('#eErr').textContent = t('errPrice'); return; }
       if (ph.busy) await ph.busy;
-      closeSheet({ ts: isoNow(dt), note: box.querySelector('#eNote').value.trim(), amount: n, duration: dur, price: pr.value, photo: ph });
+      const so = box.querySelector('#eSize .on');
+      closeSheet({ ts: isoNow(dt), note: box.querySelector('#eNote').value.trim(), amount: n, duration: dur, price: pr.value, photo: ph, size: so ? so.dataset.sz : null });
     }; });
   if (v === 'del') return deleteEntryAsk(eid);
   if (!v || typeof v !== 'object') return;
   if (isNew) {
-    const n = addEntry(cid, tm ? { timestamp: v.ts, note: v.note, duration: v.duration, price: v.price } : { timestamp: v.ts, note: v.note, amount: v.amount, price: v.price });
+    const n = addEntry(cid, tm ? { timestamp: v.ts, note: v.note, duration: v.duration, price: v.price } : { timestamp: v.ts, note: v.note, amount: v.amount, price: v.price, ...(v.size && sz ? { size: v.size, vol: sz[v.size] } : {}) });
     const ok = await applyPhoto(n, v.photo); save(); render(); if (ok) toast(t('backdated')); return n;
   }
   e.timestamp = v.ts; if (v.note) e.note = v.note; else delete e.note; delete e.dateOnly;
+  if (v.size && v.size !== e.size) { const nv = volFor(v.size); e.size = v.size; e.vol = nv; if (!isVol(e.vol)) delete e.vol; } // Version 3.4
   if (tm) { e.duration = v.duration; delete e.amount; }
   else if (v.amount !== 1) e.amount = v.amount; else delete e.amount;
   if (isPrice(v.price)) e.price = v.price; else delete e.price;
@@ -3719,6 +3810,11 @@ async function editCounter(cid = null) {
   let type = isTime(cur) ? 'time' : 'count';
   const g0 = sanitizeGoal(cur.goal), r0 = sanitizeReminder(cur.reminder);
   const remDays = new Set(r0 ? r0.days : [1, 2, 3, 4, 5, 6, 7]);
+  // Version 3.4: Getränk mit Größen. Bestehende Zähler ändern sich nie von selbst – einmaliger Hinweis bei getränkeartigen Namen
+  const sz0 = sanitizeSizes(cur.sizes), szDef = sz0 || drinkDefaults(cur.name);
+  const hintSeen = (() => { try { return JSON.parse(lsGet(SIZE_HINT_KEY) || '[]'); } catch (e) { return []; } })();
+  const szHint = !!c && !sz0 && !isTime(c) && isDrinkLike(c.name, catOf(c)) && !hintSeen.includes(c.id);
+  if (szHint) lsSet(SIZE_HINT_KEY, JSON.stringify([...hintSeen, c.id].slice(-200)));
   const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
     ${c ? '' : `<div class="field"><span class="lbl">${esc(t('tplTitle'))}</span><div class="tpl-grid" id="fTpl">
       <button type="button" class="tpl on" data-tpl=""><span class="tpl-e">✨</span><b>${esc(t('tplEmpty'))}</b><small>${esc(t('tplEmptyH'))}</small></button>
@@ -3762,6 +3858,13 @@ async function editCounter(cid = null) {
         <p class="small">${esc(t('reminderHelp'))}</p></div></div>
     <div class="field"><label for="fReset">${esc(t('resetLbl'))}</label><select id="fReset">${[['', 'resetOff'], ['day', 'resetDay'], ['week', 'resetWeek'], ['month', 'resetMonth']].map(([k, l]) =>
         `<option value="${k}" ${(resetOf(cur) || '') === k ? 'selected' : ''}>${esc(t(l))}</option>`).join('')}</select><p class="small">${esc(t('resetHelp'))}</p></div>
+    <div class="field" id="fSizeWrap"><span class="lbl">${esc(t('sizesField'))}</span>
+      ${szHint ? `<div class="size-hint" id="fSizeHint"><span>🥤 ${esc(t('sizesHint'))}</span><button class="btn" type="button" id="fSizeOn">${esc(t('sizesHintBtn'))}</button></div>` : ''}
+      <label class="check"><input type="checkbox" id="fSizes" ${sz0 ? 'checked' : ''}> <span>${esc(t('sizesCheck'))}</span></label>
+      <div class="two sz-vols" id="fSizeVols" ${sz0 ? '' : 'hidden'}>
+        <div class="field"><label for="fVolS">${esc(t('volS'))}</label><input type="text" id="fVolS" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.s))}"></div>
+        <div class="field"><label for="fVolL">${esc(t('volL'))}</label><input type="text" id="fVolL" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.l))}"></div></div>
+      <p class="small">${esc(t('sizesHelp'))}</p></div>
     <div class="field"><span class="lbl">${esc(t('lockField'))}</span>
       <label class="check"><input type="checkbox" id="fLock" ${isLocked(cur) ? 'checked' : ''}> <span>${esc(t('lockCheck'))}</span></label>
       <label for="fHide" style="margin-top:12px">${esc(t('hideField'))}</label><select id="fHide">${[['', 'hideNone'], ['invisible', 'hideInv'], ['blur', 'hideBlur']].map(([k, l]) =>
@@ -3791,11 +3894,22 @@ async function editCounter(cid = null) {
         box.querySelector('#fStepHelp').textContent = tm ? t('priceHelpHour') : `${t('stepHelp')} ${t('priceHelp')}`;
         box.querySelector('#fGoalLbl').textContent = t(tm ? 'goalMinutes' : 'fieldGoal');
         box.querySelector('#fNoteLbl').textContent = t(tm ? 'askNoteTime' : 'askNote');
+        box.querySelector('#fSizeWrap').hidden = tm; // Version 3.4: Größen nur bei Anzahl-Zählern
         box.querySelectorAll('[data-type]').forEach(b => { b.classList.toggle('on', b.dataset.type === type); b.setAttribute('aria-pressed', b.dataset.type === type); }); };
       box.querySelectorAll('[data-type]').forEach(b => b.onclick = () => { type = b.dataset.type;
         if (type === 'time' && emojiVal === '🔢') { emojiVal = '⏱️'; ei.value = emojiVal; } else if (type === 'count' && emojiVal === '⏱️') { emojiVal = '🔢'; ei.value = emojiVal; }
         syncType(); });
       syncType();
+      // Version 3.4: Größen ein/aus; neue Zähler: bei Getränke-Namen automatisch vorgeschlagen (solange nicht selbst umgeschaltet)
+      const szBox = box.querySelector('#fSizes'), szVols = box.querySelector('#fSizeVols'), vS = box.querySelector('#fVolS'), vL = box.querySelector('#fVolL');
+      let szTouched = !!c, volTouched = !!sz0;
+      const setSz = (on, def) => { szBox.checked = on; szVols.hidden = !on; if (def && !volTouched) { vS.value = volInput(def.s); vL.value = volInput(def.l); } };
+      szBox.addEventListener('change', () => { szTouched = true; setSz(szBox.checked, drinkDefaults(box.querySelector('#fName').value)); });
+      [vS, vL].forEach(x => x.addEventListener('input', () => { volTouched = true; }));
+      const autoSz = () => { if (szTouched) return; const n = box.querySelector('#fName').value, cat = box.querySelector('#fCat').value; setSz(isDrinkLike(n, cat), drinkDefaults(n)); };
+      box.querySelector('#fName').addEventListener('input', autoSz); box.querySelector('#fCat').addEventListener('input', autoSz);
+      const hb = box.querySelector('#fSizeOn'); if (hb) hb.onclick = () => { szTouched = true; setSz(true, drinkDefaults(box.querySelector('#fName').value)); box.querySelector('#fSizeHint').remove(); };
+      box.__setSz = (x) => { szTouched = !!x; volTouched = false; setSz(!!(x && x.sizes), x && x.sizes ? x.sizes : drinkDefaults('')); volTouched = false; };
       box.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { box.querySelector('#fCat').value = b.dataset.cat; box.querySelector('#fErr').textContent = ''; });
       box.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { color = b.dataset.color; box.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b)); });
       const err = m => { box.querySelector('#fErr').textContent = m; return null; };
@@ -3835,7 +3949,10 @@ async function editCounter(cid = null) {
         let cat = box.querySelector('#fCat').value.trim().slice(0, 30);
         const same = categories().find(k => k.localeCompare(cat, undefined, { sensitivity: 'base' }) === 0); if (cat && same) cat = same; // „sport“ -> „Sport“
         const rr = readReminder(); if (!rr.ok) { err(rr.msg); return; }
-        closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked,
+        let sizes = null; // Version 3.4
+        if (!tmS && box.querySelector('#fSizes').checked) { const a = parseVol(box.querySelector('#fVolS').value), b = parseVol(box.querySelector('#fVolL').value);
+          if (a == null || b == null) { err(t('errVol')); box.querySelector(a == null ? '#fVolS' : '#fVolL').focus(); return; } sizes = { s: a, l: b }; }
+        closeSheet({ name, emoji, color, sizes, roundSize: n, askNote: box.querySelector('#fNote').checked,
           goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, goalType: ga && box.querySelector('#fGoalType').value === 'limit' ? 'limit' : null, reminder: rr.value,
           step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }),
           reset: RESETS.includes(box.querySelector('#fReset').value) ? box.querySelector('#fReset').value : null,
@@ -3851,6 +3968,7 @@ async function editCounter(cid = null) {
         set('#fRound', x && x.roundSize ? x.roundSize : ''); set('#fStep', x && x.step > 1 ? x.step : '');
         set('#fGoal', x && x.goal ? x.goal.amount : ''); set('#fGoalPer', x && x.goal ? x.goal.period : 'day'); set('#fGoalType', x && x.goalType === 'limit' ? 'limit' : 'more');
         set('#fReset', x && x.reset ? x.reset : '');
+        box.__setSz(x); // Version 3.4: Wasser/Kaffee/Bier mit Größen
         tplBox.querySelectorAll('[data-tpl]').forEach(y => y.classList.toggle('on', y === b));
         box.querySelector('#fTplMsg').textContent = x ? t('tplApplied', { name: t('tpl_' + x.k) }) : ''; clrErr();
       });
@@ -3937,7 +4055,8 @@ function validateBackup(o) {
     const x = { ...c, id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
       color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : COLORS[5], roundSize: rs >= 2 ? rs : null, askNote: !!c.askNote,
       order: Number.isFinite(c.order) ? c.order : 0, createdAt: typeof c.createdAt === 'string' ? c.createdAt : isoNow() };
-    for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince', 'reset', 'locked', 'hidden']) delete x[k];
+    for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince', 'reset', 'locked', 'hidden', 'sizes']) delete x[k];
+    if (sanitizeSizes(c.sizes)) x.sizes = sanitizeSizes(c.sizes); // Version 3.4
     if (c.archived === true) x.archived = true;
     if (RESETS.includes(c.reset)) x.reset = c.reset; if (c.locked === true) x.locked = true; if (c.hidden === true || c.hidden === 'blur') x.hidden = c.hidden; // Version 3b/3.1
     if (c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince))) x.runningSince = isoNow(new Date(c.runningSince));
@@ -3951,7 +4070,8 @@ function validateBackup(o) {
   const ids = new Set(counters.map(c => c.id));
   const entries = o.entries.filter(e => e && typeof e.id === 'string' && ids.has(e.counterId) && !isNaN(new Date(e.timestamp))).map(e => {
     const x = { ...e, id: e.id, counterId: e.counterId, timestamp: isoNow(new Date(e.timestamp)) };
-    for (const k of ['note', 'dateOnly', 'amount', 'price', 'duration', 'photo']) delete x[k];
+    for (const k of ['note', 'dateOnly', 'amount', 'price', 'duration', 'photo', 'size', 'vol']) delete x[k];
+    if (e.size === 's' || e.size === 'l') x.size = e.size; if (isVol(e.vol)) x.vol = e.vol; // Version 3.4
     if (validDuration(e.duration)) x.duration = e.duration;
     if (typeof e.photo === 'string' && e.photo && e.photo.length <= 80) x.photo = e.photo;
     if (typeof e.note === 'string' && e.note.trim()) x.note = e.note.trim(); if (e.dateOnly) x.dateOnly = true;
@@ -3995,7 +4115,7 @@ async function importJson(file) {
 function counterText(c) {
   const es = entriesOf(c.id), r = roundInfo(c, es);
   const lines = [`${c.emoji} ${c.name}`];
-  const line = (e, k, sep, withAmt = false) => `${k + 1}${sep}${fmtEntry(e)}${withAmt && isTime(c) ? ` (${fmtDur(amt(e))})` : withAmt && amt(e) !== 1 ? ` (${fmtAmt(amt(e))})` : ''}${e.note ? ' – ' + e.note : ''}`;
+  const line = (e, k, sep, withAmt = false) => `${k + 1}${sep}${fmtEntry(e)}${sizeTxt(e) ? ` · ${sizeTxt(e)}` : ''}${withAmt && isTime(c) ? ` (${fmtDur(amt(e))})` : withAmt && amt(e) !== 1 ? ` (${fmtAmt(amt(e))})` : ''}${e.note ? ' – ' + e.note : ''}`;
   if (!es.length) lines.push(t('txtNoEntries'));
   else if (r.round) {
     r.past.forEach((rr, i) => { lines.push(t('txtRound', { r: i + 1 })); rr.forEach((e, k) => lines.push(line(e, k, ' = '))); });
@@ -4247,7 +4367,7 @@ $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => goHome();
 $('editBtn').onclick = () => editCounter(currentId());
-bindPlus($('dPlus'), null); syncHap();
+bindPlus($('dPlus'), null); bindPlus($('dPlusS'), null, $('dPlusS'), 's'); bindPlus($('dPlusL'), null, $('dPlusL'), 'l'); syncHap();
 $('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-filter]'); if (!b) return; lsSet(FILTER_KEY, b.dataset.filter); renderHome(); });
 $('chartWhat').addEventListener('click', e => { const b = e.target.closest('[data-what]'); if (!b) return; lsSet(CHART_WHAT_KEY, b.dataset.what); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
