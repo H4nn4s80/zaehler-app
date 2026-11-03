@@ -406,6 +406,8 @@
   .plus.veil-plus { background: color-mix(in srgb, var(--c) 26%, var(--soft)); background-image: none; color: color-mix(in srgb, var(--ink) 55%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
   .plus.veil-plus svg.lk { width: 26px; height: 26px; }
   .tile-hid { color: #5e5ce6; margin-right: 5px; } .tile-hid .eo { width: 17px; height: 17px; vertical-align: -2px; }
+  .tile-hid small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-left: 3px; vertical-align: 1px; }
+  .tile.is-hid { outline: 2px dashed rgba(94,92,230,.55); outline-offset: -2px; } /* Version 3.2: versteckt, nur weil entsperrt sichtbar */
   .state-card .st-veil .eo { width: 16px; height: 16px; vertical-align: -3px; color: #5e5ce6; }
   .state-card .st-btns { display: flex; gap: 8px; } .state-card .st-btns .btn { min-height: 38px; font-size: 15px; font-weight: 600; }
   .sw-col .btn .eo { width: 17px; height: 17px; vertical-align: -3px; }
@@ -1683,7 +1685,7 @@ for (const l of Object.keys(I18N_V31)) Object.assign(I18N[l], I18N_V31[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 13, APP_VERSION = '3.1', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 14, APP_VERSION = '3.2', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -1799,22 +1801,29 @@ const localDateNoon = ymd => { const [y, m, d] = ymd.split('-').map(Number); ret
 
 /* ---------- Speicher ---------- */
 const freshDb = () => ({ version: VERSION, counters: [], entries: [], settings: { onboarded: false } });
+// Version 3.2: dbRaw = zuletzt gelesener/geschriebener Speicherstand. Beim Zurückkehren in die App wird db nur neu geladen,
+// wenn sich der Speicher wirklich geändert hat (z. B. anderer Tab) – sonst bleibt es dasselbe Objekt.
+let dbRaw = null;
 let db = load();
 function load() {
   try {
-    const s = JSON.parse(localStorage.getItem(KEY));
+    const raw = localStorage.getItem(KEY), s = JSON.parse(raw);
     if (s && Array.isArray(s.counters) && Array.isArray(s.entries)) {
+      dbRaw = raw;
       try { return normalizeDb(s); } catch (e) { console.warn('normalize', e); return s; } // nie mit leeren Daten überschreiben
     }
   } catch (e) {}
   return freshDb();
 }
 function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  try { const raw = JSON.stringify(db); localStorage.setItem(KEY, raw); dbRaw = raw; }
   catch (e) { toast(t('saveFailed')); }
 }
 /* ---------- Abfragen ---------- */
 const counter = id => db.counters.find(c => c.id === id);
+/** Version 3.2: einzige Stelle für Sperren/Entsperren/Verstecken – holt den Zähler im Moment der Änderung per id frisch aus db
+ *  (nie eine vor einem await oder in einem „Rückgängig“ gemerkte Kopie), speichert und zeichnet Start, Fällig, Suche und Detail neu. */
+function changeCounter(cid, fn) { const c = counter(cid); if (!c) return null; fn(c); save(); render(); return c; }
 const sortedCounters = () => [...db.counters].sort((a, b) => a.order - b.order);
 const byTime = (a, b) => (a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0);
 const entriesOf = id => db.entries.filter(e => e.counterId === id).sort(byTime);
@@ -2444,15 +2453,16 @@ function lockBlock(c) {
   toast(t('lockedToast', { name: c.name }), [[t('unlock'), () => askUnlock(c.id)]], 3500); return true;
 }
 async function askUnlock(cid) {
-  const c = counter(cid); if (!c || !isLocked(c)) return false;
-  if (!(await confirmBox(t('unlockQ', { name: c.name }), t('unlock')))) return false;
-  delete c.locked; save(); render(); toast(t('unlockedToast', { name: c.name })); return true;
+  const c0 = counter(cid); if (!c0 || !isLocked(c0)) return false;
+  if (!(await confirmBox(t('unlockQ', { name: c0.name }), t('unlock')))) return false;
+  const c = changeCounter(cid, x => { delete x.locked; }); if (!c) return false; // Version 3.2: frisch per id, nicht c0
+  toast(t('unlockedToast', { name: c.name })); return true;
 }
 function setLocked(cid, on) {
-  const c = counter(cid); if (!c) return;
+  if (!counter(cid)) return;
   if (!on) return askUnlock(cid);
-  c.locked = true; save(); render();
-  toast(t('lockedOn', { name: c.name }), [[t('undo'), () => { delete c.locked; save(); render(); }]], 5000);
+  const c = changeCounter(cid, x => { x.locked = true; });
+  toast(t('lockedOn', { name: c.name }), [[t('undo'), () => changeCounter(cid, x => { delete x.locked; })]], 5000);
 }
 /* ---------- Version 3.1: Versteck-Modus (Code / Face ID) ----------
    Code: nur als PBKDF2-Hash (SHA-256, zufälliges Salz) in localStorage „zaehler-privacy“ – Geräte-Einstellung, nicht im Backup.
@@ -2616,15 +2626,21 @@ async function pinIntro() {
 }
 /** Verstecken ('invisible' | 'blur') geht ohne Code (beim ersten Mal wird einer festgelegt); zurückholen / Stil ändern nur entsperrt */
 async function setHide(cid, style) {
-  const c = counter(cid); if (!c) return;
-  if (hideOf(c) && hasPin() && !privOpen && !(await privUnlock())) return;
+  const c0 = counter(cid); if (!c0) return;
+  if (hideOf(c0) && hasPin() && !privOpen && !(await privUnlock())) return;
   if (style && !hasPin() && !(await pinIntro())) { toast(t('veilNoPin')); return; }
-  const prev = c.hidden;
-  if (style) c.hidden = style === 'blur' ? 'blur' : true; else delete c.hidden;
-  save(); if (style && currentId() === cid && veiled(c)) history.replaceState(null, '', location.pathname + location.search);
-  render();
-  const back = () => { if (prev === undefined) delete c.hidden; else c.hidden = prev; save(); render(); };
+  // Version 3.2: nach Code-Abfrage/Code-Festlegen den Zähler frisch per id holen und über changeCounter ändern
+  const cur = counter(cid); if (!cur) return; const prev = cur.hidden;
+  const c = changeCounter(cid, x => { if (style) x.hidden = style === 'blur' ? 'blur' : true; else delete x.hidden; });
+  if (style) veilNow();
+  const back = () => changeCounter(cid, x => { if (prev === undefined) delete x.hidden; else x.hidden = prev; });
   toast(style ? t('veilOn') : t('veilOff', { name: c.name }), style && !prev ? [[t('undo'), back]] : [], 5000);
+}
+/** Version 3.2: Verstecken wirkt sofort – war der Versteck-Modus gerade entsperrt, wird er wieder verborgen (sonst bliebe der Zähler bis zum Neustart sichtbar) */
+function veilNow() {
+  if (privOpen) { privLock(true); return; }
+  const id = currentId(), c = id && counter(id);
+  if (c && veiled(c)) { history.replaceState(null, '', location.pathname + location.search); render(); }
 }
 async function privSettings(msg = '') {
   const p = privGet(), has = hasPin(), fa = has && await faceAvail();
@@ -2661,7 +2677,8 @@ async function tileMenu(cid) {
     ${hs ? `<button class="btn" type="button" data-v="unhide" id="tmUnhide">${EYE_OFF} ${esc(t('tmUnhide'))}</button><button class="btn" type="button" data-v="${hs === 'blur' ? 'hide' : 'blur'}" id="tmStyle">${esc(t(hs === 'blur' ? 'tmToInv' : 'tmToBlur'))}</button>`
       : `<button class="btn" type="button" data-v="hide" id="tmHide">${EYE_OFF} ${esc(t('tmHideInv'))}</button><button class="btn" type="button" data-v="blur" id="tmBlur">${esc(t('tmHideBlur'))}</button>`}
     <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
-  if (v === 'lock') setLocked(cid, !lk);
+  const now = counter(cid); if (!now) return; // Version 3.2: Zustand bei der Auswahl, nicht beim Öffnen
+  if (v === 'lock') setLocked(cid, !isLocked(now));
   else if (v === 'hide') setHide(cid, 'invisible'); else if (v === 'blur') setHide(cid, 'blur'); else if (v === 'unhide') setHide(cid, null);
 }
 function deleteCounterNow(cid) {
@@ -3081,6 +3098,8 @@ function renderSearch(q, cs, arch) {
 }
 // Version 3.1: Der Klick beim Loslassen nach dem Gedrückthalten landet sonst auf einem Knopf des gerade geöffneten Menüs
 let lpSwallowUntil = 0;
+// Version 3.2: nur der Klick DIESES Loslassens – jede neue Berührung hebt das Schlucken auf (iOS schickt nach langem Drücken oft keinen Klick)
+document.addEventListener('pointerdown', () => { lpSwallowUntil = 0; }, true);
 document.addEventListener('click', e => { if (performance.now() < lpSwallowUntil && e.target.closest && e.target.closest('#sheet')) { lpSwallowUntil = 0; e.stopPropagation(); e.preventDefault(); } }, true);
 const arrHtml = (idx, count) => `<span class="arr"><button type="button" data-up aria-label="${esc(t('moveUp'))}" ${idx === 0 ? 'disabled' : ''}>▲</button><button type="button" data-down aria-label="${esc(t('moveDown'))}" ${idx === count - 1 ? 'disabled' : ''}>▼</button><button type="button" class="handle" data-handle aria-label="${esc(t('dragHandle'))}">☰</button></span>`;
 /** Version 3.1: unscharfe Kachel – kein Name, kein Emoji, keine Zahlen im DOM; Tippen fragt nach Code / Face ID */
@@ -3101,10 +3120,10 @@ function tileEl(c, idx, count, swipe = false) {
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
   const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null;
   const el = document.createElement('div');
-  el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : ''); el.style.setProperty('--c', c.color); el.dataset.id = c.id;
+  el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : '') + (isHidden(c) ? ' is-hid' : ''); /* 3.2: versteckt (entsperrt) deutlich markiert */ el.style.setProperty('--c', c.color); el.dataset.id = c.id;
   el.innerHTML = `<button class="tile-main" type="button" data-open>
       <span class="emoji">${esc(c.emoji || '🔢')}</span>
-      <span class="tile-text"><div class="tile-name">${isHidden(c) ? `<span class="tile-hid" title="${esc(t('veilBadge'))}">${EYE_OFF}</span>` : ''}${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
+      <span class="tile-text"><div class="tile-name">${isHidden(c) ? `<span class="tile-hid" title="${esc(t('veilBadge'))}">${EYE_OFF}<small>${esc(t('veilBadge'))}</small></span>` : ''}${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
         <div class="tile-count${tm ? ' dur' : ''}">${lab.big}</div>
         ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
         ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
@@ -3738,11 +3757,13 @@ async function editCounter(cid = null) {
   if (v === 'del') { deleteCounterNow(cid); return; } // v9: wie beim Wischen – sofort löschen, mit Rückgängig (inkl. Fotos)
   if (!v || typeof v !== 'object') return;
   // Version 3.1: zum ersten Verstecken einmalig einen Code festlegen (abgebrochen → nicht versteckt)
-  let noPin = false; const newly = !!v.hidden && !isHidden(c);
-  if (newly && !hasPin() && !(await pinIntro())) { v.hidden = c && c.hidden ? c.hidden : null; noPin = true; }
+  // Version 3.2: Vergleich mit dem aktuellen Stand in db (frisch per id), nicht mit dem beim Öffnen gemerkten Objekt
+  let noPin = false; const old = c ? counter(cur.id) : null, oldHide = old ? old.hidden : undefined;
+  const newly = !!v.hidden && !isHidden(old);
+  if (newly && !hasPin() && !(await pinIntro())) { v.hidden = oldHide || null; noPin = true; }
   const saved = upsertCounter({ id: cur.id, ...v });
-  if (veiled(saved) && currentId() === saved.id) history.replaceState(null, '', location.pathname + location.search);
   render();
+  if (saved.hidden && saved.hidden !== oldHide) veilNow(); else if (veiled(saved) && currentId() === saved.id) { history.replaceState(null, '', location.pathname + location.search); render(); }
   toast(noPin ? t('veilNoPin') : newly ? t('veilOn') : c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
 }
 /* ---------- Export / Import / Text ---------- */
@@ -4128,7 +4149,7 @@ $('undoBtn').onclick = () => undoLast(currentId());
 $('yearShare').onclick = () => { const c = counter(currentId()); if (c) shareYear(c); };
 $('backdateBtn').onclick = () => editEntry(null, true, currentId());
 $('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
-document.addEventListener('visibilitychange', () => { if (!document.hidden) { db = load(); render(); swUpdate(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (lsGet(KEY) !== dbRaw) db = load(); render(); swUpdate(); } }); // Version 3.2: db nur bei echter Änderung ersetzen
 // Version 3.1: Versteck-Modus wieder zu, sobald die App in den Hintergrund geht oder 5 Min. nichts getippt wurde
 document.addEventListener('visibilitychange', () => { if (document.hidden) privLock(true); });
 window.addEventListener('pagehide', () => privLock(true));
