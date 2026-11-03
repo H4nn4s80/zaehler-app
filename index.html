@@ -119,8 +119,9 @@
   details.card summary::-webkit-details-marker { display: none; }
   details.card summary::after { content: "›"; float: right; color: var(--muted); font-size: 22px; line-height: 1; transition: transform .2s; }
   details.card[open] summary::after { transform: rotate(90deg); }
-  .past { border-top: 1px solid var(--line); padding: 10px 16px; }
-  .past h3 { margin: 0 0 3px; font-size: 15px; }
+  .past { border-top: 1px solid var(--line); padding: 10px 0 0; }
+  .past h3 { margin: 0 0 3px; padding: 0 16px; font-size: 15px; }
+  .past-rows li { min-height: 42px; }
   .past p { margin: 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
   .hint { color: var(--muted); font-size: 14px; margin: 6px 16px 12px; }
 
@@ -161,7 +162,7 @@
     box-shadow: inset 0 0 0 2px rgba(255,255,255,.6); }
   .swatches button.on { border-color: var(--ink); }
   .check { display: flex; align-items: center; gap: 10px; font-size: 16px; min-height: 44px; }
-  .check input { width: 22px; height: 22px; }
+  .check input { width: 22px; height: 22px; flex: none; }
   .small { font-size: 13px; color: var(--muted); margin: 6px 2px 0; }
   .menu .btn { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 0 14px; }
 
@@ -209,7 +210,7 @@
   .goal-row span { color: var(--muted); }
   .field select, .field input[type=time] { font: inherit; font-size: 17px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line);
     background: var(--bg); color: var(--ink); min-height: 48px; }
-  .field label.check { text-transform: none; letter-spacing: normal; font-size: 16px; color: inherit; margin: 0; }
+  .field label.check { display: flex; text-transform: none; letter-spacing: normal; font-size: 16px; color: inherit; margin: 0; }
   .wdays { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
   .wdays button { border: 0; background: var(--soft); color: var(--ink); border-radius: 10px; min-width: 42px; min-height: 38px; padding: 0 8px; font-size: 14px; font-weight: 600; }
   .wdays button.on { background: var(--accent); color: #fff; }
@@ -337,17 +338,60 @@
   .swipe.sw-anim > .tile, .swipe.sw-anim > .sw-front { transition: transform .26s cubic-bezier(.2,.8,.2,1); }
   .sw-acts { position: absolute; top: 0; bottom: 0; right: 0; display: flex; border-radius: 0 18px 18px 0; overflow: hidden; visibility: hidden; }
   .swipe.sw-on > .sw-acts { visibility: visible; }
-  .sw-acts button { border: 0; min-width: 84px; padding: 0 10px; color: #fff; font-size: 13px; font-weight: 600; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 4px; line-height: 1.15; }
-  .sw-acts button .sw-ic { font-size: 22px; line-height: 1; }
-  .sw-acts button:active { filter: brightness(.88); }
-  .sw-acts .sw-arch { background: var(--orange); }
-  .sw-acts .sw-del { background: var(--danger); }
-  .sw-acts .sw-rest { background: var(--accent); }
   .sw-row { border-radius: 12px; }
-  .sw-row > .sw-acts { border-radius: 0 12px 12px 0; }
+  /* Version 3: Eintragszeilen wischen (Runde, Letzte Einträge, Verlauf, frühere Runden, Archiv) */
+  ol.rows li.sw-entry, .recent li.sw-entry { display: block; padding: 0; min-height: 0; border-radius: 0; }
+  ol.rows li.sw-entry > .sw-front { display: flex; align-items: center; gap: 12px; padding: 0 12px 0 16px; min-height: inherit; }
+  ol.rows li.sw-entry > .sw-front { min-height: 50px; } .past-rows li.sw-entry > .sw-front { min-height: 42px; }
+  .swipe.sw-entry.sw-on > .sw-front { background: var(--card); }
+  .recent li.sw-entry.sw-on > .sw-front { border-radius: 12px; }
   .sw-row > .sw-front { background: var(--card); }
-  .sw-row .sw-acts button { min-width: 76px; font-size: 12px; }
+  /* Version 3b: Fällig, Vorlagen, Stärke, Sperre */
+  .due-box { margin: 2px 0 16px; padding: 10px 10px 8px 12px; border-radius: 24px; background: var(--glass-bg, var(--card)); box-shadow: var(--glass-hl, none), var(--glass-shadow, var(--shadow)); }
+  .due-h { display: flex; justify-content: space-between; align-items: baseline; padding: 2px 6px 4px 4px; }
+  .due-h h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .due-h span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .due-list { display: grid; }
+  .due-row { display: flex; align-items: center; gap: 8px; min-height: 52px; }
+  .due-row + .due-row { border-top: .5px solid var(--glass-line, var(--line)); }
+  .due-open { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; background: transparent; color: var(--ink); font: inherit; text-align: left; padding: 6px 4px; border-radius: 14px; cursor: pointer; }
+  .due-open:active { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .due-open .emoji { flex: none; width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; font-size: 20px; background: color-mix(in srgb, var(--c) 17%, transparent); }
+  .due-t { min-width: 0; flex: 1; display: grid; gap: 1px; }
+  .due-t b { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .due-t > span:not(.due-bar) { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .due-bar { display: block; height: 4px; border-radius: 2px; margin-top: 4px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+  .due-bar i { display: block; height: 100%; border-radius: 2px; background: var(--c); }
+  .due-plus { position: relative; flex: none; min-width: 56px; height: 40px; padding: 0 14px; border: .5px solid rgba(255,255,255,.35); border-radius: 20px; color: #fff; font: inherit; font-size: 16px; font-weight: 700;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c) 72%, #fff), var(--c)); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 6px 14px -6px color-mix(in srgb, var(--c) 75%, transparent);
+    -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; cursor: pointer; }
+  .due-plus:active { transform: scale(.95); filter: brightness(.95); }
+  .due-plus.locked, .plus.locked { background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); border-color: transparent; }
+  .due-done { margin: 2px 4px 6px; font-size: 14px; color: var(--muted); }
+  svg.lk { width: .95em; height: .95em; vertical-align: -0.1em; }
+  .plus.locked svg.lk { width: 26px; height: 26px; }
+  .tile-lock { color: var(--muted); margin-right: 5px; }
+  .tile-main { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .tile-str { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tile-str .ts-d { width: 11px; height: 11px; border-radius: 50%; background: conic-gradient(var(--c) calc(var(--p) * 1%), color-mix(in srgb, var(--ink) 14%, transparent) 0); }
+  .str { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: .5px solid var(--glass-line, var(--line)); }
+  .str-ring { position: relative; flex: none; width: 54px; height: 54px; --p: 0; }
+  .str-ring i { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(var(--c) calc(var(--p) * 1%), color-mix(in srgb, var(--ink) 12%, transparent) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px)); }
+  .str-ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .str-t { display: grid; gap: 2px; min-width: 0; } .str-t b { font-size: 15px; } .str-t > span { font-size: 13px; color: var(--muted); line-height: 1.3; }
+  .state-card { display: grid; gap: 8px; padding: 10px 12px 10px 16px; }
+  .state-card .st-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; }
+  .state-card .st-row .btn { flex: none; min-height: 36px; padding: 0 14px; }
+  #dPlus.locked { background: color-mix(in srgb, var(--ink) 14%, transparent); color: var(--muted); box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+  #hiddenBtn { justify-self: center; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 15px; font-weight: 600; min-height: 40px; padding: 0 14px; cursor: pointer; }
+  #hiddenBtn:active { opacity: .5; }
+  .tpl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tpl { --c: var(--accent); display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 86px; padding: 8px 4px; border: .5px solid color-mix(in srgb, var(--ink) 10%, transparent);
+    border-radius: 18px; background: color-mix(in srgb, var(--c) 9%, var(--card)); color: var(--ink); font: inherit; text-align: center; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.45); }
+  .tpl .tpl-e { font-size: 26px; line-height: 1.1; } .tpl b { font-size: 13px; font-weight: 600; line-height: 1.15; } .tpl small { font-size: 11px; color: var(--muted); line-height: 1.2; }
+  .tpl.on { border-color: var(--c); box-shadow: 0 0 0 1.5px var(--c) inset, inset 0 1px 0 rgba(255,255,255,.45); background: color-mix(in srgb, var(--c) 16%, var(--card)); }
+  .tpl:active { transform: scale(.97); }
   #sheet .sw-ask { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
   #sheet .sw-col { display: grid; gap: 10px; margin-top: 16px; }
   #sheet .sw-col .btn { width: 100%; }
@@ -460,12 +504,47 @@
   #toast { background: rgba(28,28,30,.72); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%);
     border-radius: 26px; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 .5px rgba(255,255,255,.10), 0 12px 30px -8px rgba(0,0,0,.4); }
   #toast button { border-radius: 18px; background: rgba(255,255,255,.16); }
-  /* Wisch-Aktionen: getönte Glas-Kapseln */
-  .sw-acts { gap: 8px; padding-left: 8px; border-radius: 0; overflow: visible; }
-  .sw-acts button { border-radius: 24px; min-width: 80px;
-    background-image: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.04) 55%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 0 0 .5px rgba(255,255,255,.25), var(--glass-shadow); }
-  .sw-row > .sw-acts { gap: 6px; padding-left: 6px; } .sw-row .sw-acts button { border-radius: 14px; }
+  /* Version 3: Wisch-Aktionen als schwebende, runde Liquid-Glass-Knöpfe (Kacheln, Eintragszeilen, Archiv-Liste).
+     Nur Verläufe + Schatten – kein backdrop-filter im Scroller (v10). --p = Wisch-Fortschritt 0…1 (vom Wischen per rAF gesetzt). */
+  :root { --swg-red: linear-gradient(180deg, rgba(255,112,104,.96), rgba(236,46,38,.92));
+    --swg-gray: linear-gradient(180deg, rgba(158,174,202,.95), rgba(100,117,150,.94));
+    --swg-blue: linear-gradient(180deg, rgba(64,156,255,.96), rgba(0,104,230,.92));
+    --swg-bd: rgba(255,255,255,.5); --swg-hl: inset 0 1px 0 rgba(255,255,255,.62), inset 0 -1px 1px rgba(0,0,0,.10);
+    --swg-sh: 0 8px 18px -8px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.12); --swg-red-glow: 0 8px 20px -8px rgba(255,59,48,.65); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --swg-red: linear-gradient(180deg, rgba(255,92,84,.88), rgba(196,30,24,.86));
+      --swg-gray: linear-gradient(180deg, rgba(118,132,158,.88), rgba(70,82,108,.88)); --swg-blue: linear-gradient(180deg, rgba(40,140,255,.88), rgba(0,84,196,.86));
+      --swg-bd: rgba(255,255,255,.22); --swg-hl: inset 0 1px 0 rgba(255,255,255,.34), inset 0 -1px 1px rgba(0,0,0,.25);
+      --swg-sh: 0 10px 22px -8px rgba(0,0,0,.75), 0 1px 2px rgba(0,0,0,.4); --swg-red-glow: 0 8px 22px -8px rgba(255,69,58,.45); }
+  }
+  :root[data-theme="dark"] { --swg-red: linear-gradient(180deg, rgba(255,92,84,.88), rgba(196,30,24,.86));
+      --swg-gray: linear-gradient(180deg, rgba(118,132,158,.88), rgba(70,82,108,.88)); --swg-blue: linear-gradient(180deg, rgba(40,140,255,.88), rgba(0,84,196,.86));
+      --swg-bd: rgba(255,255,255,.22); --swg-hl: inset 0 1px 0 rgba(255,255,255,.34), inset 0 -1px 1px rgba(0,0,0,.25);
+      --swg-sh: 0 10px 22px -8px rgba(0,0,0,.75), 0 1px 2px rgba(0,0,0,.4); --swg-red-glow: 0 8px 22px -8px rgba(255,69,58,.45); }
+  .sw-acts { gap: 8px; padding: 8px 8px 8px 6px; align-items: stretch; border-radius: 0; overflow: visible; --p: 0; }
+  .sw-acts button { position: relative; flex: 1 1 0; min-width: 76px; margin: 0; padding: 0 10px; border: .5px solid var(--swg-bd); border-radius: 22px;
+    color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; letter-spacing: -.01em; line-height: 1.1; text-shadow: 0 1px 1px rgba(0,0,0,.18);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; overflow: hidden; cursor: pointer;
+    box-shadow: var(--swg-hl), var(--swg-sh); transform-origin: 30% 50%;
+    opacity: min(1, calc(var(--p) * 1.6)); transform: scale(calc(.55 + .45 * var(--p))); will-change: transform, opacity; }
+  .sw-acts button::before { content: ''; position: absolute; inset: 0 0 52% 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0)); } /* Glanz oben */
+  .sw-acts button > * { position: relative; }
+  .sw-acts .sw-ic { display: block; width: 22px; height: 22px; }
+  .sw-acts .sw-ic svg { display: block; width: 100%; height: 100%; }
+  .sw-acts .sw-del { background: var(--swg-red); box-shadow: var(--swg-hl), var(--swg-red-glow), var(--swg-sh); }
+  .sw-acts .sw-arch { background: var(--swg-gray); }
+  .sw-acts .sw-rest { background: var(--swg-blue); }
+  .sw-acts button:active { filter: brightness(.9); }
+  .swipe.sw-anim > .sw-acts button, .swipe.sw-full > .sw-acts button { transition: transform .26s cubic-bezier(.2,.8,.2,1), opacity .2s, flex-grow .22s, padding .22s; }
+  /* Eintragszeilen: Kapsel, senkrecht mittig, Symbol neben dem Text */
+  .swipe.sw-entry > .sw-acts { padding: 6px 8px 6px 4px; align-items: center; }
+  .swipe.sw-entry > .sw-acts button { flex: 0 0 auto; min-width: 108px; height: min(40px, 100%); border-radius: 999px; flex-direction: row; gap: 6px; padding: 0 16px 0 13px; font-size: 14px; }
+  .swipe.sw-entry > .sw-acts .sw-ic { width: 19px; height: 19px; }
+  .past-rows .swipe.sw-entry > .sw-acts button, .past-rows li.sw-entry > .sw-acts button { height: 34px; }
+  .swipe.sw-entry.sw-full > .sw-acts { left: 0; padding-left: 12px; }
+  .swipe.sw-entry.sw-full > .sw-acts button { flex: 1 1 auto; justify-content: flex-end; padding-right: 22px; }
+  .sw-row > .sw-acts { gap: 6px; padding: 5px 6px 5px 4px; } .sw-row .sw-acts button { border-radius: 16px; min-width: 72px; font-size: 12px; }
   .swipe.sw-on > .tile { border-radius: 26px; }
   /* Weniger Transparenz: einfarbige Flächen */
   @media (prefers-reduced-transparency: reduce) {
@@ -614,9 +693,14 @@
   /* ================= v11: Überblick, Ring, letzte Einträge, Jahres-Raster, Limit, Feier ================= */
   /* alles im Scroller: Glasfarbe ohne Weichzeichner (v10-Regel) */
   #dPlus { position: relative; }
-  .hap { position: absolute; inset: 0; z-index: 1; border-radius: 30px; opacity: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-  .hap input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
-  .hap[hidden] { display: none; }
+  /* Version 3: Vibration wie ios-haptics (Stand Mai 2026): unsichtbares <label> über der ganzen Taste, der Switch selbst ist 1 px groß und
+     visibility:hidden – er liegt nie unter dem Finger (sonst behandelt WebKit den Touch als „Schalter ziehen“). Der echte Tipp landet auf dem Label,
+     WebKit leitet ihn als vertrauenswürdigen Klick an den Switch weiter → iOS (ab 18) gibt den Schalter-Tick als Vibration aus. */
+  .hap { position: absolute; inset: 0; z-index: 1; border-radius: inherit; background: transparent; cursor: pointer; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .hap .hap-sw { position: absolute; left: 0; top: 0; width: 1px; height: 1px; margin: 0; padding: 0; visibility: hidden; }
+  html.no-hap .hap { display: none; }
+  .plus, .note-chips button { position: relative; }
   .ov { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px 16px; border-radius: 24px; background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
   .ov.noring { padding: 12px 18px; }
   .ring-w { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; }
@@ -688,12 +772,14 @@
     <button type="button" id="searchX" data-i18n-aria="searchClear" hidden>✕</button></div>
   <div class="chips" id="chips" role="group" hidden></div>
   <p id="arrangeHint" data-i18n="arrangeHint" hidden></p>
+  <section class="due-box" id="dueBox" hidden></section>
   <div id="list"></div>
   <div id="searchRes" hidden></div>
   <div class="empty-state" id="emptyState" hidden><div>🔢</div><p data-i18n-html="emptyState"></p></div>
   <div class="home-actions">
     <button id="newBtn" type="button"><span class="nb-ic" aria-hidden="true"><svg viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M7 1.5v11M1.5 7h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><span data-i18n="newBtn"></span></button>
     <div class="home-sub"><button id="arrangeBtn" type="button" hidden></button><button id="archiveBtn" type="button" hidden></button></div>
+    <button id="hiddenBtn" type="button" hidden></button>
   </div>
 </main>
 
@@ -722,7 +808,8 @@
     <span data-i18n="archivedNote"></span>
     <button class="btn" id="unarchBtn" type="button" data-i18n="unarchive"></button>
   </section>
-  <button id="dPlus" type="button"><span id="dPlusT">+1</span><label class="hap" id="hapLbl" aria-hidden="true"><input type="checkbox" switch id="hapSw" tabindex="-1"></label></button>
+  <section class="card state-card" id="stateCard" hidden></section>
+  <button id="dPlus" type="button"><span id="dPlusT">+1</span><label class="hap" id="hapLbl" aria-hidden="true"><input type="checkbox" switch class="hap-sw" id="hapSw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
   <p class="lp-hint" id="timerHint" data-i18n="timerHint" hidden></p>
   <section class="ov" id="ovBox">
     <div class="ring-w" id="ovRingW"><svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="ring-bg" cx="22" cy="22" r="18"/><circle class="ring-fg" id="ovRingFg" cx="22" cy="22" r="18" pathLength="100"/></svg><span class="ring-n" id="ovRingN"></span></div>
@@ -746,6 +833,8 @@
     <div class="bar"><i id="goalFill"></i></div>
     <span class="goal-txt" id="goalTxt"></span>
     <span class="streak-txt" id="streakTxt" hidden></span>
+    <div class="str" id="strBox" hidden><div class="str-ring" id="strRing" role="img"><i></i><span id="strPct"></span></div>
+      <div class="str-t"><b><span data-i18n="strTitle"></span> · <span id="strLvl"></span></b><span id="strHelp"></span></div></div>
   </section>
   <section class="card cost-card" id="costCard" hidden>
     <h2 data-i18n="costsTitle"></h2>
@@ -1509,6 +1598,24 @@ const I18N_V11 = {
     prevDay: 'hier', prevWeek: 'la semaine dernière', prevMonth: 'le mois dernier' },
 };
 for (const l of Object.keys(I18N_V11)) Object.assign(I18N[l], I18N_V11[l]);
+// Version 3: Eintrag per Wischen löschen
+const I18N_V3 = {
+  de: { entryDeletedD: 'Eintrag vom {d} gelöscht', entryRestored: 'Eintrag wiederhergestellt', entryLbl: 'Eintrag' },
+  en: { entryDeletedD: 'Entry from {d} deleted', entryRestored: 'Entry restored', entryLbl: 'Entry' },
+  it: { entryDeletedD: 'Voce del {d} eliminata', entryRestored: 'Voce ripristinata', entryLbl: 'Voce' },
+  es: { entryDeletedD: 'Entrada del {d} eliminada', entryRestored: 'Entrada restaurada', entryLbl: 'Entrada' },
+  fr: { entryDeletedD: 'Entrée du {d} supprimée', entryRestored: 'Entrée restaurée', entryLbl: 'Entrée' },
+};
+for (const l of Object.keys(I18N_V3)) Object.assign(I18N[l], I18N_V3[l]);
+// Version 3b: Fällig, Auto-Reset, Vorlagen, Gewohnheits-Stärke, Sperren/Ausblenden
+const I18N_V3B = {
+  de: {"dueTitle": "Fällig", "dueOpen": "{n} offen", "dueLeftDay": "noch {n} heute", "dueLeftWeek": "noch {n} diese Woche", "dueLeftMonth": "noch {n} diesen Monat", "dueAllDone": "✓ Alles erledigt – alle Ziele für jetzt geschafft", "dueAria": "Fällige Zähler", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} ist gesperrt", "resetLbl": "Automatisch zurücksetzen", "resetOff": "Aus – Gesamtstand zeigen", "resetDay": "Täglich (um Mitternacht)", "resetWeek": "Wöchentlich (Montag)", "resetMonth": "Monatlich (am 1.)", "resetHelp": "Der angezeigte Stand beginnt in jedem neuen Zeitraum wieder bei 0. Alle Einträge bleiben im Verlauf; bei Runden beginnt automatisch eine neue Runde.", "resetSubDay": "seit heute 0:00", "resetSubWeek": "seit Montag", "resetSubMonth": "seit dem 1.", "detailResetDay": "Heute {n}", "detailResetWeek": "Diese Woche {n}", "detailResetMonth": "Diesen Monat {n}", "tplTitle": "Vorlagen", "tplEmpty": "Leer starten", "tplEmptyH": "alles selbst festlegen", "tplApplied": "Vorlage „{name}“ übernommen – du kannst alles anpassen.", "tpl_water": "Wasser trinken", "tplh_water": "8 am Tag", "tpl_coffee": "Kaffee", "tplh_coffee": "max. 3 am Tag", "tpl_sport": "Sport", "tplh_sport": "3× pro Woche", "tpl_steps": "Schritte", "tplh_steps": "+1000 · 8000 am Tag", "tpl_smoke": "Zigaretten", "tplh_smoke": "max. 5 am Tag", "tpl_read": "Lesen", "tplh_read": "20 Min. am Tag", "tpl_meds": "Medikamente", "tplh_meds": "1× täglich", "tpl_eggs": "Eier", "tplh_eggs": "Runden à 10", "strTitle": "Gewohnheits-Stärke", "strLvl0": "Gerade erst begonnen", "strLvl1": "Im Aufbau", "strLvl2": "Wird zur Gewohnheit", "strLvl3": "Sehr beständig", "strHelp": "Wie beständig du dein Ziel zuletzt erreicht hast – ältere {p} zählen weniger.", "strHelpLimit": "Wie beständig du zuletzt im Limit geblieben bist – ältere {p} zählen weniger.", "strPDay": "Tage", "strPWeek": "Wochen", "strPMonth": "Monate", "strAria": "Gewohnheits-Stärke {p} %", "lockField": "Schutz & Sichtbarkeit", "lockCheck": "Sperren – keine Änderungen, bis du entsperrst", "hideCheck": "Auf der Startseite ausblenden", "lockAct": "Sperren", "unlock": "Entsperren", "hideAct": "Ausblenden", "unhideAct": "Einblenden", "lockedToast": "🔒 „{name}“ ist gesperrt", "lockedOn": "🔒 „{name}“ gesperrt", "unlockQ": "„{name}“ entsperren?\nDanach kannst du wieder zählen, Einträge löschen und den Zähler bearbeiten.", "unlockedToast": "🔓 „{name}“ entsperrt", "lockSheetTitle": "🔒 „{name}“ ist gesperrt", "lockSheetTxt": "Solange der Zähler gesperrt ist, kannst du nicht zählen, keine Einträge ändern oder löschen und den Zähler nicht bearbeiten, archivieren oder löschen.", "lockedNote": "Gesperrt – Zählen und Ändern sind aus.", "lockedPlus": "Gesperrt", "hiddenNote": "Ausgeblendet – nicht auf der Startseite.", "hiddenOn": "„{name}“ ausgeblendet", "hiddenOff": "„{name}“ wieder sichtbar", "hiddenBtn": "Ausgeblendete anzeigen ({n})", "hiddenTitle": "Ausgeblendet", "hiddenHelp": "Diese Zähler fehlen auf der Startseite und bei „Fällig“. Daten und Einträge bleiben erhalten.", "hiddenEmpty": "Keine ausgeblendeten Zähler.", "hiddenBadge": "ausgeblendet", "tileMenuHelp": "Tipp: Kachel gedrückt halten öffnet dieses Menü."},
+  en: {"dueTitle": "Due", "dueOpen": "{n} open", "dueLeftDay": "{n} left today", "dueLeftWeek": "{n} left this week", "dueLeftMonth": "{n} left this month", "dueAllDone": "✓ All done – every goal reached for now", "dueAria": "Due counters", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} is locked", "resetLbl": "Reset automatically", "resetOff": "Off – show the total", "resetDay": "Daily (at midnight)", "resetWeek": "Weekly (Monday)", "resetMonth": "Monthly (on the 1st)", "resetHelp": "The shown count starts again at 0 in every new period. All entries stay in the history; with rounds, a new round starts automatically.", "resetSubDay": "since 0:00 today", "resetSubWeek": "since Monday", "resetSubMonth": "since the 1st", "detailResetDay": "Today {n}", "detailResetWeek": "This week {n}", "detailResetMonth": "This month {n}", "tplTitle": "Templates", "tplEmpty": "Start empty", "tplEmptyH": "set everything yourself", "tplApplied": "Template “{name}” applied – you can change anything.", "tpl_water": "Drink water", "tplh_water": "8 a day", "tpl_coffee": "Coffee", "tplh_coffee": "max. 3 a day", "tpl_sport": "Exercise", "tplh_sport": "3× a week", "tpl_steps": "Steps", "tplh_steps": "+1000 · 8000 a day", "tpl_smoke": "Cigarettes", "tplh_smoke": "max. 5 a day", "tpl_read": "Reading", "tplh_read": "20 min a day", "tpl_meds": "Medication", "tplh_meds": "once a day", "tpl_eggs": "Eggs", "tplh_eggs": "rounds of 10", "strTitle": "Habit strength", "strLvl0": "Just started", "strLvl1": "Building up", "strLvl2": "Becoming a habit", "strLvl3": "Very consistent", "strHelp": "How consistently you reached your goal lately – older {p} count less.", "strHelpLimit": "How consistently you stayed within the limit lately – older {p} count less.", "strPDay": "days", "strPWeek": "weeks", "strPMonth": "months", "strAria": "Habit strength {p} %", "lockField": "Protection & visibility", "lockCheck": "Lock – no changes until you unlock", "hideCheck": "Hide from the home screen", "lockAct": "Lock", "unlock": "Unlock", "hideAct": "Hide", "unhideAct": "Show", "lockedToast": "🔒 “{name}” is locked", "lockedOn": "🔒 “{name}” locked", "unlockQ": "Unlock “{name}”?\nYou can then count, delete entries and edit the counter again.", "unlockedToast": "🔓 “{name}” unlocked", "lockSheetTitle": "🔒 “{name}” is locked", "lockSheetTxt": "While the counter is locked you can’t count, change or delete entries, or edit, archive or delete the counter.", "lockedNote": "Locked – counting and changes are off.", "lockedPlus": "Locked", "hiddenNote": "Hidden – not on the home screen.", "hiddenOn": "“{name}” hidden", "hiddenOff": "“{name}” visible again", "hiddenBtn": "Show hidden ({n})", "hiddenTitle": "Hidden", "hiddenHelp": "These counters are not on the home screen or under “Due”. Data and entries are kept.", "hiddenEmpty": "No hidden counters.", "hiddenBadge": "hidden", "tileMenuHelp": "Tip: press and hold a tile to open this menu."},
+  it: {"dueTitle": "Da fare", "dueOpen": "{n} aperti", "dueLeftDay": "ancora {n} oggi", "dueLeftWeek": "ancora {n} questa settimana", "dueLeftMonth": "ancora {n} questo mese", "dueAllDone": "✓ Tutto fatto – obiettivi raggiunti per ora", "dueAria": "Contatori da fare", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} è bloccato", "resetLbl": "Azzera automaticamente", "resetOff": "No – mostra il totale", "resetDay": "Ogni giorno (a mezzanotte)", "resetWeek": "Ogni settimana (lunedì)", "resetMonth": "Ogni mese (il 1°)", "resetHelp": "Il valore mostrato riparte da 0 in ogni nuovo periodo. Tutte le voci restano nella cronologia; con i giri ne inizia automaticamente uno nuovo.", "resetSubDay": "da oggi alle 0:00", "resetSubWeek": "da lunedì", "resetSubMonth": "dal 1°", "detailResetDay": "Oggi {n}", "detailResetWeek": "Questa settimana {n}", "detailResetMonth": "Questo mese {n}", "tplTitle": "Modelli", "tplEmpty": "Inizia vuoto", "tplEmptyH": "imposta tutto tu", "tplApplied": "Modello «{name}» applicato – puoi modificare tutto.", "tpl_water": "Bere acqua", "tplh_water": "8 al giorno", "tpl_coffee": "Caffè", "tplh_coffee": "max. 3 al giorno", "tpl_sport": "Sport", "tplh_sport": "3× a settimana", "tpl_steps": "Passi", "tplh_steps": "+1000 · 8000 al giorno", "tpl_smoke": "Sigarette", "tplh_smoke": "max. 5 al giorno", "tpl_read": "Lettura", "tplh_read": "20 min al giorno", "tpl_meds": "Medicine", "tplh_meds": "1× al giorno", "tpl_eggs": "Uova", "tplh_eggs": "giri da 10", "strTitle": "Forza dell’abitudine", "strLvl0": "Appena iniziato", "strLvl1": "In crescita", "strLvl2": "Sta diventando abitudine", "strLvl3": "Molto costante", "strHelp": "Quanto costantemente hai raggiunto l’obiettivo di recente – i {p} più vecchi contano meno.", "strHelpLimit": "Quanto costantemente sei rimasto nel limite di recente – i {p} più vecchi contano meno.", "strPDay": "giorni", "strPWeek": "settimane", "strPMonth": "mesi", "strAria": "Forza dell’abitudine {p} %", "lockField": "Protezione e visibilità", "lockCheck": "Blocca – nessuna modifica finché non sblocchi", "hideCheck": "Nascondi dalla schermata iniziale", "lockAct": "Blocca", "unlock": "Sblocca", "hideAct": "Nascondi", "unhideAct": "Mostra", "lockedToast": "🔒 «{name}» è bloccato", "lockedOn": "🔒 «{name}» bloccato", "unlockQ": "Sbloccare «{name}»?\nPotrai di nuovo contare, eliminare voci e modificare il contatore.", "unlockedToast": "🔓 «{name}» sbloccato", "lockSheetTitle": "🔒 «{name}» è bloccato", "lockSheetTxt": "Finché il contatore è bloccato non puoi contare, modificare o eliminare voci, né modificare, archiviare o eliminare il contatore.", "lockedNote": "Bloccato – conteggio e modifiche disattivati.", "lockedPlus": "Bloccato", "hiddenNote": "Nascosto – non nella schermata iniziale.", "hiddenOn": "«{name}» nascosto", "hiddenOff": "«{name}» di nuovo visibile", "hiddenBtn": "Mostra nascosti ({n})", "hiddenTitle": "Nascosti", "hiddenHelp": "Questi contatori non compaiono nella schermata iniziale né in «Da fare». Dati e voci restano.", "hiddenEmpty": "Nessun contatore nascosto.", "hiddenBadge": "nascosto", "tileMenuHelp": "Suggerimento: tieni premuto un riquadro per aprire questo menu."},
+  es: {"dueTitle": "Pendiente", "dueOpen": "{n} pendientes", "dueLeftDay": "faltan {n} hoy", "dueLeftWeek": "faltan {n} esta semana", "dueLeftMonth": "faltan {n} este mes", "dueAllDone": "✓ Todo hecho – todos los objetivos cumplidos por ahora", "dueAria": "Contadores pendientes", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} está bloqueado", "resetLbl": "Reiniciar automáticamente", "resetOff": "No – mostrar el total", "resetDay": "A diario (a medianoche)", "resetWeek": "Semanal (lunes)", "resetMonth": "Mensual (el día 1)", "resetHelp": "El valor mostrado vuelve a empezar en 0 en cada periodo nuevo. Todas las entradas quedan en el historial; con rondas, empieza automáticamente una nueva.", "resetSubDay": "desde hoy a las 0:00", "resetSubWeek": "desde el lunes", "resetSubMonth": "desde el día 1", "detailResetDay": "Hoy {n}", "detailResetWeek": "Esta semana {n}", "detailResetMonth": "Este mes {n}", "tplTitle": "Plantillas", "tplEmpty": "Empezar vacío", "tplEmptyH": "configúralo todo tú", "tplApplied": "Plantilla «{name}» aplicada – puedes cambiarlo todo.", "tpl_water": "Beber agua", "tplh_water": "8 al día", "tpl_coffee": "Café", "tplh_coffee": "máx. 3 al día", "tpl_sport": "Deporte", "tplh_sport": "3× por semana", "tpl_steps": "Pasos", "tplh_steps": "+1000 · 8000 al día", "tpl_smoke": "Cigarrillos", "tplh_smoke": "máx. 5 al día", "tpl_read": "Lectura", "tplh_read": "20 min al día", "tpl_meds": "Medicamentos", "tplh_meds": "1× al día", "tpl_eggs": "Huevos", "tplh_eggs": "rondas de 10", "strTitle": "Fuerza del hábito", "strLvl0": "Recién empezado", "strLvl1": "En construcción", "strLvl2": "Se está volviendo hábito", "strLvl3": "Muy constante", "strHelp": "Con qué constancia alcanzaste tu objetivo últimamente – los {p} más antiguos cuentan menos.", "strHelpLimit": "Con qué constancia te mantuviste en el límite últimamente – los {p} más antiguos cuentan menos.", "strPDay": "días", "strPWeek": "semanas", "strPMonth": "meses", "strAria": "Fuerza del hábito {p} %", "lockField": "Protección y visibilidad", "lockCheck": "Bloquear – sin cambios hasta desbloquear", "hideCheck": "Ocultar en la pantalla de inicio", "lockAct": "Bloquear", "unlock": "Desbloquear", "hideAct": "Ocultar", "unhideAct": "Mostrar", "lockedToast": "🔒 «{name}» está bloqueado", "lockedOn": "🔒 «{name}» bloqueado", "unlockQ": "¿Desbloquear «{name}»?\nDespués podrás volver a contar, eliminar entradas y editar el contador.", "unlockedToast": "🔓 «{name}» desbloqueado", "lockSheetTitle": "🔒 «{name}» está bloqueado", "lockSheetTxt": "Mientras el contador esté bloqueado no puedes contar, cambiar ni eliminar entradas, ni editar, archivar o eliminar el contador.", "lockedNote": "Bloqueado – contar y cambiar están desactivados.", "lockedPlus": "Bloqueado", "hiddenNote": "Oculto – no aparece en el inicio.", "hiddenOn": "«{name}» oculto", "hiddenOff": "«{name}» visible de nuevo", "hiddenBtn": "Mostrar ocultos ({n})", "hiddenTitle": "Ocultos", "hiddenHelp": "Estos contadores no aparecen en el inicio ni en «Pendiente». Los datos y las entradas se conservan.", "hiddenEmpty": "No hay contadores ocultos.", "hiddenBadge": "oculto", "tileMenuHelp": "Consejo: mantén pulsada una tarjeta para abrir este menú."},
+  fr: {"dueTitle": "À faire", "dueOpen": "{n} en attente", "dueLeftDay": "encore {n} aujourd’hui", "dueLeftWeek": "encore {n} cette semaine", "dueLeftMonth": "encore {n} ce mois-ci", "dueAllDone": "✓ Tout est fait – objectifs atteints pour l’instant", "dueAria": "Compteurs à faire", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} est verrouillé", "resetLbl": "Remise à zéro automatique", "resetOff": "Non – afficher le total", "resetDay": "Chaque jour (à minuit)", "resetWeek": "Chaque semaine (lundi)", "resetMonth": "Chaque mois (le 1er)", "resetHelp": "La valeur affichée repart de 0 à chaque nouvelle période. Toutes les entrées restent dans l’historique ; avec des tours, un nouveau tour commence automatiquement.", "resetSubDay": "depuis 0:00 aujourd’hui", "resetSubWeek": "depuis lundi", "resetSubMonth": "depuis le 1er", "detailResetDay": "Aujourd’hui {n}", "detailResetWeek": "Cette semaine {n}", "detailResetMonth": "Ce mois-ci {n}", "tplTitle": "Modèles", "tplEmpty": "Commencer vide", "tplEmptyH": "tout régler soi-même", "tplApplied": "Modèle « {name} » appliqué – tu peux tout modifier.", "tpl_water": "Boire de l’eau", "tplh_water": "8 par jour", "tpl_coffee": "Café", "tplh_coffee": "max. 3 par jour", "tpl_sport": "Sport", "tplh_sport": "3× par semaine", "tpl_steps": "Pas", "tplh_steps": "+1000 · 8000 par jour", "tpl_smoke": "Cigarettes", "tplh_smoke": "max. 5 par jour", "tpl_read": "Lecture", "tplh_read": "20 min par jour", "tpl_meds": "Médicaments", "tplh_meds": "1× par jour", "tpl_eggs": "Œufs", "tplh_eggs": "tours de 10", "strTitle": "Force de l’habitude", "strLvl0": "Tout juste commencé", "strLvl1": "En construction", "strLvl2": "Devient une habitude", "strLvl3": "Très régulier", "strHelp": "À quel point tu as atteint ton objectif régulièrement ces derniers temps – les {p} plus anciens comptent moins.", "strHelpLimit": "À quel point tu es resté sous la limite ces derniers temps – les {p} plus anciens comptent moins.", "strPDay": "jours", "strPWeek": "semaines", "strPMonth": "mois", "strAria": "Force de l’habitude {p} %", "lockField": "Protection et visibilité", "lockCheck": "Verrouiller – aucune modification avant déverrouillage", "hideCheck": "Masquer de l’écran d’accueil", "lockAct": "Verrouiller", "unlock": "Déverrouiller", "hideAct": "Masquer", "unhideAct": "Afficher", "lockedToast": "🔒 « {name} » est verrouillé", "lockedOn": "🔒 « {name} » verrouillé", "unlockQ": "Déverrouiller « {name} » ?\nTu pourras de nouveau compter, supprimer des entrées et modifier le compteur.", "unlockedToast": "🔓 « {name} » déverrouillé", "lockSheetTitle": "🔒 « {name} » est verrouillé", "lockSheetTxt": "Tant que le compteur est verrouillé, tu ne peux ni compter, ni modifier ou supprimer des entrées, ni modifier, archiver ou supprimer le compteur.", "lockedNote": "Verrouillé – comptage et modifications désactivés.", "lockedPlus": "Verrouillé", "hiddenNote": "Masqué – absent de l’écran d’accueil.", "hiddenOn": "« {name} » masqué", "hiddenOff": "« {name} » de nouveau visible", "hiddenBtn": "Afficher les masqués ({n})", "hiddenTitle": "Masqués", "hiddenHelp": "Ces compteurs n’apparaissent ni sur l’accueil ni dans « À faire ». Les données et entrées sont conservées.", "hiddenEmpty": "Aucun compteur masqué.", "hiddenBadge": "masqué", "tileMenuHelp": "Astuce : maintiens une tuile appuyée pour ouvrir ce menu."},
+};
+for (const l of Object.keys(I18N_V3B)) Object.assign(I18N[l], I18N_V3B[l]);
 </script>
 <script>
 (() => {
@@ -1524,8 +1631,19 @@ for (const l of Object.keys(I18N_V11)) Object.assign(I18N[l], I18N_V11[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 11, APP_DATE = '2026-11-03'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 12, APP_VERSION = '3', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
+/* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
+const TEMPLATES = [
+  { k: 'water', emoji: '💧', color: '#007aff', goal: { amount: 8, period: 'day' }, reset: 'day' },
+  { k: 'coffee', emoji: '☕️', color: '#a2845e', goal: { amount: 3, period: 'day' }, goalType: 'limit', reset: 'day' },
+  { k: 'sport', emoji: '🏃', color: '#34c759', goal: { amount: 3, period: 'week' }, reset: 'week' },
+  { k: 'steps', emoji: '🚶', color: '#00c7be', step: 1000, goal: { amount: 8000, period: 'day' }, reset: 'day' },
+  { k: 'smoke', emoji: '🚬', color: '#8e8e93', goal: { amount: 5, period: 'day' }, goalType: 'limit', reset: 'day' },
+  { k: 'read', emoji: '📚', color: '#5856d6', type: 'time', goal: { amount: 20, period: 'day' }, reset: 'day' },
+  { k: 'meds', emoji: '💊', color: '#ff2d55', goal: { amount: 1, period: 'day' }, reset: 'day' },
+  { k: 'eggs', emoji: '🥚', color: '#ff9500', roundSize: 10 },
+];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
 const $ = id => document.getElementById(id);
@@ -1650,6 +1768,10 @@ const byTime = (a, b) => (a.timestamp < b.timestamp ? -1 : a.timestamp > b.times
 const entriesOf = id => db.entries.filter(e => e.counterId === id).sort(byTime);
 /* ---------- v7b: Mengen, Schritt, Kategorie, Preis ---------- */
 function isPrice(v) { return typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 99999; }
+const RESETS = ['day', 'week', 'month'];
+const resetOf = c => (c && RESETS.includes(c.reset) ? c.reset : null);
+const isLocked = c => !!c && c.locked === true;
+const isHidden = c => !!c && c.hidden === true;
 function validAmount(a) { return Number.isInteger(a) && a !== 0 && Math.abs(a) <= 9999; }
 /* v7c: Zeit-Zähler – Einträge tragen eine Dauer in Sekunden; sie ist ihre „Menge“ (Summen, Ziele, Diagramm, Serien) */
 const MAX_DUR = 720 * 3600; // 30 Tage
@@ -1671,7 +1793,7 @@ const activeCounters = () => sortedCounters().filter(c => !c.archived);
 const stepOf = c => (Number.isInteger(c.step) && c.step >= 1 && c.step <= 999 ? c.step : 1);
 const catOf = c => (typeof c.category === 'string' ? c.category.trim() : '');
 const fmtAmt = a => (a < 0 ? '−' + (-a) : '+' + a);
-const categories = () => [...new Set(db.counters.filter(c => !c.archived).map(catOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, intlLocale(), { sensitivity: 'base' }));
+const categories = () => [...new Set(db.counters.filter(c => !c.archived && !c.hidden).map(catOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, intlLocale(), { sensitivity: 'base' }));
 /** Bestand chronologisch. Minus ist eine Korrektur und wirkt höchstens bis 0 – der Stand wird nie negativ.
     eff[i] = tatsächlich wirksame Menge, runs[i] = Stand danach, units = ein Platz pro Stück (nur für Runden) */
 function ledger(list, withUnits = false) {
@@ -1685,13 +1807,18 @@ function ledger(list, withUnits = false) {
   return { total: run, eff, runs, units };
 }
 /** Runden-Info abgeleitet aus Anzahl + Rundengröße */
+/** Version 3b: Einträge des laufenden Auto-Reset-Zeitraums (ohne Auto-Reset: alle) – Gerätezeit (Europe/Berlin) */
+function periodList(c, list) { const p = resetOf(c); if (!p) return list; const s0 = +PERIOD_START[p](new Date()); return list.filter(e => Date.parse(e.timestamp) >= s0); }
 function roundInfo(c, list) {
-  const n = isTime(c) ? null : c.roundSize, L = ledger(list, !!n), total = L.total, u = L.units;
-  if (!n) return { total, round: null, L };
+  // total = Gesamtstand (Verlauf, Statistik); cur = sichtbarer Stand (mit Auto-Reset nur der laufende Zeitraum). Runden zählen im sichtbaren Stand –
+  // mit Auto-Reset beginnt so in jedem Zeitraum automatisch eine neue Runde (frühere Runden des Zeitraums bleiben unter „Frühere Runden“).
+  const n = isTime(c) ? null : c.roundSize, rp = resetOf(c), L = ledger(list, !!n && !rp);
+  const PL = rp ? ledger(periodList(c, list), !!n) : L, total = PL.total, u = PL.units;
+  if (!n) return { total: L.total, cur: PL.total, round: null, L, reset: rp };
   const roundIdx = total ? Math.floor((total - 1) / n) : 0;         // 0-basiert: aktuelle (letzte belegte) Runde
   const inRound = total - roundIdx * n;                              // 0..n Einträge in aktueller Runde
   const full = total > 0 && inRound === n;
-  return { total, n, round: roundIdx + 1, inRound, full, next: (total % n) + 1, L,
+  return { total: L.total, cur: total, reset: rp, n, round: roundIdx + 1, inRound, full, next: (total % n) + 1, L,
            current: u.slice(roundIdx * n, roundIdx * n + n), past: Array.from({ length: roundIdx }, (_, i) => u.slice(i * n, i * n + n)) };
 }
 /** Summen der Mengen (amount). Zeiträume, in denen nur korrigiert wurde, zeigen 0 statt einer negativen Zahl. */
@@ -1707,7 +1834,7 @@ function stats(list, L = ledger(list)) {
 function countLabel(c, list) {
   const r = roundInfo(c, list);
   return r.round ? { big: `${r.inRound}<small>/${r.n}</small>`, sub: r.full ? t('tileRoundFull', { r: r.round }) : t('tileRound', { r: r.round, next: r.next }), r }
-                 : { big: isTime(c) ? esc(fmtDur(r.total)) : `${r.total}`, sub: '', r };
+                 : { big: isTime(c) ? esc(fmtDur(r.cur)) : `${r.cur}`, sub: r.reset ? t('resetSub' + PKEY[r.reset]) : '', r };
 }
 
 /* ---------- v7: Ziele ---------- */
@@ -1757,6 +1884,34 @@ function streaks(c, list, L = ledger(list)) {
   return { cur: run, best, period: g.period };
 }
 const PKEY = { day: 'Day', week: 'Week', month: 'Month' };
+/* ---------- Version 3b: Gewohnheits-Stärke (wie Loop Habit Tracker: exponentiell gewichteter Anteil erfüllter Zeiträume) ----------
+   score = score · m + (erfüllt ? 1 − m : 0) je Zeitraum seit Beginn (createdAt bzw. erster Eintrag); m = 0,5^(1/Halbwertszeit).
+   Halbwertszeit wie Loop (13 Tage · √Häufigkeit): Tag 13, Woche ≈ 5, Monat ≈ 2,4 Zeiträume. Der laufende Zeitraum zählt erst, wenn er
+   erfüllt ist (Limit: erst, wenn es überschritten ist – dann als verfehlt). Limit: erfüllt = im Limit geblieben. */
+const STR_HL = { day: 13, week: 13 / 7 / Math.sqrt(1 / 7), month: 13 / 30 / Math.sqrt(1 / 30) };
+function habitStrength(c, list, L = ledger(list)) {
+  const g = sanitizeGoal(c.goal); if (!g || g.period === 'total') return null;
+  const start = PERIOD_START[g.period], sums = new Map(), need = goalTarget(c, g), lim = c.goalType === 'limit', m = Math.pow(0.5, 1 / STR_HL[g.period]);
+  list.forEach((e, i) => { const k = +start(new Date(e.timestamp)); sums.set(k, (sums.get(k) || 0) + L.eff[i]); });
+  const cr = Date.parse(c.createdAt), first = list.length ? Date.parse(list[0].timestamp) : NaN, s0 = Math.min(isNaN(cr) ? Infinity : cr, isNaN(first) ? Infinity : first);
+  if (!isFinite(s0)) return null;
+  const cur0 = +start(new Date()); let score = 0, n = 0;
+  for (let d = start(new Date(s0)); +d <= cur0; d = nextPeriod(d, g.period)) {
+    const v = sums.get(+d) || 0; let met = lim ? v <= need : v >= need;
+    if (+d === cur0 && (lim ? met : !met)) continue; // laufender Zeitraum noch offen
+    score = score * m + (met ? 1 - m : 0); n++;
+  }
+  return { pct: Math.round(score * 100), score, periods: n, period: g.period, limit: lim };
+}
+const strLevel = p => t(p >= 80 ? 'strLvl3' : p >= 50 ? 'strLvl2' : p >= 20 ? 'strLvl1' : 'strLvl0');
+/** Version 3b: Fällig = Ziel (mehr ist besser, Tag/Woche/Monat) im laufenden Zeitraum noch nicht erreicht; Limits und Zähler ohne Ziel nie */
+function dueInfo(c, es = entriesOf(c.id)) {
+  if (c.archived || c.hidden || c.goalType === 'limit') return null;
+  const g = sanitizeGoal(c.goal); if (!g || g.period === 'total') return null;
+  const gp = goalProgress(c, es); if (!gp) return null;
+  const need = goalTarget(c, g), left = Math.max(0, need - gp.count);
+  return { c, gp, left, need, period: g.period, done: left <= 0 };
+}
 const streakText = s => t('streakCur' + PKEY[s.period], { n: s.cur });
 const bestText = s => t('streakBest' + PKEY[s.period], { n: s.best });
 
@@ -1906,6 +2061,9 @@ function normalizeDb(s) {
     if ('category' in c) { if (typeof c.category === 'string' && c.category.trim()) c.category = c.category.trim().slice(0, 30); else delete c.category; }
     if ('price' in c && !isPrice(c.price)) delete c.price;
     if ('archived' in c && c.archived !== true) delete c.archived; // v7c
+    if ('reset' in c && !['day', 'week', 'month'].includes(c.reset)) delete c.reset; // Version 3b: Auto-Reset day|week|month
+    if ('locked' in c && c.locked !== true) delete c.locked; // Version 3b: gesperrt
+    if ('hidden' in c && c.hidden !== true) delete c.hidden; // Version 3b: ausgeblendet
     if ('runningSince' in c && !(c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince)))) delete c.runningSince;
   });
   for (const e of s.entries) { // v7b: Menge/Preis pro Eintrag (fehlen bei alten Daten = 1 bzw. Zählerpreis)
@@ -2124,17 +2282,19 @@ function setArchived(id, on) {
 
 /* ---------- v8: Wischen nach links → Aktionen (Archivieren / Löschen; im Archiv: Wiederherstellen / Löschen) ---------- */
 let swOpen = null; // { wrap, front, close } der aktuell offenen Zeile
+const SW_FULL = 0.55; // Anteil der Zeilenbreite, ab dem „ganz durchgewischt“ gilt
 const SW_START = 14; // px; erst ab hier und wenn waagerecht klar überwiegt (Lang-Druck bricht schon bei 12 px ab)
 function swClose(anim = true) { if (swOpen) { const o = swOpen; swOpen = null; o.close(anim); } }
 /** wrap = .swipe (relativ), front = verschiebbares Element, enabled() = darf gewischt werden */
-function bindSwipe(wrap, front, enabled = () => true) {
+function bindSwipe(wrap, front, enabled = () => true, opts = {}) {
   const acts = wrap.querySelector('.sw-acts');
   let st = null, x = 0, suppress = false, raf = 0;
   const W = () => acts.offsetWidth || 168;
+  const prog = (v, w = W()) => { acts.style.setProperty('--p', Math.min(1, Math.max(0, -v / w)).toFixed(3)); }; // Version 3: Knöpfe wachsen/erscheinen mit
   const set = (v, anim) => { if (raf) { cancelAnimationFrame(raf); raf = 0; } x = v; wrap.classList.toggle('sw-anim', !!anim); wrap.classList.toggle('sw-on', v < 0 || !!st);
-    front.style.transform = v ? `translateX(${v}px)` : ''; };
+    front.style.transform = v ? `translateX(${v}px)` : ''; prog(v); };
   // v10: beim Ziehen nur einmal pro Bild verschieben (kein Layout-Lesen pro Bewegung)
-  const drag = v => { x = v; if (!raf) raf = requestAnimationFrame(() => { raf = 0; front.style.transform = x ? `translateX(${x}px)` : ''; }); };
+  const drag = v => { x = v; if (!raf) raf = requestAnimationFrame(() => { raf = 0; front.style.transform = x ? `translateX(${x}px)` : ''; prog(x, st && st.w || W()); }); };
   const close = (anim = true) => { set(0, anim); wrap.classList.remove('sw-open'); front.removeAttribute('aria-describedby');
     setTimeout(() => { if (x === 0 && !st) wrap.classList.remove('sw-on', 'sw-anim'); }, anim ? 280 : 0); };
   const open = () => { if (swOpen && swOpen.wrap !== wrap) swClose(); wrap.classList.add('sw-on', 'sw-open'); set(-W(), true);
@@ -2152,11 +2312,15 @@ function bindSwipe(wrap, front, enabled = () => true) {
       if (Math.abs(dx) < SW_START || Math.abs(dx) < Math.abs(dy) * 1.6) return;
       if (dx > 0 && st.base === 0) { st.dead = true; return; } // nach rechts bei geschlossener Kachel: nichts
       st.active = true; suppress = true; if (swOpen && swOpen.wrap !== wrap) swClose();
-      wrap.classList.add('sw-on'); wrap.classList.remove('sw-anim'); st.w = W(); try { front.setPointerCapture(e.pointerId); } catch (_) {}
+      wrap.classList.add('sw-on'); wrap.classList.remove('sw-anim'); st.w = W(); st.rw = wrap.offsetWidth || 360; try { front.setPointerCapture(e.pointerId); } catch (_) {}
     }
     e.preventDefault();
     let v = st.base + dx; const w = st.w;
-    if (v > 0) v = 0; if (v < -w) v = -w + (v + w) * 0.3; // Gummiband über die Knöpfe hinaus
+    if (v > 0) v = 0;
+    if (opts.full) { // Version 3: Eintragszeilen – ganz durchwischen löscht sofort (wie iOS-Mail)
+      v = Math.max(-st.rw, v); const f = v < -st.rw * SW_FULL;
+      if (f !== !!st.full) { st.full = f; wrap.classList.toggle('sw-full', f); }
+    } else if (v < -w) v = -w + (v + w) * 0.3; // Gummiband über die Knöpfe hinaus
     st.vx = (e.clientX - st.lx) / Math.max(1, e.timeStamp - st.lt); st.lx = e.clientX; st.lt = e.timeStamp;
     drag(v);
   });
@@ -2165,6 +2329,11 @@ function bindSwipe(wrap, front, enabled = () => true) {
     const s = st; st = null;
     if (!s.active) return;
     const w = W(), fling = s.vx || 0;
+    if (opts.full && x < -s.rw * SW_FULL) { // ganz durchgewischt → Zeile fährt hinaus, dann löschen
+      wrap.classList.add('sw-full'); set(-s.rw, true); if (swOpen && swOpen.wrap === wrap) swOpen = null;
+      setTimeout(() => { suppress = false; }, 60); setTimeout(() => opts.full(), 180); return;
+    }
+    wrap.classList.remove('sw-full');
     if ((s.base === 0 && (x < -w * 0.4 || fling < -0.5)) || (s.base !== 0 && x < -w * 0.6 && fling < 0.5)) open(); else { close(); if (swOpen && swOpen.wrap === wrap) swOpen = null; }
     setTimeout(() => { suppress = false; }, 60);
   };
@@ -2194,17 +2363,75 @@ const onAnyScroll = e => { // Scroll-Ereignisse kommen ohnehin höchstens einmal
 window.addEventListener('scroll', onAnyScroll, { passive: true }); syncScrolled();
 $('sheetBox').addEventListener('scroll', onAnyScroll, { passive: true });
 document.addEventListener('touchstart', () => { lastInteract = performance.now(); }, { passive: true, capture: true });
+// Version 3: SF-Symbol-ähnliche Strich-Icons (weiß, currentColor) statt Emoji
+const SW_IC = {
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6.5h15"/><path d="M9.3 6.5V4.9c0-.8.6-1.4 1.4-1.4h2.6c.8 0 1.4.6 1.4 1.4v1.6"/><path d="M6.4 6.5l.85 12.1c.08 1.1.98 1.9 2.07 1.9h5.36c1.09 0 1.99-.8 2.07-1.9l.85-12.1"/><path d="M10.2 10.6v6M13.8 10.6v6"/></svg>',
+  archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.2" y="4" width="17.6" height="4.6" rx="1.3"/><path d="M4.9 8.6v9.5c0 1.3 1 2.3 2.3 2.3h9.6c1.3 0 2.3-1 2.3-2.3V8.6"/><path d="M9.8 12.4h4.4"/></svg>',
+  unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.6"/><path d="M8 10.5V7.4a4 4 0 0 1 7.7-1.5"/><path d="M12 14.4v2.4"/></svg>',
+  restore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5.2L4.6 9.6 9 14"/><path d="M4.6 9.6h10.2a4.7 4.7 0 0 1 0 9.4H10.5"/></svg>' };
 const swActs = (btns, name) => `<div class="sw-acts" role="group" aria-label="${esc(t('swActions', { name }))}">${btns.map(([cls, ic, label, v]) =>
-  `<button type="button" class="${cls}" data-sw="${v}"><span class="sw-ic" aria-hidden="true">${ic}</span><span>${esc(label)}</span></button>`).join('')}</div>`;
+  `<button type="button" class="${cls}" data-sw="${v}"><span class="sw-ic" aria-hidden="true">${SW_IC[ic] || ''}</span><span>${esc(label)}</span></button>`).join('')}</div>`;
 function archiveWithUndo(cid) {
   const c = counter(cid); if (!c) return;
+  if (lockBlock(c)) return;
   setArchived(cid, true); go(null); render();
   toast(t('toastArchived', { name: c.name }), [[t('undo'), () => { setArchived(cid, false); render(); }]], 5000);
 }
 /** Löschen mit Rückfrage („Stattdessen archivieren“) und Rückgängig (inkl. Fotos aus IndexedDB). Ergebnis: 'del' | 'arch' | null */
 /** v9: Löschen ohne Rückfrage – sofort weg, „Rückgängig“ (~6 s) stellt Zähler, Einträge und Fotos wieder her. */
+/* ---------- Version 3b: Sperren (keine Änderungen bis zum Entsperren) und Ausblenden ---------- */
+const LOCK_SVG = '<svg class="lk" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.6" rx="2.2" fill="currentColor"/><path d="M5.3 7.2V5.3a2.7 2.7 0 0 1 5.4 0v1.9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+/** true = gesperrt: kurze Meldung mit „Entsperren“ (fragt nach) und nichts tun */
+function lockBlock(c) {
+  if (!isLocked(c)) return false;
+  toast(t('lockedToast', { name: c.name }), [[t('unlock'), () => askUnlock(c.id)]], 3500); return true;
+}
+async function askUnlock(cid) {
+  const c = counter(cid); if (!c || !isLocked(c)) return false;
+  if (!(await confirmBox(t('unlockQ', { name: c.name }), t('unlock')))) return false;
+  delete c.locked; save(); render(); toast(t('unlockedToast', { name: c.name })); return true;
+}
+function setLocked(cid, on) {
+  const c = counter(cid); if (!c) return;
+  if (!on) return askUnlock(cid);
+  c.locked = true; save(); render();
+  toast(t('lockedOn', { name: c.name }), [[t('undo'), () => { delete c.locked; save(); render(); }]], 5000);
+}
+function setHidden(cid, on) {
+  const c = counter(cid); if (!c) return;
+  if (on) c.hidden = true; else delete c.hidden; save(); render();
+  toast(t(on ? 'hiddenOn' : 'hiddenOff', { name: c.name }), on ? [[t('undo'), () => { delete c.hidden; save(); render(); }]] : [], 5000);
+}
+async function lockSheet(cid) {
+  const c = counter(cid); if (!c) return;
+  const v = await openSheet(`<h2>${esc(t('lockSheetTitle', { name: c.name }))}</h2><p>${esc(t('lockSheetTxt'))}</p>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" data-v="unlock" id="lsUnlock">${esc(t('unlock'))}</button></div>`);
+  if (v === 'unlock') askUnlock(cid);
+}
+/** Gedrückt halten auf einer Kachel: Sperren/Entsperren und Ausblenden */
+async function tileMenu(cid) {
+  const c = counter(cid); if (!c) return; const lk = isLocked(c);
+  const v = await openSheet(`<h2>${esc(c.emoji || '🔢')} ${esc(c.name)}</h2><p class="small" style="margin-top:-6px">${esc(t('tileMenuHelp'))}</p><div class="sw-col">
+    <button class="btn" type="button" data-v="lock" id="tmLock">${LOCK_SVG} ${esc(t(lk ? 'unlock' : 'lockAct'))}</button>
+    <button class="btn" type="button" data-v="hide" id="tmHide">${esc(t('hideAct'))}</button>
+    <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
+  if (v === 'lock') setLocked(cid, !lk);
+  else if (v === 'hide') setHidden(cid, true);
+}
+async function hiddenList() {
+  const hid = sortedCounters().filter(c => !c.archived && c.hidden);
+  const v = await openSheet(`<h2>${esc(t('hiddenTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('hiddenHelp'))}</p>
+    <div class="arch-list" id="hidList">${hid.length ? hid.map(c => `<div class="hit" data-id="${esc(c.id)}">
+      <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
+        <span class="hit-t"><b>${isLocked(c) ? LOCK_SVG + ' ' : ''}${esc(c.name)}</b><span>${esc(t('entriesCount', { n: entriesOf(c.id).length }))}${catOf(c) ? ' · ' + esc(catOf(c)) : ''}</span></span></button>
+      <button class="btn" type="button" data-v="show:${esc(c.id)}">${esc(t('unhideAct'))}</button></div>`).join('') : `<p>${esc(t('hiddenEmpty'))}</p>`}</div>
+    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v && v.startsWith('open:')) go(v.slice(5));
+  else if (v && v.startsWith('show:')) setHidden(v.slice(5), false);
+}
 function deleteCounterNow(cid) {
   const c = counter(cid); if (!c) return false;
+  if (lockBlock(c)) return false;
   if (c.runningSince) stopTimerCore(c); // laufende Uhr zuerst anhalten (Sitzung wird Eintrag und kommt mit „Rückgängig“ zurück)
   const pos = db.counters.indexOf(c), snapC = JSON.parse(JSON.stringify(c)), snapE = JSON.parse(JSON.stringify(entriesOf(cid)));
   const ids = [...new Set(snapE.map(e => e.photo).filter(Boolean))];
@@ -2225,6 +2452,36 @@ function deleteCounterNow(cid) {
   }]], 6000);
   return true;
 }
+
+/* ---------- Version 3: Eintrag per Wischen löschen – sofort, 6 s „Rückgängig“ (stellt auch das Foto wieder her) ---------- */
+function deleteEntryNow(eid) {
+  const i = db.entries.findIndex(x => x.id === eid); if (i < 0) return false;
+  if (lockBlock(counter(db.entries[i].counterId))) { swClose(); return false; }
+  const snap = JSON.parse(JSON.stringify(db.entries[i]));
+  // Foto erst sichern, dann aus IndexedDB löschen (die Anzeige wartet nicht darauf)
+  const recP = snap.photo ? photoGet(snap.photo).catch(() => null) : Promise.resolve(null);
+  if (snap.photo) recP.then(() => { photoDel(snap.photo).catch(() => {}); forgetPhoto(snap.photo); });
+  swOpen = null; removeEntry(eid); render();
+  toast(t('entryDeletedD', { d: fmtEntry(snap) }), [[t('undo'), async () => {
+    if (db.entries.some(x => x.id === snap.id) || !counter(snap.counterId)) return;
+    const rec = await recP;
+    db.entries.splice(Math.min(i, db.entries.length), 0, snap);
+    let lost = false;
+    if (snap.photo) { if (rec) { try { await photoPut(rec); } catch (err) { lost = true; } } else lost = true;
+      if (lost) { const x = db.entries.find(y => y.id === snap.id); if (x) delete x.photo; } }
+    save(); render(); toast(lost ? t('photoQuota') : t('entryRestored'));
+  }]], 6000);
+  return true;
+}
+// Wisch-Logik wird erst beim ersten Berühren einer Zeile angebunden (lange Verläufe bleiben schnell; v10)
+document.addEventListener('pointerdown', e => {
+  const li = e.target && e.target.closest && e.target.closest('.sw-entry'); if (!li || li.__sw) return;
+  const front = li.querySelector(':scope > .sw-front'); if (!front) return;
+  li.insertAdjacentHTML('afterbegin', swActs([['sw-del', 'trash', t('swDelete'), 'del']], t('entryLbl')));
+  const lockedRow = () => { const en = db.entries.find(x => x.id === li.dataset.eid); return !!en && isLocked(counter(en.counterId)); };
+  bindSwipe(li, front, () => !lockedRow(), { full: () => deleteEntryNow(li.dataset.eid) });
+  li.querySelector('.sw-acts [data-sw=del]').onclick = () => deleteEntryNow(li.dataset.eid);
+}, { capture: true, passive: true });
 
 /* ---------- v8: Runterwischen schließt Seite (Detail, Rückblick) bzw. Blatt (Dialog, Menü, Archiv) – wie iOS-Sheets ---------- */
 // Verlauf: Seiten, die von der Startseite aus geöffnet wurden, merken sich das im history.state; „Zurück“ geht dann per history.back()
@@ -2290,7 +2547,7 @@ function pullMove(x, y, ts) {
   if (!p.active) {
     if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { p.dead = true; return false; } // waagerecht: z. B. Kachel-/Zeilenwischen
     if (dy < -6) { p.dead = true; return false; } // nach oben: normales Scrollen
-    if (dy < PULL_START || dy < Math.abs(dx) * 1.5) return dy > 0; // noch unentschieden; Scrollen nach unten verhindern
+    if (dy < PULL_START || dy < Math.abs(dx) * 1.5) return dy > 4; // noch unentschieden; Scrollen nach unten verhindern (Version 3: erst ab 4 px – ein Tipp mit Zittern bleibt ein Tipp)
     pullActivate();
   }
   const raw = dy - PULL_START, d = raw >= 0 ? raw : -Math.min(24, Math.sqrt(-raw) * 3); // Gummiband nach oben
@@ -2423,7 +2680,7 @@ function upsertCounter(data) {
   let c = data.id && counter(data.id);
   if (c) Object.assign(c, data);
   else { c = { id: uuid(), order: db.counters.reduce((m, x) => Math.max(m, x.order + 1), 0), createdAt: isoNow(), ...data }; db.counters.push(c); }
-  for (const k of ['goal', 'goalType', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
+  for (const k of ['goal', 'goalType', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince', 'reset', 'locked', 'hidden']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
   if (c.step === 1) delete c.step;
   save(); return c;
 }
@@ -2482,7 +2739,15 @@ function clickSound() {
   } catch (e) {}
 }
 const buzz = () => { if (hapticOn()) { try { if (navigator.vibrate) { navigator.vibrate(12); fx.vib++; } } catch (e) {} } clickSound(); };
-const syncHap = () => { const l = $('hapLbl'); if (l) l.hidden = !hapticOn(); };
+const HAP = '<label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label>';
+const isHapSw = e => !!(e.target && e.target.classList && e.target.classList.contains('hap-sw'));
+// Kam der Tipp über das Haptik-Label, erst NACH dem Klick zählen: sonst zeichnet render() die Kachel/den Chip neu, während WebKit den
+// Klick noch an den Switch weiterreicht – der Switch hinge dann nicht mehr in der Seite (keine Vibration, Gefahr eines Doppelzählers).
+const afterHap = (e, fn) => { if (e && e.target && e.target.closest && e.target.closest('.hap')) setTimeout(fn, 0); else fn(); };
+const syncHap = () => document.documentElement.classList.toggle('no-hap', !hapticOn());
+// Der vom Label weitergeleitete Klick auf den Switch darf nicht zur Taste hochblubbern (sonst zählte ein Tipp doppelt) – auch nicht,
+// wenn die Taste durch das Neuzeichnen nach dem Zählen schon aus der Seite entfernt ist. Darum stopPropagation direkt am Switch
+// (wie ios-haptics) und zusätzlich ignorieren die Tasten Klicks, deren Ziel der Switch ist. Umschalten + Vibration bleiben unberührt.
 
 /* ---------- Routing ---------- */
 const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
@@ -2502,19 +2767,22 @@ const FILTER_KEY = 'zaehler-filter';
 function renderHome() {
   swOpen = null;
   const list = $('list'); list.innerHTML = '';
-  const all = sortedCounters(), cs = all.filter(c => !c.archived), arch = all.filter(c => c.archived), cats = categories();
+  const all = sortedCounters(), cs = all.filter(c => !c.archived && !c.hidden), arch = all.filter(c => c.archived), cats = categories();
+  const hid = all.filter(c => !c.archived && c.hidden); // Version 3b
   // v7c: Suche – Feld ab 4 Zählern, sonst hinter 🔍
   const q = searchQ.trim(), searching = !!q, showSearch = all.length >= 4 || searchOpen || searching;
   $('searchWrap').hidden = !showSearch; $('searchBtn').hidden = showSearch || !all.length; $('searchX').hidden = !searchQ && !searchOpen;
   if (searching) arranging = false;
-  $('emptyState').hidden = cs.length > 0 || searching;
+  $('emptyState').hidden = cs.length > 0 || searching || hid.length > 0;
+  $('hiddenBtn').hidden = !hid.length || arranging || searching; $('hiddenBtn').textContent = t('hiddenBtn', { n: hid.length });
+  renderDue(cs, searching || arranging);
   if (cs.length < 2) arranging = false;
   list.classList.toggle('arranging', arranging);
   $('arrangeBtn').hidden = cs.length < 2 || searching; $('arrangeBtn').innerHTML = (arranging ? '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10.5 8.2 14.5 16 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>' : '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 16.5V3.5M2.5 7 6 3.5 9.5 7M14 3.5v13M10.5 13l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>') + `<span>${esc(t(arranging ? 'arrangeDone' : 'arrangeBtn'))}</span>`; $('arrangeBtn').classList.toggle('done', arranging);
   $('arrangeHint').hidden = !arranging; $('newBtn').hidden = arranging || searching;
   $('archiveBtn').hidden = !arch.length || arranging || searching; $('archiveBtn').textContent = t('archiveBtn', { n: arch.length });
   list.hidden = searching; $('searchRes').hidden = !searching;
-  if (searching) { $('chips').hidden = true; renderSearch(q, cs, arch); return; }
+  if (searching) { $('chips').hidden = true; renderSearch(q, cs, [...arch, ...hid]); return; }
   $('searchRes').innerHTML = '';
   // v7b: Kategorien – Filter-Chips „Alle / …“ und Gruppen (ohne Kategorie zuletzt)
   let filter = lsGet(FILTER_KEY) || '';
@@ -2533,6 +2801,22 @@ function renderHome() {
     list.appendChild(sec);
   }
 }
+/** Version 3b: „Fällig“ oben auf der Startseite – Ziele (mehr ist besser), die im laufenden Tag/Woche/Monat noch offen sind */
+const DUE_ORDER = { day: 0, week: 1, month: 2 };
+function renderDue(cs, off) {
+  const box = $('dueBox'), infos = off ? [] : cs.map(c => dueInfo(c)).filter(Boolean);
+  box.hidden = !infos.length; if (!infos.length) { box.innerHTML = ''; return; }
+  const open = infos.filter(x => !x.done).sort((a, b) => DUE_ORDER[a.period] - DUE_ORDER[b.period] || (a.gp.count / a.need) - (b.gp.count / b.need));
+  box.innerHTML = `<div class="due-h"><h2>${esc(t('dueTitle'))}</h2><span>${open.length ? esc(t('dueOpen', { n: open.length })) : ''}</span></div>`
+    + (open.length ? `<div class="due-list" role="list" aria-label="${esc(t('dueAria'))}">${open.map(x => { const c = x.c, tm = isTime(c), step = stepOf(c), lk = isLocked(c);
+      return `<div class="due-row" role="listitem" data-id="${esc(c.id)}" style="--c:${esc(c.color)}"><button type="button" class="due-open" data-due-open>
+        <span class="emoji">${esc(c.emoji || '🔢')}</span><span class="due-t"><b>${lk ? LOCK_SVG + ' ' : ''}${esc(c.name)}</b><span>${esc(t('dueLeft' + PKEY[x.period], { n: fmtVal(c, x.left) }))}</span>
+        <span class="due-bar"><i style="width:${x.gp.pct}%"></i></span></span></button>
+        <button type="button" class="due-plus${lk ? ' locked' : ''}${tm ? ' timer' : ''}" data-due-plus aria-label="${esc(lk ? t('dueLockedAria', { name: c.name }) : tm ? t('timerAria', { name: c.name }) : t('duePlusAria', { name: c.name, n: step }))}">${lk ? LOCK_SVG : tm ? (c.runningSince ? '■' : '▶') : '+' + step}${HAP}</button></div>`; }).join('')}</div>`
+      : `<p class="due-done">${esc(t('dueAllDone'))}</p>`);
+  box.querySelectorAll('.due-row').forEach(r => { const id = r.dataset.id;
+    r.querySelector('[data-due-open]').onclick = () => go(id); bindPlus(r.querySelector('[data-due-plus]'), id); });
+}
 function renderSearch(q, cs, arch) {
   const box = $('searchRes'), toks = norm(q).split(/\s+/).filter(Boolean); box.innerHTML = '';
   const hayC = c => `${c.name} ${c.emoji} ${catOf(c)}`;
@@ -2544,8 +2828,8 @@ function renderSearch(q, cs, arch) {
     mc.forEach((c, i) => gl.appendChild(tileEl(c, i, mc.length))); }
   const hitBtn = (c, title, sub, attrs) => `<button type="button" class="hit" ${attrs}><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
     <span class="hit-t"><b>${title}</b><span>${sub}</span></span></button>`;
-  if (ma.length) { const sec = section(t('searchArchived'), 'hits-archived');
-    sec.insertAdjacentHTML('beforeend', `<div class="hits">${ma.map(c => hitBtn(c, `${esc(c.name)}<span class="badge">${esc(t('archivedBadge'))}</span>`,
+  for (const [lst, title, cls] of [[ma.filter(c => c.archived), t('searchArchived'), 'hits-archived'], [ma.filter(c => !c.archived), t('hiddenTitle'), 'hits-hidden']]) if (lst.length) { const sec = section(title, cls);
+    sec.insertAdjacentHTML('beforeend', `<div class="hits">${lst.map(c => hitBtn(c, `${esc(c.name)}<span class="badge">${esc(t(c.archived ? 'archivedBadge' : 'hiddenBadge'))}</span>`,
       esc(t('entriesCount', { n: entriesOf(c.id).length })), `data-open-c="${esc(c.id)}"`)).join('')}</div>`); }
   if (notes.length) { const sec = section(`${t('searchNotes')} (${notes.length})`, 'hits-notes'), shown = notes.slice(0, 50);
     sec.insertAdjacentHTML('beforeend', `<div class="hits">${shown.map(e => { const c = counter(e.counterId);
@@ -2558,33 +2842,48 @@ function renderSearch(q, cs, arch) {
 function tileEl(c, idx, count, swipe = false) {
   const es = entriesOf(c.id), L = ledger(es), lab = countLabel(c, es), last = es[es.length - 1], st = stats(es, L);
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
+  const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null;
   const el = document.createElement('div');
-  el.className = 'tile' + (gp && gp.done ? ' goal-done' : ''); el.style.setProperty('--c', c.color); el.dataset.id = c.id;
+  el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : ''); el.style.setProperty('--c', c.color); el.dataset.id = c.id;
   el.innerHTML = `<button class="tile-main" type="button" data-open>
       <span class="emoji">${esc(c.emoji || '🔢')}</span>
-      <span class="tile-text"><div class="tile-name">${esc(c.name)}</div>
+      <span class="tile-text"><div class="tile-name">${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
         <div class="tile-count${tm ? ' dur' : ''}">${lab.big}</div>
         ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
         ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
-        ${gp ? `<div class="goal"><div class="bar goalbar${gp.limit ? ' limit' + (gp.over ? ' over' : gp.near ? ' near' : '') : ''}"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span></div>` : ''}
+        ${gp ? `<div class="goal"><div class="bar goalbar${gp.limit ? ' limit' + (gp.over ? ' over' : gp.near ? ' near' : '') : ''}"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span>${hs ? `<span class="tile-str" role="img" aria-label="${esc(t('strAria', { p: hs.pct }))}"><span class="ts-d" style="--p:${hs.pct}"></span>${hs.pct} %</span>` : ''}</div>` : ''}
         ${sk && sk.cur ? `<div class="tile-sub streak">${esc(streakText(sk))}</div>` : ''}
         ${run ? `<div class="tile-sub run">${esc(t('timerRunning', { t: fmtTime(new Date(c.runningSince)) }))}</div>`
           : due ? `<div class="tile-sub due">${esc(t('reminderDue'))}</div>` : `<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div>`}</span>
     </button>
-    ${tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
-        ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}</button>`
-      : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}</button>`}
+    ${lk ? `<button class="plus locked" type="button" data-plus aria-label="${esc(t('dueLockedAria', { name: c.name }))}">${LOCK_SVG}${HAP}</button>`
+      : tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
+        ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}${HAP}</button>`
+      : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}${HAP}</button>`}
     <span class="arr"><button type="button" data-up aria-label="${esc(t('moveUp'))}" ${idx === 0 ? 'disabled' : ''}>▲</button><button type="button" data-down aria-label="${esc(t('moveDown'))}" ${idx === count - 1 ? 'disabled' : ''}>▼</button><button type="button" class="handle" data-handle aria-label="${esc(t('dragHandle'))}">☰</button></span>`;
-  el.querySelector('[data-open]').onclick = () => { if (!arranging) go(c.id); };
+  // Version 3b: gedrückt halten (0,6 s, ohne Bewegung) → Menü Sperren/Ausblenden; der Klick danach öffnet nicht die Detailseite
+  const main = el.querySelector('[data-open]'); let lpT = null, lpFired = false, lx = 0, ly = 0;
+  const lpCancel = () => { clearTimeout(lpT); lpT = null; };
+  main.addEventListener('pointerdown', e => { if (e.button > 0 || arranging) return; lpFired = false; lx = e.clientX; ly = e.clientY; lpCancel();
+    lpT = setTimeout(() => { lpT = null; lpFired = true; ignoreBackdrop = true; setTimeout(() => { ignoreBackdrop = false; }, 900); swClose(false); tileMenu(c.id); }, 600); });
+  main.addEventListener('pointermove', e => { if (lpT && (Math.abs(e.clientX - lx) > 10 || Math.abs(e.clientY - ly) > 10)) lpCancel(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => main.addEventListener(ev, lpCancel));
+  main.addEventListener('contextmenu', e => e.preventDefault());
+  main.onclick = () => { if (lpFired) { lpFired = false; return; } if (!arranging) go(c.id); };
   bindPlus(el.querySelector('[data-plus]'), c.id);
   el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
   el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
   // v8: Hülle mit Wisch-Aktionen (nur Startseite; nicht in Suche/Anordnen)
   const w = document.createElement('div'); w.className = 'swipe'; w.dataset.id = c.id;
   if (swipe) {
-    w.innerHTML = swActs([['sw-arch', '🗄', t('swArchive'), 'arch'], ['sw-del', '🗑', t('swDelete'), 'del']], c.name);
-    w.querySelector('[data-sw=arch]').onclick = () => { swClose(false); archiveWithUndo(c.id); };
-    w.querySelector('[data-sw=del]').onclick = () => { swClose(false); deleteCounterNow(c.id); };
+    if (lk) { // Version 3b: gesperrt – nur „Entsperren“ (fragt nach)
+      w.innerHTML = swActs([['sw-rest sw-unlock', 'unlock', t('unlock'), 'unlock']], c.name);
+      w.querySelector('[data-sw=unlock]').onclick = () => { swClose(false); askUnlock(c.id); };
+    } else {
+      w.innerHTML = swActs([['sw-arch', 'archive', t('swArchive'), 'arch'], ['sw-del', 'trash', t('swDelete'), 'del']], c.name);
+      w.querySelector('[data-sw=arch]').onclick = () => { swClose(false); archiveWithUndo(c.id); };
+      w.querySelector('[data-sw=del]').onclick = () => { swClose(false); deleteCounterNow(c.id); };
+    }
     bindSwipe(w, el, () => !arranging);
   }
   w.appendChild(el);
@@ -2595,11 +2894,21 @@ function renderDetail(c) {
   const d = $('detail'); d.style.setProperty('--c', c.color);
   const es = entriesOf(c.id), lab = countLabel(c, es), r = lab.r, L = r.L, st = stats(es, L), step = stepOf(c);
   $('dEmoji').textContent = c.emoji || '🔢'; $('dName').textContent = c.name;
-  $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '') : t('entriesCount', { n: es.length });
+  $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '')
+    : r.reset ? `${t('detailReset' + PKEY[r.reset], { n: fmtVal(c, r.cur) })} · ${t('entriesCount', { n: es.length })}` : t('entriesCount', { n: es.length });
+  // Version 3b: gesperrt / ausgeblendet
+  { const lk = isLocked(c), hd = isHidden(c) && !c.archived, sc = $('stateCard');
+    sc.hidden = !lk && !hd;
+    sc.innerHTML = (lk ? `<div class="st-row"><span>${LOCK_SVG} ${esc(t('lockedNote'))}</span><button class="btn" type="button" id="stUnlock">${esc(t('unlock'))}</button></div>` : '')
+      + (hd ? `<div class="st-row"><span>${esc(t('hiddenNote'))}</span><button class="btn" type="button" id="stShow">${esc(t('unhideAct'))}</button></div>` : '');
+    if (lk) $('stUnlock').onclick = () => askUnlock(c.id);
+    if (hd) $('stShow').onclick = () => setHidden(c.id, false);
+    $('dPlus').classList.toggle('locked', lk); $('detail').classList.toggle('is-locked', lk); }
   const tm = isTime(c), arch = !!c.archived;
   if (tm) { $('dPlusT').innerHTML = c.runningSince ? `■ ${esc(t('timerStop'))} · <span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `▶ ${esc(t('timerStart'))}`;
     $('dPlus').setAttribute('aria-label', t('timerAria', { name: c.name })); }
   else { $('dPlusT').textContent = step > 1 ? '+' + step : r.round ? t('plusNr', { n: r.next }) : '+1'; $('dPlus').removeAttribute('aria-label'); }
+  if (isLocked(c)) { $('dPlusT').innerHTML = `${LOCK_SVG} ${esc(t('lockedPlus'))}`; $('dPlus').setAttribute('aria-label', t('dueLockedAria', { name: c.name })); }
   $('dPlus').classList.toggle('running', !!(tm && c.runningSince));
   { const cb = document.querySelector('#chartWhat [data-what=count], [data-what=count]'); if (cb) cb.textContent = t(tm ? 'fieldDuration' : 'chartCount'); } // v7c: Zeit-Zähler zeigen „Dauer“
   // v7c: archiviert = nur ansehen/bearbeiten; Zeit-Zähler ohne −/+n
@@ -2620,17 +2929,18 @@ function renderDetail(c) {
     const ol = $('roundList'); ol.innerHTML = '';
     for (let i = 1; i <= r.n; i++) {
       const e = r.current[i - 1], li = document.createElement('li');
-      li.className = e ? 'filled' : 'emptyrow';
+      li.className = e ? 'filled swipe sw-entry' : 'emptyrow';
       if (e && i === r.current.length) li.classList.add('latest');
       if (!e && !r.full && i === r.next) li.classList.add('next');
-      li.innerHTML = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
+      const inner = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
+      if (e) { li.dataset.eid = e.id; li.innerHTML = `<div class="sw-front">${inner}</div>`; } else li.innerHTML = inner;
       ol.appendChild(li);
     }
     if (r.full) { const li = document.createElement('li'); li.innerHTML = `<span class="when" style="color:var(--c);font-weight:600">${esc(t('roundFullRow'))}</span>`; ol.appendChild(li); }
     $('pastSummary').textContent = t('pastSummary', { n: r.past.length });
     $('pastList').innerHTML = r.past.length ? r.past.map((rr, i) => ({ rr, i })).reverse().map(({ rr, i }) =>
       `<div class="past"><h3>${esc(t('pastItem', { r: i + 1, a: fmtDate(new Date(rr[0].timestamp)), b: fmtDate(new Date(rr[rr.length - 1].timestamp)) }))}</h3>
-       <p>${rr.map((e, k) => `${k + 1}: ${esc(fmtDate(new Date(e.timestamp)))}`).join(' · ')}</p></div>`).join('')
+       <ol class="rows past-rows">${rr.map((e, k) => `<li class="filled swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><span class="nr">${k + 1}</span><span class="when">${esc(fmtEntry(e))}${e.note ? `<span class="note">${esc(e.note)}</span>` : ''}</span></div></li>`).join('')}</ol></div>`).join('')
       : `<p class="hint">${esc(t('noPastRound'))}</p>`;
   }
   $('undoBtn').disabled = !es.length;
@@ -2642,6 +2952,9 @@ function renderDetail(c) {
     $('goalCard').querySelector('h2').textContent = t(gp.limit ? 'limitLabel' : 'goalLabel');
     const gb = $('goalFill').parentElement; gb.classList.toggle('limit', gp.limit); gb.classList.toggle('near', !!gp.near); gb.classList.toggle('over', !!gp.over); }
   renderOverview(c, es, st, L, gp); renderRecent(c, es);
+  { const hs = gp ? habitStrength(c, es, L) : null; $('strBox').hidden = !hs; // Version 3b: Gewohnheits-Stärke
+    if (hs) { $('strRing').style.setProperty('--p', hs.pct); $('strRing').setAttribute('aria-label', t('strAria', { p: hs.pct })); $('strPct').textContent = hs.pct + ' %';
+      $('strLvl').textContent = strLevel(hs.pct); $('strHelp').textContent = t(hs.limit ? 'strHelpLimit' : 'strHelp', { p: t('strP' + PKEY[hs.period]) }); } }
   const sk = streaks(c, es, L);
   $('streakTxt').hidden = !sk;
   if (sk) $('streakTxt').innerHTML = esc(sk.cur ? streakText(sk) : t('streakNone')) + (sk.best ? ` <small>· ${esc(bestText(sk))}</small>` : '');
@@ -2659,12 +2972,12 @@ function renderDetail(c) {
   const ol = $('entryList'); ol.innerHTML = '';
   if (!es.length) ol.innerHTML = `<li><span class="when" style="color:var(--muted)">${esc(t('noEntries'))}</span></li>`;
   es.map((e, i) => ({ e, i })).reverse().forEach(({ e, i }) => {
-    const li = document.createElement('li'); li.className = 'filled'; li.dataset.id = e.id;
+    const li = document.createElement('li'); li.className = 'filled swipe sw-entry'; li.dataset.id = li.dataset.eid = e.id;
     const run = L.runs[i], a = amt(e), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run;
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
-    li.innerHTML = `<span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
+    li.innerHTML = `<div class="sw-front"><span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
       <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
-      <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button>`;
+      <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button></div>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
     li.querySelector('[data-del]').onclick = () => deleteEntryAsk(e.id);
     if (e.photo) li.querySelector('[data-photo-open]').onclick = () => viewPhoto(e.id);
@@ -2680,6 +2993,7 @@ async function viewPhoto(eid) {
   const v = await openSheet(`<h2>📷 ${esc(c ? `${c.emoji} ${c.name}` : t('photoLbl'))}</h2><p class="small" style="margin-top:-6px">${esc(fmtEntry(e))}${e.note ? ` · ${esc(e.note)}` : ''}</p>
     ${u ? `<img class="photo-view" id="phBig" src="${u}" alt="">` : `<p>${esc(t('photoMissing'))}</p>`}
     <div class="row"><button class="btn danger" type="button" data-v="del" id="phDel">${esc(t('photoDelete'))}</button><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
+  if (v === 'del' && lockBlock(c)) return;
   if (v === 'del' && await confirmBox(t('photoDeleteQ'), t('delete'), true)) {
     const id = e.photo; delete e.photo; save(); photoDel(id).catch(() => {}); forgetPhoto(id); render(); toast(t('photoDeleted'));
   }
@@ -2689,7 +3003,7 @@ async function viewPhoto(eid) {
 /* ---------- v7: +1 mit Lang-Druck (Notiz) ---------- */
 let ignoreBackdrop = false;
 /** Normaler Tipp = +1 wie bisher; gedrückt halten (0,55 s) = +1 und sofort Notiz-Dialog. */
-function bindPlus(btn, cid, hit = btn, sw = null) {
+function bindPlus(btn, cid, hit = btn) {
   const id = () => cid || currentId();
   let timer = null, longFired = false, sx = 0, sy = 0;
   const cancel = () => { clearTimeout(timer); timer = null; };
@@ -2705,10 +3019,8 @@ function bindPlus(btn, cid, hit = btn, sw = null) {
   hit.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) cancel(); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => hit.addEventListener(ev, cancel));
   hit.addEventListener('contextmenu', e => e.preventDefault());
-  btn.addEventListener('click', e => { if (sw && e.target.closest && e.target.closest('.hap')) return; // Finger auf dem Switch: gezählt wird über „change“
-    if (longFired) { longFired = false; e.preventDefault(); return; } tapPlus(id()); });
-  // v11: Tipp auf den unsichtbaren Switch (iOS-Haptik) – genau ein Zählen pro Umschalten
-  if (sw) sw.addEventListener('change', () => { if (longFired) { longFired = false; return; } tapPlus(id()); });
+  // Version 3: gezählt wird immer über den Klick der Taste (der Label-Klick blubbert genau einmal hoch). Kein preventDefault beim normalen Tipp.
+  btn.addEventListener('click', e => { if (isHapSw(e)) return; if (longFired) { longFired = false; return; } afterHap(e, () => tapPlus(id())); });
 }
 
 /* ---------- v11: Überblick + Ring ---------- */
@@ -2744,15 +3056,15 @@ function topNotes(es, k = 4) {
   return [...m.values()].sort((a, b) => b.n - a.n || b.last - a.last).slice(0, k).map(x => x.t);
 }
 function renderRecent(c, es) {
-  const tm = isTime(c), step = stepOf(c), notes = tm || c.archived ? [] : topNotes(es);
+  const tm = isTime(c), step = stepOf(c), notes = tm || c.archived || isLocked(c) ? [] : topNotes(es);
   $('recentCard').hidden = !es.length;
   $('recentList').innerHTML = es.slice(-3).reverse().map(e => { const a = amt(e);
-    return `<li><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
-      + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></li>`; }).join('');
+    return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
+      + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></div></li>`; }).join('');
   $('recentList').querySelectorAll('[data-rid]').forEach(b => { b.onclick = () => editEntry(b.dataset.rid); });
   const ch = $('noteChips'); ch.hidden = !notes.length;
-  ch.innerHTML = notes.map(n => `<button type="button" data-chip="${esc(n)}" aria-label="${esc(t('chipAria', { n: step, t: n }))}">+${step} ${esc(n)}</button>`).join('');
-  ch.querySelectorAll('[data-chip]').forEach(b => { b.onclick = () => tapPlus(c.id, null, { text: b.dataset.chip }); });
+  ch.innerHTML = notes.map(n => `<button type="button" data-chip="${esc(n)}" aria-label="${esc(t('chipAria', { n: step, t: n }))}">+${step} ${esc(n)}${HAP}</button>`).join('');
+  ch.querySelectorAll('[data-chip]').forEach(b => { b.onclick = e => { if (!isHapSw(e)) afterHap(e, () => tapPlus(c.id, null, { text: b.dataset.chip })); }; });
 }
 /* ---------- v11: Jahres-Raster (letzte 12 Monate) + teilbares Bild ---------- */
 const ymdOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -2906,6 +3218,7 @@ function bindDrag(handle, tile) {
 }
 async function tapPlus(cid, tileEl, opts = {}) {
   const c = counter(cid); if (!c) return;
+  if (lockBlock(c)) return; // Version 3b: gesperrt – kein +1, kein Timer, keine Notiz
   if (isTime(c)) return toggleTimer(cid);
   if (c.archived) return;
   const a = stepOf(c); // v11: nur noch große Taste / Kachel-Taste (Schritt ≥ 1); Korrekturen über Historie, Rückgängig oder Nachtragen
@@ -2916,8 +3229,8 @@ async function tapPlus(cid, tileEl, opts = {}) {
   const feier = feierAfterTap(c, gp0, sk0, es);
   const tl = document.querySelector(`.tile[data-id="${cid}"]`); if (tl) { tl.classList.remove('pulse'); void tl.offsetWidth; tl.classList.add('pulse'); }
   let msg = a === 1
-    ? `${c.emoji || ''} ${t('toastNr', { name: c.name, n: r.round ? r.inRound : r.total })}${r.round && r.full && isLast ? t('toastRoundFull') : ''}`
-    : `${c.emoji || ''} ${t('toastAmount', { name: c.name, a: fmtAmt(a), n: r.round ? `${r.inRound}/${r.n}` : r.total })}${a > 0 && r.round && r.full ? t('toastRoundFull') : ''}`;
+    ? `${c.emoji || ''} ${t('toastNr', { name: c.name, n: r.round ? r.inRound : r.cur })}${r.round && r.full && isLast ? t('toastRoundFull') : ''}`
+    : `${c.emoji || ''} ${t('toastAmount', { name: c.name, a: fmtAmt(a), n: r.round ? `${r.inRound}/${r.n}` : r.cur })}${a > 0 && r.round && r.full ? t('toastRoundFull') : ''}`;
   const undoBtn = [t('undo'), () => { removeEntry(e.id); render(); toast(t('entryRemoved')); }];
   const gp1 = goalProgress(c, es), extra = (opts.text ? ` · 📝 ${opts.text}` : '') + (gp1 && gp1.over && !(gp0 && gp0.over) ? ` · ${t('limitOverToast')}` : '');
   if (feier || extra) msg = (feier || msg) + extra;
@@ -2951,6 +3264,7 @@ async function noteFor(eid) {
 async function editEntry(eid, isNew = false, cid = null) {
   const e = isNew ? { timestamp: isoNow(), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
   const c = counter(isNew ? cid : e.counterId); if (!c) return;
+  if (lockBlock(c)) return; // Version 3b
   const tm = isTime(c), d = new Date(e.timestamp), a0 = isNew ? (tm ? 0 : stepOf(c)) : amt(e);
   const oh = Math.floor(a0 / 3600), om = Math.floor(a0 % 3600 / 60); let ph = null;
   const v = await openSheet(`<h2>${esc(t(isNew ? 'backdateTitle' : 'editEntryTitle'))}</h2>
@@ -2998,25 +3312,32 @@ async function editEntry(eid, isNew = false, cid = null) {
 }
 async function deleteEntryAsk(eid) {
   const e = db.entries.find(x => x.id === eid); if (!e) return;
+  if (lockBlock(counter(e.counterId))) return;
   if (await confirmBox(t('deleteEntryQ', { d: fmtEntry(e) }), t('delete'), true)) {
     if (e.photo) { photoDel(e.photo).catch(() => {}); forgetPhoto(e.photo); }
     removeEntry(eid); render(); toast(t('entryDeleted'));
   }
 }
 async function undoLast(cid) {
+  if (lockBlock(counter(cid))) return;
   const es = entriesOf(cid); if (!es.length) return;
   const e = es[es.length - 1], c = counter(cid), r = roundInfo(c, es), a = amt(e);
-  const q = isTime(c) ? t('undoQAmount', { a: fmtDur(a), d: fmtEntry(e) }) : a === 1 ? t('undoQ', { n: r.round ? r.inRound : r.total, d: fmtEntry(e) }) : t('undoQAmount', { a: fmtAmt(a), d: fmtEntry(e) });
+  const q = isTime(c) ? t('undoQAmount', { a: fmtDur(a), d: fmtEntry(e) }) : a === 1 ? t('undoQ', { n: r.round ? r.inRound : r.cur, d: fmtEntry(e) }) : t('undoQAmount', { a: fmtAmt(a), d: fmtEntry(e) });
   if (await confirmBox(q, t('remove'), true)) { removeEntry(e.id); render(); toast(t('undone')); }
 }
 
 async function editCounter(cid = null) {
   const c = cid ? counter(cid) : null;
+  if (c && isLocked(c)) return lockSheet(cid); // Version 3b: gesperrt – erst entsperren
   const cur = c ? { ...c } : { id: uuid(), name: '', emoji: '🔢', color: COLORS[5], roundSize: null, askNote: false };
   let type = isTime(cur) ? 'time' : 'count';
   const g0 = sanitizeGoal(cur.goal), r0 = sanitizeReminder(cur.reminder);
   const remDays = new Set(r0 ? r0.days : [1, 2, 3, 4, 5, 6, 7]);
   const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
+    ${c ? '' : `<div class="field"><span class="lbl">${esc(t('tplTitle'))}</span><div class="tpl-grid" id="fTpl">
+      <button type="button" class="tpl on" data-tpl=""><span class="tpl-e">✨</span><b>${esc(t('tplEmpty'))}</b><small>${esc(t('tplEmptyH'))}</small></button>
+      ${TEMPLATES.map(x => `<button type="button" class="tpl" data-tpl="${x.k}" style="--c:${x.color}"><span class="tpl-e">${x.emoji}</span><b>${esc(t('tpl_' + x.k))}</b><small>${esc(t('tplh_' + x.k))}</small></button>`).join('')}
+      </div><p class="small" id="fTplMsg" aria-live="polite"></p></div>`}
     <div class="field"><label for="fName">${esc(t('fieldName'))}</label><input type="text" id="fName" maxlength="40" placeholder="${esc(t('namePh'))}" value="${esc(cur.name)}" autocomplete="off"></div>
     ${c ? (isTime(c) ? `<p class="small" id="fTypeFixed" style="margin:-6px 2px 14px">${esc(t('typeFixed'))}</p>` : '')
       : `<div class="field"><span class="lbl">${esc(t('fieldType'))}</span><div class="type-seg" id="fType">${['count', 'time'].map(k =>
@@ -3053,6 +3374,11 @@ async function editCounter(cid = null) {
           <button type="button" data-wdall>${esc(t('everyDay'))}</button></div>
         <button class="btn" type="button" id="fIcs">${esc(t('addToCalendar'))}</button>
         <p class="small">${esc(t('reminderHelp'))}</p></div></div>
+    <div class="field"><label for="fReset">${esc(t('resetLbl'))}</label><select id="fReset">${[['', 'resetOff'], ['day', 'resetDay'], ['week', 'resetWeek'], ['month', 'resetMonth']].map(([k, l]) =>
+        `<option value="${k}" ${(resetOf(cur) || '') === k ? 'selected' : ''}>${esc(t(l))}</option>`).join('')}</select><p class="small">${esc(t('resetHelp'))}</p></div>
+    <div class="field"><span class="lbl">${esc(t('lockField'))}</span>
+      <label class="check"><input type="checkbox" id="fLock" ${isLocked(cur) ? 'checked' : ''}> <span>${esc(t('lockCheck'))}</span></label>
+      <label class="check"><input type="checkbox" id="fHide" ${isHidden(cur) ? 'checked' : ''}> <span>${esc(t('hideCheck'))}</span></label></div>
     <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> <span id="fNoteLbl">${esc(t('askNote'))}</span></label>
     <p class="small">${esc(t('askNoteHelp'))}</p>
     <p class="small" id="fErr" style="color:var(--danger)"></p>
@@ -3124,8 +3450,23 @@ async function editCounter(cid = null) {
         const rr = readReminder(); if (!rr.ok) { err(rr.msg); return; }
         closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked,
           goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, goalType: ga && box.querySelector('#fGoalType').value === 'limit' ? 'limit' : null, reminder: rr.value,
-          step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }) });
+          step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }),
+          reset: RESETS.includes(box.querySelector('#fReset').value) ? box.querySelector('#fReset').value : null,
+          locked: box.querySelector('#fLock').checked || null, hidden: box.querySelector('#fHide').checked || null });
       };
+      // Version 3b: Vorlagen füllen das Formular (alles bleibt änderbar); „Leer starten“ setzt zurück
+      const tplBox = box.querySelector('#fTpl');
+      if (tplBox) tplBox.querySelectorAll('[data-tpl]').forEach(b => b.onclick = () => {
+        const x = TEMPLATES.find(y => y.k === b.dataset.tpl) || null, set = (sel, val) => { box.querySelector(sel).value = val; };
+        set('#fName', x ? t('tpl_' + x.k) : ''); emojiVal = x ? x.emoji : '🔢'; ei.value = emojiVal;
+        color = x ? x.color : COLORS[5]; box.querySelectorAll('[data-color]').forEach(s => s.classList.toggle('on', s.dataset.color === color));
+        type = x && x.type === 'time' ? 'time' : 'count'; syncType();
+        set('#fRound', x && x.roundSize ? x.roundSize : ''); set('#fStep', x && x.step > 1 ? x.step : '');
+        set('#fGoal', x && x.goal ? x.goal.amount : ''); set('#fGoalPer', x && x.goal ? x.goal.period : 'day'); set('#fGoalType', x && x.goalType === 'limit' ? 'limit' : 'more');
+        set('#fReset', x && x.reset ? x.reset : '');
+        tplBox.querySelectorAll('[data-tpl]').forEach(y => y.classList.toggle('on', y === b));
+        box.querySelector('#fTplMsg').textContent = x ? t('tplApplied', { name: t('tpl_' + x.k) }) : ''; clrErr();
+      });
       if (!c) setTimeout(() => box.querySelector('#fName').focus(), 50);
     });
   if (v === 'arch') {
@@ -3201,8 +3542,9 @@ function validateBackup(o) {
     const x = { ...c, id: c.id, name: c.name.slice(0, 40), emoji: typeof c.emoji === 'string' && c.emoji ? c.emoji : '🔢',
       color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : COLORS[5], roundSize: rs >= 2 ? rs : null, askNote: !!c.askNote,
       order: Number.isFinite(c.order) ? c.order : 0, createdAt: typeof c.createdAt === 'string' ? c.createdAt : isoNow() };
-    for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince']) delete x[k];
+    for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince', 'reset', 'locked', 'hidden']) delete x[k];
     if (c.archived === true) x.archived = true;
+    if (RESETS.includes(c.reset)) x.reset = c.reset; if (c.locked === true) x.locked = true; if (c.hidden === true) x.hidden = true; // Version 3b
     if (c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince))) x.runningSince = isoNow(new Date(c.runningSince));
     if (sanitizeGoal(c.goal)) x.goal = sanitizeGoal(c.goal);
     if (sanitizeReminder(c.reminder)) x.reminder = sanitizeReminder(c.reminder);
@@ -3327,7 +3669,7 @@ async function menu(st = 0, from = null) {
     <div class="m-group">${mRow('mReview', 'review', 'review', mLbl(t('reviewMenu')), { nav: true })}${nArch ? mRow('mArchive', 'archive', 'archive', t('archiveTitle'), { nav: true, val: nArch }) : ''}</div>
     <div class="m-group">${mRow('mImport', 'import', 'import', mLbl(t('mImport')))}${mRow('mCopy', 'copy', 'copy', mLbl(t('mCopy')))}${mRow('mUpdate', 'update', 'update', mLbl(t('mUpdate')))}</div>
     <div class="m-group">${mRow('mWipe', 'wipe', 'wipe', mLbl(t('mWipe')), { danger: true })}</div>
-    <p class="m-foot" id="mVersion">${t('menuNoteHtml', { app: esc(t('appTitle')), v: APP_BUILD, d: esc(fmtDate(localDateNoon(APP_DATE))) })}<span id="mCache"></span></p>
+    <p class="m-foot" id="mVersion">${t('menuNoteHtml', { app: esc(t('appTitle')), v: esc(APP_VERSION), d: esc(fmtDate(localDateNoon(APP_DATE))) })}<span id="mCache"></span></p>
     <button class="m-close" type="button" data-v="no">${esc(t('close'))}</button></div>`, box => {
       box.scrollTop = st; // Auswahl ändern: Menü bleibt an derselben Stelle
       box.querySelector('#mHaptic').addEventListener('change', e => { lsSet(HAPTIC_KEY, e.target.checked ? 'on' : 'off'); syncHap(); });
@@ -3362,7 +3704,7 @@ async function menu(st = 0, from = null) {
 async function archiveList() {
   const arch = sortedCounters().filter(c => c.archived);
   const v = await openSheet(`<h2>🗄 ${esc(t('archiveTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('archiveHelp'))}</p>
-    <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="swipe sw-row" data-row="${esc(c.id)}">${swActs([['sw-rest', '↩︎', t('swRestore'), 'restore'], ['sw-del', '🗑', t('swDelete'), 'del']], c.name)}<div class="hit sw-front" data-id="${esc(c.id)}">
+    <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="swipe sw-row" data-row="${esc(c.id)}">${swActs([['sw-rest', 'restore', t('swRestore'), 'restore'], ['sw-del', 'trash', t('swDelete'), 'del']], c.name)}<div class="hit sw-front" data-id="${esc(c.id)}">
       <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
         <span class="hit-t"><b>${esc(c.name)}</b><span>${esc(t('entriesCount', { n: entriesOf(c.id).length }))}${catOf(c) ? ' · ' + esc(catOf(c)) : ''}</span></span></button>
       <button class="btn" type="button" data-v="restore:${esc(c.id)}">${esc(t('unarchive'))}</button></div></div>`).join('') : `<p>${esc(t('archiveEmpty'))}</p>`}</div>
@@ -3374,7 +3716,7 @@ async function archiveList() {
   swOpen = null;
   if (v && v.startsWith('del:')) { deleteCounterNow(v.slice(4)); return; }
   if (v && v.startsWith('open:')) go(v.slice(5));
-  else if (v && v.startsWith('restore:')) { const c = counter(v.slice(8)); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); }
+  else if (v && v.startsWith('restore:')) { const c = counter(v.slice(8)); if (!c || lockBlock(c)) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); }
 }
 function renderReview(y) {
   const years = yearsWithData(); if (!years.includes(y)) years.push(y); years.sort((a, b) => b - a);
@@ -3486,9 +3828,10 @@ if (/[?&]update=/.test(location.search)) history.replaceState(null, '', location
 
 /* ---------- Verdrahtung ---------- */
 $('newBtn').onclick = () => editCounter();
+$('hiddenBtn').onclick = () => hiddenList();
 // v7c
 $('archiveBtn').onclick = () => archiveList();
-$('unarchBtn').onclick = () => { const c = counter(currentId()); if (!c) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); };
+$('unarchBtn').onclick = () => { const c = counter(currentId()); if (!c || lockBlock(c)) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); };
 $('rvBack').onclick = () => goHome();
 $('rvYears').addEventListener('click', e => { const b = e.target.closest('[data-year]'); if (b) { history.replaceState(history.state, '', '#y=' + b.dataset.year); window.scrollTo(0, 0); render(); } }); // Jahr wechseln ersetzt den Eintrag (Zurück → Startseite)
 $('searchIn').addEventListener('input', () => { searchQ = $('searchIn').value; renderHome(); tickClocks(); });
@@ -3501,7 +3844,7 @@ $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => goHome();
 $('editBtn').onclick = () => editCounter(currentId());
-bindPlus($('dPlus'), null, $('dPlus'), $('hapSw')); syncHap();
+bindPlus($('dPlus'), null); syncHap();
 $('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-filter]'); if (!b) return; lsSet(FILTER_KEY, b.dataset.filter); renderHome(); });
 $('chartWhat').addEventListener('click', e => { const b = e.target.closest('[data-what]'); if (!b) return; lsSet(CHART_WHAT_KEY, b.dataset.what); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
@@ -3527,7 +3870,7 @@ render();
 if (!db.settings.onboarded) onboarding();
 setupServiceWorker();
 setTimeout(() => { photoGc().then(preparePhotos); }, 1500); // v7c: verwaiste Fotos aufräumen, Backup vorbereiten
-window.__zaehler = { fx, feierLog, yearData, yearCanvas, shareYear, topNotes, isLimit, goalProgress, get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
+window.__zaehler = { fx, feierLog, yearData, yearCanvas, shareYear, topNotes, isLimit, goalProgress, get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, version: APP_VERSION, photoPut, deleteEntryNow, habitStrength, dueInfo, roundInfo, validateBackup, backupObject, TEMPLATES, render: () => render(), t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
   fmtDur, fmtClock, norm, yearReview, photoAll, photoGet, photoGc, photoStats, compressImage, backupPhotosSync, preparePhotos }; // für Tests
 })();
 </script>
