@@ -236,14 +236,6 @@
   .cat-h { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; margin: 0 4px 8px; }
   .group-list { display: grid; gap: 12px; }
   .tile-sub.streak { color: var(--ink); font-weight: 600; }
-  .amt-row { display: flex; gap: 8px; margin-top: 10px; }
-  .amt-row button { flex: 1; min-height: 48px; border: 0; border-radius: 14px; background: var(--card); color: var(--ink); font-size: 18px;
-    font-weight: 700; box-shadow: var(--shadow); font-variant-numeric: tabular-nums; }
-  .amt-row button:active { filter: brightness(.92); }
-  .amt-row button:disabled { opacity: .35; }
-  #dMinus { color: var(--danger); }
-  .amt-row input { width: 92px; flex: none; text-align: center; font: inherit; font-size: 18px; border-radius: 14px; border: 1px solid var(--line);
-    background: var(--card); color: var(--ink); min-height: 48px; -webkit-user-select: text; user-select: text; padding: 0 6px; }
   .cost-card { padding: 12px 16px 14px; }
   .cost-card h2 { padding: 0 0 8px !important; }
   .cost-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
@@ -448,8 +440,6 @@
   ol.rows li { border-top-color: var(--glass-line); }
   .seg { background: var(--glass-fill); border-radius: 12px; }
   .seg button { border-radius: 10px; }
-  .amt-row button { background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); border-radius: 24px; }
-  .amt-row input { background: var(--glass-fill); border-color: transparent; border-radius: 24px; }
   /* Filter-Chips + Suche */
   .chips button { background: var(--glass-bg); box-shadow: var(--glass-hl), 0 1px 3px rgba(0,0,0,.06); border-radius: 18px; }
   .chips button.on { background: var(--accent); background-image: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0) 60%); }
@@ -620,6 +610,67 @@
   #sheetDim { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: color-mix(in srgb, var(--backdrop) 75%, transparent); }
   html.pulling #sheetDim { will-change: opacity; } html.pulling #sheetCard { will-change: transform; }
   #sheet .box { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
+
+  /* ================= v11: Überblick, Ring, letzte Einträge, Jahres-Raster, Limit, Feier ================= */
+  /* alles im Scroller: Glasfarbe ohne Weichzeichner (v10-Regel) */
+  #dPlus { position: relative; }
+  .hap { position: absolute; inset: 0; z-index: 1; border-radius: 30px; opacity: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .hap input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; pointer-events: none; }
+  .hap[hidden] { display: none; }
+  .ov { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px 16px; border-radius: 24px; background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
+  .ov.noring { padding: 12px 18px; }
+  .ring-w { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; }
+  .ring-w[hidden] { display: none; }
+  .ring { width: 64px; height: 64px; transform: rotate(-90deg); display: block; overflow: visible; }
+  .ring circle { fill: none; stroke-width: 6; }
+  .ring-bg { stroke: color-mix(in srgb, var(--rc, var(--c)) 20%, transparent); }
+  .ring-fg { stroke: var(--rc, var(--c)); stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .5s cubic-bezier(.2,.8,.2,1); }
+  .ring-w.soft .ring-fg { stroke: color-mix(in srgb, var(--c) 55%, transparent); }
+  .ring-w.ok { --rc: #34c759; } .ring-w.near { --rc: #ff9500; } .ring-w.over { --rc: #ff3b30; }
+  .ring-n { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -.3px; }
+  .ring-w.dur .ring-n { font-size: 12px; }
+  .ring-w.glow { animation: ringGlow 1.6s ease-out 1; }
+  @keyframes ringGlow { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rc, var(--c)) 70%, transparent); } 40% { box-shadow: 0 0 22px 8px color-mix(in srgb, var(--rc, var(--c)) 55%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .ov-t { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .ov-t b { font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
+  .ov-t b.ok { color: #248a3d; } .ov-t b.near { color: #c93400; } .ov-t b.over { color: #d70015; }
+  .ov-t span { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ov-t .good { color: #248a3d; font-weight: 600; }
+  .recent-card { padding-bottom: 10px; }
+  .recent { list-style: none; margin: 0; padding: 0 8px; }
+  .recent button { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 46px; padding: 8px 8px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; text-align: left; border-radius: 14px; -webkit-tap-highlight-color: transparent; }
+  .recent li + li button { border-top: .5px solid var(--line); border-radius: 0; }
+  .recent button:active { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .recent .rt { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .recent .rn { color: var(--muted); font-size: 14px; }
+  .recent .ra { font-weight: 700; font-variant-numeric: tabular-nums; } .recent .ra.neg { color: var(--danger); }
+  .recent .rchev { color: var(--muted); font-size: 18px; }
+  .note-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 4px; }
+  .note-chips button { min-height: 36px; max-width: 100%; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 600; color: var(--c);
+    background: color-mix(in srgb, var(--c) 14%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -webkit-tap-highlight-color: transparent; }
+  .note-chips button:active { filter: brightness(.9); transform: scale(.97); }
+  .year-card { padding-bottom: 12px; }
+  .ybtn { min-height: 32px; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  #yearGrid { display: block; width: calc(100% - 24px); margin: 4px 12px 0; height: auto; }
+  #yearGrid text { font-size: 6px; fill: var(--muted); }
+  .yl0 { fill: color-mix(in srgb, var(--ink) 8%, transparent); background: color-mix(in srgb, var(--ink) 8%, transparent); }
+  .yl1 { fill: color-mix(in srgb, var(--c) 30%, transparent); background: color-mix(in srgb, var(--c) 30%, transparent); }
+  .yl2 { fill: color-mix(in srgb, var(--c) 55%, transparent); background: color-mix(in srgb, var(--c) 55%, transparent); }
+  .yl3 { fill: color-mix(in srgb, var(--c) 78%, transparent); background: color-mix(in srgb, var(--c) 78%, transparent); }
+  .yl4 { fill: var(--c); background: var(--c); }
+  .ylg { fill: color-mix(in srgb, #34c759 28%, transparent); }
+  .ylegend { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding: 8px 16px 0; font-size: 12px; color: var(--muted); }
+  .ylegend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .bar.limit i { background: #34c759; } .bar.limit.near i { background: #ff9500; } .bar.limit.over i { background: #ff3b30; }
+  .goal-type { margin-top: 8px; }
+  .goal-type select { width: 100%; }
+  #confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+  /* Daten-Menü: Schalter */
+  .m-sw { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 51px; height: 31px; margin: 0; border-radius: 999px; background: color-mix(in srgb, var(--ink) 16%, transparent); transition: background .2s; cursor: pointer; }
+  .m-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%; background: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 1px 1px rgba(0,0,0,.16); transition: transform .2s; }
+  .m-sw:checked { background: #34c759; } .m-sw:checked::after { transform: translateX(20px); }
+  label.m-row { cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { .ring-fg, .m-sw, .m-sw::after { transition: none; } .ring-w.glow { animation: none; } }
 </style>
 </head>
 <body>
@@ -671,14 +722,17 @@
     <span data-i18n="archivedNote"></span>
     <button class="btn" id="unarchBtn" type="button" data-i18n="unarchive"></button>
   </section>
-  <button id="dPlus" type="button">+1</button>
-  <div class="amt-row" id="amtRow">
-    <button type="button" id="dMinus">−1</button>
-    <input type="number" id="dAmt" inputmode="numeric" min="1" max="9999" step="1" placeholder="1" data-i18n-aria="amountAria">
-    <button type="button" id="dAddN">+1</button>
-  </div>
-  <p class="lp-hint" id="lpHint" data-i18n="longPressHint"></p>
+  <button id="dPlus" type="button"><span id="dPlusT">+1</span><label class="hap" id="hapLbl" aria-hidden="true"><input type="checkbox" switch id="hapSw" tabindex="-1"></label></button>
   <p class="lp-hint" id="timerHint" data-i18n="timerHint" hidden></p>
+  <section class="ov" id="ovBox">
+    <div class="ring-w" id="ovRingW"><svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle class="ring-bg" cx="22" cy="22" r="18"/><circle class="ring-fg" id="ovRingFg" cx="22" cy="22" r="18" pathLength="100"/></svg><span class="ring-n" id="ovRingN"></span></div>
+    <div class="ov-t"><b id="ovHead"></b><span id="ovLine"></span></div>
+  </section>
+  <section class="card recent-card" id="recentCard" hidden>
+    <h2 data-i18n="recentTitle"></h2>
+    <ol class="recent" id="recentList"></ol>
+    <div class="note-chips" id="noteChips" hidden></div>
+  </section>
   <div class="stats" id="statsBox">
     <div class="stat"><b id="sToday">0</b><span data-i18n="statToday"></span></div>
     <div class="stat"><b id="sWeek">0</b><span data-i18n="statWeek"></span></div>
@@ -714,6 +768,12 @@
       <button type="button" data-what="count" data-i18n="chartCount"></button><button type="button" data-what="cost" data-i18n="chartCost"></button></div></div>
     <svg id="chart" viewBox="0 0 340 150" role="img"></svg>
     <div class="chart-foot"><span><span data-i18n="avgPerWeek"></span>: <b id="avgWeek">0</b></span><span id="chartRange"></span></div>
+  </section>
+
+  <section class="card year-card" id="yearCard">
+    <div class="chart-head"><h2 data-i18n="yearTitle"></h2><button class="ybtn" id="yearShare" type="button" data-i18n="yearShare"></button></div>
+    <svg id="yearGrid" role="img"></svg>
+    <div class="ylegend" aria-hidden="true"><span data-i18n="yearLess"></span><i class="yl0"></i><i class="yl1"></i><i class="yl2"></i><i class="yl3"></i><i class="yl4"></i><span data-i18n="yearMore"></span></div>
   </section>
 
   <section class="card" id="roundCard">
@@ -1063,7 +1123,7 @@ de: {
   addToCalendar: '📅 Zum Kalender hinzufügen', icsTitle: '{emoji} {name} eintragen', icsDesc: 'Erinnerung aus der Zähler-App – zum Eintragen öffnen:',
   calendarDone: '📅 Kalenderdatei erstellt – im Kalender übernehmen', errReminderDays: 'Bitte mindestens einen Wochentag wählen.', errReminderTime: 'Bitte eine Uhrzeit wählen.',
   reminderDue: '⏰ Heute noch nicht eingetragen', reminderInfo: '⏰ {days} um {time}',
-  longPressHint: 'Tipp: +1 gedrückt halten, um gleich eine Notiz dazuzuschreiben.', addNoteAria: 'Notiz hinzufügen',
+  addNoteAria: 'Notiz hinzufügen',
   arrangeBtn: 'Anordnen', arrangeDone: 'Fertig', moveUp: 'Nach oben', moveDown: 'Nach unten', dragHandle: 'Zum Verschieben ziehen',
   arrangeHint: 'Ziehe am Griff ☰ oder nutze ▲ ▼. Danach „Fertig“.',
 },
@@ -1079,7 +1139,7 @@ en: {
   addToCalendar: '📅 Add to calendar', icsTitle: 'Log {emoji} {name}', icsDesc: 'Reminder from the Counter app – open to log:',
   calendarDone: '📅 Calendar file created – add it in Calendar', errReminderDays: 'Please choose at least one weekday.', errReminderTime: 'Please choose a time.',
   reminderDue: '⏰ Not logged yet today', reminderInfo: '⏰ {days} at {time}',
-  longPressHint: 'Tip: press and hold +1 to add a note right away.', addNoteAria: 'Add note',
+  addNoteAria: 'Add note',
   arrangeBtn: 'Arrange', arrangeDone: 'Done', moveUp: 'Move up', moveDown: 'Move down', dragHandle: 'Drag to move',
   arrangeHint: 'Drag the ☰ handle or use ▲ ▼. Then tap “Done”.',
 },
@@ -1095,7 +1155,7 @@ it: {
   addToCalendar: '📅 Aggiungi al calendario', icsTitle: 'Registra {emoji} {name}', icsDesc: 'Promemoria dall’app Contatore – apri per registrare:',
   calendarDone: '📅 File calendario creato – aggiungilo in Calendario', errReminderDays: 'Scegli almeno un giorno della settimana.', errReminderTime: 'Scegli un orario.',
   reminderDue: '⏰ Oggi non ancora registrato', reminderInfo: '⏰ {days} alle {time}',
-  longPressHint: 'Suggerimento: tieni premuto +1 per aggiungere subito una nota.', addNoteAria: 'Aggiungi nota',
+  addNoteAria: 'Aggiungi nota',
   arrangeBtn: 'Riordina', arrangeDone: 'Fine', moveUp: 'Sposta su', moveDown: 'Sposta giù', dragHandle: 'Trascina per spostare',
   arrangeHint: 'Trascina la maniglia ☰ oppure usa ▲ ▼. Poi tocca «Fine».',
 },
@@ -1111,7 +1171,7 @@ es: {
   addToCalendar: '📅 Añadir al calendario', icsTitle: 'Registrar {emoji} {name}', icsDesc: 'Recordatorio de la app Contador – ábrela para registrar:',
   calendarDone: '📅 Archivo de calendario creado – añádelo en Calendario', errReminderDays: 'Elige al menos un día de la semana.', errReminderTime: 'Elige una hora.',
   reminderDue: '⏰ Hoy aún sin registrar', reminderInfo: '⏰ {days} a las {time}',
-  longPressHint: 'Consejo: mantén pulsado +1 para añadir una nota enseguida.', addNoteAria: 'Añadir nota',
+  addNoteAria: 'Añadir nota',
   arrangeBtn: 'Ordenar', arrangeDone: 'Listo', moveUp: 'Subir', moveDown: 'Bajar', dragHandle: 'Arrastra para mover',
   arrangeHint: 'Arrastra el asa ☰ o usa ▲ ▼. Después toca «Listo».',
 },
@@ -1127,7 +1187,7 @@ fr: {
   addToCalendar: '📅 Ajouter au calendrier', icsTitle: 'Noter {emoji} {name}', icsDesc: 'Rappel de l’app Compteur – ouvrir pour noter :',
   calendarDone: '📅 Fichier calendrier créé – ajoute-le dans Calendrier', errReminderDays: 'Choisis au moins un jour de la semaine.', errReminderTime: 'Choisis une heure.',
   reminderDue: '⏰ Pas encore noté aujourd’hui', reminderInfo: '⏰ {days} à {time}',
-  longPressHint: 'Astuce : maintiens +1 appuyé pour ajouter tout de suite une note.', addNoteAria: 'Ajouter une note',
+  addNoteAria: 'Ajouter une note',
   arrangeBtn: 'Réorganiser', arrangeDone: 'Terminé', moveUp: 'Monter', moveDown: 'Descendre', dragHandle: 'Glisser pour déplacer',
   arrangeHint: 'Fais glisser la poignée ☰ ou utilise ▲ ▼. Puis touche « Terminé ».',
 },
@@ -1138,10 +1198,7 @@ const I18N_V7B = {
 de: {
   fieldStep: 'Schritt pro Tipp (optional)', stepPh: '1', stepHelp: 'z. B. 12 → die Taste auf der Kachel zählt +12 auf einmal (ganze Packung).',
   errStep: 'Schritt: ganze Zahl von 1 bis 999 oder leer lassen.',
-  amountAria: 'Anzahl', minusAria: 'Abziehen (Korrektur)', plusNAria: 'Hinzufügen', amountHelp: 'Minus ist eine Korrektur – der Stand geht nie unter 0.',
-  errAmount: 'Bitte eine ganze Zahl von 1 bis 9999 eingeben.',
-  errMinus: { one: 'Es ist nur {n} vorhanden – mehr lässt sich nicht abziehen.', other: 'Es sind nur {n} vorhanden – mehr lässt sich nicht abziehen.' },
-  errMinusZero: 'Der Stand ist 0 – nichts zum Abziehen.', toastAmount: '{name}: {a} · jetzt {n}',
+  toastAmount: '{name}: {a} · jetzt {n}',
   undoQAmount: 'Letzten Eintrag ({a} vom {d}) entfernen?', fieldAmount: 'Anzahl (minus = Korrektur)', errEntryAmount: 'Anzahl: ganze Zahl von −9999 bis 9999, nicht 0.',
   fieldCategory: 'Kategorie (optional)', categoryPh: 'z. B. Haushalt, Sport', categoryHelp: 'Zähler mit derselben Kategorie stehen auf der Startseite zusammen.',
   filterAll: 'Alle', uncategorized: 'Ohne Kategorie', filterAria: 'Nach Kategorie filtern',
@@ -1159,10 +1216,7 @@ de: {
 en: {
   fieldStep: 'Step per tap (optional)', stepPh: '1', stepHelp: 'e.g. 12 → the tile button adds +12 at once (a whole pack).',
   errStep: 'Step: whole number from 1 to 999, or leave empty.',
-  amountAria: 'Amount', minusAria: 'Subtract (correction)', plusNAria: 'Add', amountHelp: 'Minus is a correction – the total never goes below 0.',
-  errAmount: 'Please enter a whole number from 1 to 9999.',
-  errMinus: { one: 'There is only {n} – you can’t subtract more.', other: 'There are only {n} – you can’t subtract more.' },
-  errMinusZero: 'The total is 0 – nothing to subtract.', toastAmount: '{name}: {a} · now {n}',
+  toastAmount: '{name}: {a} · now {n}',
   undoQAmount: 'Remove the last entry ({a} from {d})?', fieldAmount: 'Amount (minus = correction)', errEntryAmount: 'Amount: whole number from −9999 to 9999, not 0.',
   fieldCategory: 'Category (optional)', categoryPh: 'e.g. Home, Sport', categoryHelp: 'Counters with the same category are grouped on the start page.',
   filterAll: 'All', uncategorized: 'No category', filterAria: 'Filter by category',
@@ -1180,10 +1234,7 @@ en: {
 it: {
   fieldStep: 'Passo per tocco (facoltativo)', stepPh: '1', stepHelp: 'es. 12 → il pulsante sulla scheda aggiunge +12 in una volta (una confezione intera).',
   errStep: 'Passo: numero intero da 1 a 999 o lascia vuoto.',
-  amountAria: 'Quantità', minusAria: 'Sottrai (correzione)', plusNAria: 'Aggiungi', amountHelp: 'Il meno è una correzione – il totale non scende mai sotto 0.',
-  errAmount: 'Inserisci un numero intero da 1 a 9999.',
-  errMinus: { one: 'C’è solo {n} – non puoi sottrarre di più.', other: 'Ce ne sono solo {n} – non puoi sottrarre di più.' },
-  errMinusZero: 'Il totale è 0 – niente da sottrarre.', toastAmount: '{name}: {a} · ora {n}',
+  toastAmount: '{name}: {a} · ora {n}',
   undoQAmount: 'Rimuovere l’ultima voce ({a} del {d})?', fieldAmount: 'Quantità (meno = correzione)', errEntryAmount: 'Quantità: numero intero da −9999 a 9999, non 0.',
   fieldCategory: 'Categoria (facoltativa)', categoryPh: 'es. Casa, Sport', categoryHelp: 'I contatori con la stessa categoria sono raggruppati nella pagina iniziale.',
   filterAll: 'Tutti', uncategorized: 'Senza categoria', filterAria: 'Filtra per categoria',
@@ -1201,10 +1252,7 @@ it: {
 es: {
   fieldStep: 'Paso por toque (opcional)', stepPh: '1', stepHelp: 'p. ej. 12 → el botón de la tarjeta suma +12 de una vez (un paquete entero).',
   errStep: 'Paso: número entero de 1 a 999 o déjalo vacío.',
-  amountAria: 'Cantidad', minusAria: 'Restar (corrección)', plusNAria: 'Añadir', amountHelp: 'El menos es una corrección – el total nunca baja de 0.',
-  errAmount: 'Introduce un número entero de 1 a 9999.',
-  errMinus: { one: 'Solo hay {n} – no se puede restar más.', other: 'Solo hay {n} – no se puede restar más.' },
-  errMinusZero: 'El total es 0 – no hay nada que restar.', toastAmount: '{name}: {a} · ahora {n}',
+  toastAmount: '{name}: {a} · ahora {n}',
   undoQAmount: '¿Quitar la última entrada ({a} del {d})?', fieldAmount: 'Cantidad (menos = corrección)', errEntryAmount: 'Cantidad: número entero de −9999 a 9999, distinto de 0.',
   fieldCategory: 'Categoría (opcional)', categoryPh: 'p. ej. Casa, Deporte', categoryHelp: 'Los contadores con la misma categoría se agrupan en la página de inicio.',
   filterAll: 'Todos', uncategorized: 'Sin categoría', filterAria: 'Filtrar por categoría',
@@ -1222,10 +1270,7 @@ es: {
 fr: {
   fieldStep: 'Pas par appui (facultatif)', stepPh: '1', stepHelp: 'p. ex. 12 → le bouton de la tuile ajoute +12 d’un coup (un paquet entier).',
   errStep: 'Pas : nombre entier de 1 à 999 ou laisser vide.',
-  amountAria: 'Quantité', minusAria: 'Retirer (correction)', plusNAria: 'Ajouter', amountHelp: 'Le moins est une correction – le total ne descend jamais sous 0.',
-  errAmount: 'Saisis un nombre entier de 1 à 9999.',
-  errMinus: { one: 'Il n’y en a que {n} – impossible de retirer plus.', other: 'Il n’y en a que {n} – impossible de retirer plus.' },
-  errMinusZero: 'Le total est 0 – rien à retirer.', toastAmount: '{name} : {a} · maintenant {n}',
+  toastAmount: '{name} : {a} · maintenant {n}',
   undoQAmount: 'Retirer la dernière entrée ({a} du {d}) ?', fieldAmount: 'Quantité (moins = correction)', errEntryAmount: 'Quantité : nombre entier de −9999 à 9999, différent de 0.',
   fieldCategory: 'Catégorie (facultatif)', categoryPh: 'p. ex. Maison, Sport', categoryHelp: 'Les compteurs de même catégorie sont regroupés sur la page d’accueil.',
   filterAll: 'Tous', uncategorized: 'Sans catégorie', filterAria: 'Filtrer par catégorie',
@@ -1410,6 +1455,60 @@ fr: { swDeletedN: '« {name} » supprimé ({entries})', pullDiscardQ: 'Abandonne
   swDeleted: '« {name} » supprimé', swUndoFail: 'Restauration impossible.' },
 };
 for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
+/* v11: Überblick, Ring, letzte Einträge, Notiz-Chips, Jahres-Raster, Limit, Feier, Vibration/Ton */
+const I18N_V11 = {
+  de: { ovToday: 'Heute {n}', ovWeek: 'Woche {n}', ovAgo: 'zuletzt vor {a}', ovJust: 'zuletzt gerade eben', ovNone: 'noch kein Eintrag',
+    ovAvg: 'Heute im Vergleich zum Ø-Tag ({a})', ovNoAvg: 'Dein Überblick', ovRingAria: '{p} %',
+    limitLabel: 'Limit', limitOk: 'im Rahmen', limitNear: 'fast am Limit', limitOver: 'Limit überschritten', limitOverToast: 'Limit überschritten',
+    goalTypeLbl: 'Art des Ziels', goalTypeMore: 'Ziel (mehr ist besser)', goalTypeLimit: 'Limit (weniger ist besser)',
+    recentTitle: 'Letzte Einträge', recentAria: 'Eintrag vom {d} bearbeiten oder löschen', chipAria: '+{n} mit Notiz „{t}“',
+    yearTitle: 'Letzte 12 Monate', yearShare: 'Teilen', yearLess: 'weniger', yearMore: 'mehr', yearAria: 'Tage der letzten 12 Monate, {n} aktive Tage',
+    yearImgSub: '{a} – {b}', yearImgTotal: '{n} insgesamt · {d} aktive Tage', yearSaved: 'Bild gespeichert', yearFile: 'jahr',
+    feedback: 'Beim Zählen', hapticLbl: 'Vibration', soundLbl: 'Ton', feedbackHelp: 'Vibration auf dem iPhone ab iOS 17.4 über die große Taste. Der Ton ist kurz und leise.',
+    feierGoal: '🎉 Ziel erreicht: {name}!', feierRecord: '🏆 Neuer Rekord bei {name}: {s}!', feierLimit: '🎉 {name}: {p} im Limit geblieben!',
+    prevDay: 'gestern', prevWeek: 'letzte Woche', prevMonth: 'letzten Monat' },
+  en: { ovToday: 'Today {n}', ovWeek: 'Week {n}', ovAgo: 'last {a} ago', ovJust: 'last just now', ovNone: 'no entry yet',
+    ovAvg: 'Today compared with your average day ({a})', ovNoAvg: 'Your overview', ovRingAria: '{p} %',
+    limitLabel: 'Limit', limitOk: 'within limit', limitNear: 'close to the limit', limitOver: 'limit exceeded', limitOverToast: 'Limit exceeded',
+    goalTypeLbl: 'Goal type', goalTypeMore: 'Goal (more is better)', goalTypeLimit: 'Limit (less is better)',
+    recentTitle: 'Recent entries', recentAria: 'Edit or delete the entry from {d}', chipAria: '+{n} with note “{t}”',
+    yearTitle: 'Last 12 months', yearShare: 'Share', yearLess: 'less', yearMore: 'more', yearAria: 'Days of the last 12 months, {n} active days',
+    yearImgSub: '{a} – {b}', yearImgTotal: '{n} in total · {d} active days', yearSaved: 'Image saved', yearFile: 'year',
+    feedback: 'When counting', hapticLbl: 'Vibration', soundLbl: 'Sound', feedbackHelp: 'Vibration on iPhone from iOS 17.4 via the big button. The sound is short and quiet.',
+    feierGoal: '🎉 Goal reached: {name}!', feierRecord: '🏆 New record for {name}: {s}!', feierLimit: '🎉 {name}: stayed within the limit {p}!',
+    prevDay: 'yesterday', prevWeek: 'last week', prevMonth: 'last month' },
+  it: { ovToday: 'Oggi {n}', ovWeek: 'Settimana {n}', ovAgo: 'ultima {a} fa', ovJust: 'ultima proprio ora', ovNone: 'ancora nessuna voce',
+    ovAvg: 'Oggi rispetto al giorno medio ({a})', ovNoAvg: 'La tua panoramica', ovRingAria: '{p} %',
+    limitLabel: 'Limite', limitOk: 'nel limite', limitNear: 'quasi al limite', limitOver: 'limite superato', limitOverToast: 'Limite superato',
+    goalTypeLbl: 'Tipo di obiettivo', goalTypeMore: 'Obiettivo (più è meglio)', goalTypeLimit: 'Limite (meno è meglio)',
+    recentTitle: 'Ultime voci', recentAria: 'Modifica o elimina la voce del {d}', chipAria: '+{n} con nota «{t}»',
+    yearTitle: 'Ultimi 12 mesi', yearShare: 'Condividi', yearLess: 'meno', yearMore: 'più', yearAria: 'Giorni degli ultimi 12 mesi, {n} giorni attivi',
+    yearImgSub: '{a} – {b}', yearImgTotal: '{n} in totale · {d} giorni attivi', yearSaved: 'Immagine salvata', yearFile: 'anno',
+    feedback: 'Durante il conteggio', hapticLbl: 'Vibrazione', soundLbl: 'Suono', feedbackHelp: 'Vibrazione su iPhone da iOS 17.4 con il pulsante grande. Il suono è breve e leggero.',
+    feierGoal: '🎉 Obiettivo raggiunto: {name}!', feierRecord: '🏆 Nuovo record per {name}: {s}!', feierLimit: '🎉 {name}: nel limite {p}!',
+    prevDay: 'ieri', prevWeek: 'la settimana scorsa', prevMonth: 'il mese scorso' },
+  es: { ovToday: 'Hoy {n}', ovWeek: 'Semana {n}', ovAgo: 'última hace {a}', ovJust: 'última ahora mismo', ovNone: 'aún sin entradas',
+    ovAvg: 'Hoy comparado con tu día medio ({a})', ovNoAvg: 'Tu resumen', ovRingAria: '{p} %',
+    limitLabel: 'Límite', limitOk: 'dentro del límite', limitNear: 'cerca del límite', limitOver: 'límite superado', limitOverToast: 'Límite superado',
+    goalTypeLbl: 'Tipo de objetivo', goalTypeMore: 'Objetivo (más es mejor)', goalTypeLimit: 'Límite (menos es mejor)',
+    recentTitle: 'Últimas entradas', recentAria: 'Editar o eliminar la entrada del {d}', chipAria: '+{n} con nota «{t}»',
+    yearTitle: 'Últimos 12 meses', yearShare: 'Compartir', yearLess: 'menos', yearMore: 'más', yearAria: 'Días de los últimos 12 meses, {n} días activos',
+    yearImgSub: '{a} – {b}', yearImgTotal: '{n} en total · {d} días activos', yearSaved: 'Imagen guardada', yearFile: 'ano',
+    feedback: 'Al contar', hapticLbl: 'Vibración', soundLbl: 'Sonido', feedbackHelp: 'Vibración en iPhone desde iOS 17.4 con el botón grande. El sonido es corto y suave.',
+    feierGoal: '🎉 ¡Objetivo cumplido: {name}!', feierRecord: '🏆 ¡Nuevo récord en {name}: {s}!', feierLimit: '🎉 ¡{name}: dentro del límite {p}!',
+    prevDay: 'ayer', prevWeek: 'la semana pasada', prevMonth: 'el mes pasado' },
+  fr: { ovToday: 'Aujourd’hui {n}', ovWeek: 'Semaine {n}', ovAgo: 'dernière il y a {a}', ovJust: 'dernière à l’instant', ovNone: 'aucune entrée',
+    ovAvg: 'Aujourd’hui comparé à ta journée moyenne ({a})', ovNoAvg: 'Ton aperçu', ovRingAria: '{p} %',
+    limitLabel: 'Limite', limitOk: 'dans la limite', limitNear: 'presque à la limite', limitOver: 'limite dépassée', limitOverToast: 'Limite dépassée',
+    goalTypeLbl: 'Type d’objectif', goalTypeMore: 'Objectif (plus, c’est mieux)', goalTypeLimit: 'Limite (moins, c’est mieux)',
+    recentTitle: 'Dernières entrées', recentAria: 'Modifier ou supprimer l’entrée du {d}', chipAria: '+{n} avec la note « {t} »',
+    yearTitle: '12 derniers mois', yearShare: 'Partager', yearLess: 'moins', yearMore: 'plus', yearAria: 'Jours des 12 derniers mois, {n} jours actifs',
+    yearImgSub: '{a} – {b}', yearImgTotal: '{n} au total · {d} jours actifs', yearSaved: 'Image enregistrée', yearFile: 'annee',
+    feedback: 'En comptant', hapticLbl: 'Vibration', soundLbl: 'Son', feedbackHelp: 'Vibration sur iPhone dès iOS 17.4 avec le grand bouton. Le son est bref et discret.',
+    feierGoal: '🎉 Objectif atteint : {name} !', feierRecord: '🏆 Nouveau record pour {name} : {s} !', feierLimit: '🎉 {name} : limite respectée {p} !',
+    prevDay: 'hier', prevWeek: 'la semaine dernière', prevMonth: 'le mois dernier' },
+};
+for (const l of Object.keys(I18N_V11)) Object.assign(I18N[l], I18N_V11[l]);
 </script>
 <script>
 (() => {
@@ -1425,7 +1524,7 @@ for (const l of Object.keys(I18N_V8)) Object.assign(I18N[l], I18N_V8[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 10, APP_DATE = '2026-11-02'; // sichtbare App-Version (Daten-Menü)
+const APP_BUILD = 11, APP_DATE = '2026-11-03'; // sichtbare App-Version (Daten-Menü)
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 const EMOJIS = ['🥚','☕️','💧','🏃','🏋️','⛽️','💊','🍺','🚬','📚','🧘','🚴','🍎','🐶','💤','🧹','🚗','💶','✅','⭐️'];
 const EIER_SEED = ['2026-09-28', '2026-10-05', '2026-10-12', '2026-10-20', '2026-10-26'];
@@ -1626,9 +1725,11 @@ function goalProgress(c, list, st = stats(list)) {
   const g = sanitizeGoal(c.goal); if (!g) return null;
   const cnt = { day: st.today, week: st.week, month: st.month, total: st.total }[g.period], need = goalTarget(c, g);
   const key = { day: 'goalDay', week: 'goalWeek', month: 'goalMonth', total: 'goalTotal' }[g.period];
-  return { count: cnt, amount: g.amount, period: g.period, pct: Math.min(100, Math.round(cnt / need * 100)), done: cnt >= need,
-           text: t(key, { c: fmtVal(c, cnt), g: fmtVal(c, need) }) };
+  const lim = c.goalType === 'limit', over = lim && cnt > need, near = lim && !over && cnt >= need * 0.8; // v11: Limit = weniger ist besser
+  return { count: cnt, amount: g.amount, period: g.period, pct: Math.min(100, Math.round(cnt / need * 100)), done: !lim && cnt >= need, limit: lim, over, near,
+           text: t(key, { c: fmtVal(c, cnt), g: fmtVal(c, need) }) + (lim ? ' · ' + t(over ? 'limitOver' : near ? 'limitNear' : 'limitOk') : '') };
 }
+const isLimit = c => !!c && c.goalType === 'limit' && !!sanitizeGoal(c.goal);
 
 /* ---------- v7b: Serien ---------- */
 const PERIOD_START = { day: startOfDay, week: startOfWeek, month: startOfMonth };
@@ -1640,6 +1741,15 @@ function streaks(c, list, L = ledger(list)) {
   const start = PERIOD_START[g.period], sums = new Map();
   list.forEach((e, i) => { const k = +start(new Date(e.timestamp)); sums.set(k, (sums.get(k) || 0) + L.eff[i]); });
   const cur0 = +start(new Date()), need = goalTarget(c, g); let run = 0, best = 0;
+  if (c.goalType === 'limit') { // v11: Limit – abgeschlossene Zeiträume im Limit zählen (auch ganz ohne Eintrag); der laufende zählt erst am Ende, bricht aber bei Überschreiten
+    const cr = Date.parse(c.createdAt), first = list.length ? Date.parse(list[0].timestamp) : NaN, s0 = Math.min(isNaN(cr) ? Infinity : cr, isNaN(first) ? Infinity : first);
+    if (isFinite(s0)) for (let d = start(new Date(s0)); +d <= cur0; d = nextPeriod(d, g.period)) {
+      const v = sums.get(+d) || 0;
+      if (+d === cur0) { if (v > need) run = 0; }
+      else if (v <= need) { run++; if (run > best) best = run; } else run = 0;
+    }
+    return { cur: run, best, period: g.period };
+  }
   if (list.length) for (let d = start(new Date(list[0].timestamp)); +d <= cur0; d = nextPeriod(d, g.period)) {
     if ((sums.get(+d) || 0) >= need) { run++; if (run > best) best = run; }
     else if (+d !== cur0) run = 0;
@@ -2313,7 +2423,7 @@ function upsertCounter(data) {
   let c = data.id && counter(data.id);
   if (c) Object.assign(c, data);
   else { c = { id: uuid(), order: db.counters.reduce((m, x) => Math.max(m, x.order + 1), 0), createdAt: isoNow(), ...data }; db.counters.push(c); }
-  for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
+  for (const k of ['goal', 'goalType', 'reminder', 'step', 'category', 'price', 'type', 'archived', 'runningSince']) if (c[k] == null || c[k] === '' || c[k] === false) delete c[k]; // optionale Felder nur speichern, wenn gesetzt
   if (c.step === 1) delete c.step;
   save(); return c;
 }
@@ -2354,7 +2464,25 @@ $('sheet').addEventListener('click', e => { if (e.target.id === 'sheet' && !igno
 const confirmBox = (text, yes = t('ok'), danger = false, no = t('cancel')) =>
   openSheet(`<p>${esc(text)}</p><div class="row"><button class="btn" data-v="no" type="button">${esc(no)}</button>
     <button class="btn ${danger ? 'danger' : 'primary'}" data-v="yes" id="sheetYes" type="button">${esc(yes)}</button></div>`).then(v => v === 'yes');
-const buzz = () => { try { navigator.vibrate && navigator.vibrate(15); } catch (e) {} };
+/* v11: Rückmeldung beim Zählen. iOS Safari kennt navigator.vibrate nicht; dort tippt der Finger auf einen unsichtbaren
+   <input type=checkbox switch> über der großen Taste (iOS 17.4+ gibt beim Umschalten eines Switches einen Haptik-Tick, seit iOS 26.5 nur bei echtem Tippen).
+   Android/andere: navigator.vibrate. Ton: kurzer, leiser Klick per WebAudio (synthetisch, keine Datei). Einstellungen nur auf diesem Gerät. */
+const HAPTIC_KEY = 'zaehler-haptic', SOUND_KEY = 'zaehler-sound';
+const hapticOn = () => lsGet(HAPTIC_KEY) !== 'off', soundOn = () => lsGet(SOUND_KEY) === 'on';
+const fx = { vib: 0, snd: 0 }; let actx = null;
+function clickSound() {
+  if (!soundOn()) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    actx = actx || new AC(); if (actx.state === 'suspended') actx.resume();
+    const t0 = actx.currentTime + 0.005, o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(1700, t0); o.frequency.exponentialRampToValueAtTime(700, t0 + 0.035);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.09, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.055);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + 0.07); fx.snd++;
+  } catch (e) {}
+}
+const buzz = () => { if (hapticOn()) { try { if (navigator.vibrate) { navigator.vibrate(12); fx.vib++; } } catch (e) {} } clickSound(); };
+const syncHap = () => { const l = $('hapLbl'); if (l) l.hidden = !hapticOn(); };
 
 /* ---------- Routing ---------- */
 const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
@@ -2438,7 +2566,7 @@ function tileEl(c, idx, count, swipe = false) {
         <div class="tile-count${tm ? ' dur' : ''}">${lab.big}</div>
         ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
         ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
-        ${gp ? `<div class="goal"><div class="bar goalbar"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span></div>` : ''}
+        ${gp ? `<div class="goal"><div class="bar goalbar${gp.limit ? ' limit' + (gp.over ? ' over' : gp.near ? ' near' : '') : ''}"><i style="width:${gp.pct}%"></i></div><span class="goal-txt">${esc(gp.text)}${gp.done ? ' ✓' : ''}</span></div>` : ''}
         ${sk && sk.cur ? `<div class="tile-sub streak">${esc(streakText(sk))}</div>` : ''}
         ${run ? `<div class="tile-sub run">${esc(t('timerRunning', { t: fmtTime(new Date(c.runningSince)) }))}</div>`
           : due ? `<div class="tile-sub due">${esc(t('reminderDue'))}</div>` : `<div class="tile-sub">${esc(t('lastLabel', { t: lastText(last) }))}</div>`}</span>
@@ -2469,14 +2597,13 @@ function renderDetail(c) {
   $('dEmoji').textContent = c.emoji || '🔢'; $('dName').textContent = c.name;
   $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '') : t('entriesCount', { n: es.length });
   const tm = isTime(c), arch = !!c.archived;
-  if (tm) { $('dPlus').innerHTML = c.runningSince ? `■ ${esc(t('timerStop'))} · <span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `▶ ${esc(t('timerStart'))}`;
+  if (tm) { $('dPlusT').innerHTML = c.runningSince ? `■ ${esc(t('timerStop'))} · <span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `▶ ${esc(t('timerStart'))}`;
     $('dPlus').setAttribute('aria-label', t('timerAria', { name: c.name })); }
-  else { $('dPlus').textContent = step > 1 ? '+' + step : r.round ? t('plusNr', { n: r.next }) : '+1'; $('dPlus').removeAttribute('aria-label'); }
+  else { $('dPlusT').textContent = step > 1 ? '+' + step : r.round ? t('plusNr', { n: r.next }) : '+1'; $('dPlus').removeAttribute('aria-label'); }
   $('dPlus').classList.toggle('running', !!(tm && c.runningSince));
   { const cb = document.querySelector('#chartWhat [data-what=count], [data-what=count]'); if (cb) cb.textContent = t(tm ? 'fieldDuration' : 'chartCount'); } // v7c: Zeit-Zähler zeigen „Dauer“
   // v7c: archiviert = nur ansehen/bearbeiten; Zeit-Zähler ohne −/+n
-  $('archCard').hidden = !arch; $('dPlus').hidden = arch; $('amtRow').hidden = arch || tm; $('lpHint').hidden = arch || tm; $('timerHint').hidden = arch || !tm;
-  $('dMinus').disabled = st.total <= 0; syncAmt();
+  $('archCard').hidden = !arch; $('dPlus').hidden = arch; $('timerHint').hidden = arch || !tm;
   const fv = v => fmtVal(c, v);
   $('statsBox').classList.toggle('dur', tm);
   $('sToday').textContent = fv(st.today); $('sWeek').textContent = fv(st.week); $('sMonth').textContent = fv(st.month); $('sTotal').textContent = fv(st.total);
@@ -2511,7 +2638,10 @@ function renderDetail(c) {
   // Ziel, Erinnerung, Diagramm
   const gp = goalProgress(c, es, st);
   $('goalCard').hidden = !gp; $('goalCard').classList.toggle('done', !!(gp && gp.done));
-  if (gp) { $('goalFill').style.width = gp.pct + '%'; $('goalTxt').textContent = gp.text + (gp.done ? ' · ' + t('goalReached') : ''); }
+  if (gp) { $('goalFill').style.width = gp.pct + '%'; $('goalTxt').textContent = gp.text + (gp.done ? ' · ' + t('goalReached') : '');
+    $('goalCard').querySelector('h2').textContent = t(gp.limit ? 'limitLabel' : 'goalLabel');
+    const gb = $('goalFill').parentElement; gb.classList.toggle('limit', gp.limit); gb.classList.toggle('near', !!gp.near); gb.classList.toggle('over', !!gp.over); }
+  renderOverview(c, es, st, L, gp); renderRecent(c, es);
   const sk = streaks(c, es, L);
   $('streakTxt').hidden = !sk;
   if (sk) $('streakTxt').innerHTML = esc(sk.cur ? streakText(sk) : t('streakNone')) + (sk.best ? ` <small>· ${esc(bestText(sk))}</small>` : '');
@@ -2521,7 +2651,8 @@ function renderDetail(c) {
   const rem = sanitizeReminder(c.reminder);
   $('remCard').hidden = !rem;
   if (rem) $('remInfo').textContent = t('reminderInfo', { days: reminderDaysText(rem), time: reminderTimeText(rem) });
-  renderChart(c, es);
+  renderChart(c, es); renderYear(c, es, L);
+  if (isLimit(c) && !arch) setTimeout(() => feierLimit(c), 250);
 
   // Alle Einträge (neueste zuerst)
   $('entriesTitle').textContent = t('allEntries', { n: es.length });
@@ -2558,11 +2689,11 @@ async function viewPhoto(eid) {
 /* ---------- v7: +1 mit Lang-Druck (Notiz) ---------- */
 let ignoreBackdrop = false;
 /** Normaler Tipp = +1 wie bisher; gedrückt halten (0,55 s) = +1 und sofort Notiz-Dialog. */
-function bindPlus(btn, cid) {
+function bindPlus(btn, cid, hit = btn, sw = null) {
   const id = () => cid || currentId();
   let timer = null, longFired = false, sx = 0, sy = 0;
   const cancel = () => { clearTimeout(timer); timer = null; };
-  btn.addEventListener('pointerdown', e => {
+  hit.addEventListener('pointerdown', e => {
     if (e.button > 0) return;
     longFired = false; sx = e.clientX; sy = e.clientY; cancel();
     if (isTime(counter(id()))) return; // Zeit-Zähler: kein Lang-Druck (Notiz nach dem Stopp über die Meldung oder ✎)
@@ -2571,25 +2702,164 @@ function bindPlus(btn, cid) {
       tapPlus(id(), null, { note: true });
     }, 550);
   });
-  btn.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) cancel(); });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => btn.addEventListener(ev, cancel));
-  btn.addEventListener('contextmenu', e => e.preventDefault());
-  btn.addEventListener('click', e => { if (longFired) { longFired = false; e.preventDefault(); return; } tapPlus(id()); });
+  hit.addEventListener('pointermove', e => { if (timer && (Math.abs(e.clientX - sx) > 12 || Math.abs(e.clientY - sy) > 12)) cancel(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => hit.addEventListener(ev, cancel));
+  hit.addEventListener('contextmenu', e => e.preventDefault());
+  btn.addEventListener('click', e => { if (sw && e.target.closest && e.target.closest('.hap')) return; // Finger auf dem Switch: gezählt wird über „change“
+    if (longFired) { longFired = false; e.preventDefault(); return; } tapPlus(id()); });
+  // v11: Tipp auf den unsichtbaren Switch (iOS-Haptik) – genau ein Zählen pro Umschalten
+  if (sw) sw.addEventListener('change', () => { if (longFired) { longFired = false; return; } tapPlus(id()); });
 }
 
-/* ---------- v7b: −n / +n auf der Detailseite ---------- */
-const readAmt = () => { const x = $('dAmt').value.trim(); if (!x) return 1; const n = Number(x); return Number.isInteger(n) && n >= 1 && n <= 9999 ? n : null; };
-function syncAmt() {
-  const n = readAmt() ?? 1;
-  $('dMinus').textContent = '−' + n; $('dAddN').textContent = '+' + n;
-  $('dMinus').setAttribute('aria-label', `${t('minusAria')} ${n}`); $('dAddN').setAttribute('aria-label', `${t('plusNAria')} ${n}`);
+/* ---------- v11: Überblick + Ring ---------- */
+const fmtNum1 = v => new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 1 }).format(v);
+function shortAgo(ms) { const m = Math.floor(Math.max(0, ms) / 6e4); if (m < 1) return null; if (m < 60) return t('durMin', { n: m }); const h = Math.floor(m / 60); return h < 24 ? t('durHours', { n: h }) : daysText(Math.floor(h / 24)); }
+/** Ø pro Tag der letzten 28 Tage vor heute (ab dem ersten Eintrag), null ohne Vergleich */
+function avgDay(es, L) {
+  const d0 = startOfDay(new Date()), from = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() - 28);
+  if (!es.length) return null; const first = startOfDay(new Date(es[0].timestamp)); if (first >= d0) return null;
+  const s0 = first > from ? first : from, days = Math.max(1, Math.round((d0 - s0) / 864e5)); let sum = 0;
+  es.forEach((e, i) => { const ts = new Date(e.timestamp); if (ts >= s0 && ts < d0) sum += L.eff[i]; });
+  return sum > 0 ? sum / days : null;
 }
-function amountAction(sign) {
-  const cid = currentId(), n = readAmt();
-  if (!n) { toast(t('errAmount'), [], 3500); $('dAmt').focus(); return; }
-  if (sign < 0) { const m = minusError(cid, n); if (m) { toast(m, [], 3500); return; } }
-  $('dAmt').value = ''; syncAmt();
-  tapPlus(cid, null, { amount: sign * n });
+function renderOverview(c, es, st, L, gp) {
+  const tm = isTime(c), fv = v => fmtVal(c, v), w = $('ovRingW'), head = $('ovHead'); let pct = null, cls = '', hc = '', ht, num = st.today;
+  if (gp) { pct = gp.pct; ht = gp.text; num = gp.count; if (gp.limit) cls = hc = gp.over ? 'over' : gp.near ? 'near' : 'ok'; }
+  else { const a = avgDay(es, L); if (a) { pct = Math.min(100, Math.round(st.today / a * 100)); cls = 'soft'; ht = t('ovAvg', { a: tm ? fmtDur(a) : fmtNum1(a) }); } else ht = t('ovNoAvg'); }
+  w.hidden = pct == null; $('ovBox').classList.toggle('noring', pct == null);
+  w.className = 'ring-w' + (cls ? ' ' + cls : '') + (tm ? ' dur' : '') + (gp && gp.done ? ' done' : '');
+  if (pct != null) { $('ovRingFg').style.strokeDashoffset = String(100 - Math.max(0, Math.min(100, pct))); $('ovRingN').textContent = tm ? fmtShortDur(num) : String(num);
+    w.setAttribute('role', 'img'); w.setAttribute('aria-label', t('ovRingAria', { p: pct })); w.dataset.pct = pct; }
+  head.textContent = ht; head.className = hc;
+  const last = st.last, gap = last ? Date.now() - new Date(last.timestamp) : 0;
+  const ago = !last ? t('ovNone') : last.dateOnly && dayDiff(new Date(), new Date(last.timestamp)) >= 1 ? t('ovAgo', { a: daysText(dayDiff(new Date(), new Date(last.timestamp))) })
+    : shortAgo(gap) ? t('ovAgo', { a: shortAgo(gap) }) : t('ovJust');
+  const good = isLimit(c) && (!last || gap >= 864e5); // „Tage ohne …“: lange Pause ist gut
+  $('ovLine').innerHTML = `${esc(t('ovToday', { n: fv(st.today) }))} · ${esc(t('ovWeek', { n: fv(st.week) }))} · <span id="ovAgo"${good ? ' class="good"' : ''}>${esc(ago)}</span>`;
+}
+/* ---------- v11: letzte Einträge + Notiz-Chips (schnelles Korrigieren / Zählen mit Notiz) ---------- */
+function topNotes(es, k = 4) {
+  const m = new Map();
+  es.forEach((e, i) => { const n = (e.note || '').trim(); if (!n || n.length > 60) return; const key = n.toLocaleLowerCase(); const x = m.get(key) || { t: n, n: 0, last: 0 }; x.n++; x.last = i; x.t = n; m.set(key, x); });
+  return [...m.values()].sort((a, b) => b.n - a.n || b.last - a.last).slice(0, k).map(x => x.t);
+}
+function renderRecent(c, es) {
+  const tm = isTime(c), step = stepOf(c), notes = tm || c.archived ? [] : topNotes(es);
+  $('recentCard').hidden = !es.length;
+  $('recentList').innerHTML = es.slice(-3).reverse().map(e => { const a = amt(e);
+    return `<li><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
+      + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></li>`; }).join('');
+  $('recentList').querySelectorAll('[data-rid]').forEach(b => { b.onclick = () => editEntry(b.dataset.rid); });
+  const ch = $('noteChips'); ch.hidden = !notes.length;
+  ch.innerHTML = notes.map(n => `<button type="button" data-chip="${esc(n)}" aria-label="${esc(t('chipAria', { n: step, t: n }))}">+${step} ${esc(n)}</button>`).join('');
+  ch.querySelectorAll('[data-chip]').forEach(b => { b.onclick = () => tapPlus(c.id, null, { text: b.dataset.chip }); });
+}
+/* ---------- v11: Jahres-Raster (letzte 12 Monate) + teilbares Bild ---------- */
+const ymdOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function yearData(c, es, L) {
+  const today = startOfDay(new Date()), from = startOfWeek(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 364));
+  const days = Math.round((today - from) / 864e5) + 1, vals = new Array(days).fill(0);
+  es.forEach((e, i) => { const k = Math.round((startOfDay(new Date(e.timestamp)) - from) / 864e5); if (k >= 0 && k < days) vals[k] += L.eff[i]; });
+  for (let i = 0; i < days; i++) vals[i] = Math.max(0, vals[i]);
+  const max = Math.max(0, ...vals), cr = Date.parse(c.createdAt), first = es.length ? Date.parse(es[0].timestamp) : NaN;
+  const created = startOfDay(new Date(Math.min(isNaN(cr) ? Infinity : cr, isNaN(first) ? Infinity : first, +today)));
+  const lvl = v => (v <= 0 || max <= 0 ? 0 : Math.min(4, Math.max(1, Math.ceil(v / max * 4))));
+  const dayAt = k => new Date(from.getFullYear(), from.getMonth(), from.getDate() + k);
+  return { from, today, days, vals, max, lvl, dayAt, created, cols: Math.ceil(days / 7), active: vals.filter(v => v > 0).length, total: vals.reduce((a, b) => a + b, 0), limit: isLimit(c) };
+}
+function renderYear(c, es, L) {
+  const y = yearData(c, es, L), P = 7.5, top = 8, mf = new Intl.DateTimeFormat(intlLocale(), { month: 'short' }); let out = '';
+  for (let k = 0; k < y.days; k++) {
+    const d = y.dayAt(k), col = Math.floor(k / 7), row = k % 7, v = y.vals[k], l = y.lvl(v);
+    if (row === 0 && d.getDate() <= 7 && col < y.cols - 1) out += `<text x="${col * P}" y="6">${esc(mf.format(d).replace('.', ''))}</text>`;
+    const cls = !l && y.limit && d >= y.created ? 'ylg' : 'yl' + l;
+    out += `<rect x="${col * P}" y="${top + row * P}" width="6" height="6" rx="1.6" class="${cls}" data-d="${ymdOf(d)}" data-n="${v}"/>`;
+  }
+  const g = $('yearGrid'); g.setAttribute('viewBox', `0 0 ${y.cols * P - 1.5} ${top + 7 * P - 1.5}`); g.innerHTML = out;
+  g.setAttribute('aria-label', t('yearAria', { n: y.active }));
+}
+const isDarkNow = () => { const m = themeMode(); return m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); };
+function hexRgb(h) { const m = /^#?([0-9a-f]{6})$/i.exec(String(h || '').trim()); const n = m ? parseInt(m[1], 16) : 0x007aff; return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+const mixRgb = (a, b, k) => `rgb(${a.map((x, i) => Math.round(x * k + b[i] * (1 - k))).join(',')})`;
+function yearCanvas(c) {
+  const es = entriesOf(c.id), y = yearData(c, es, ledger(es)), dark = isDarkNow();
+  const cell = 18, gap = 4, P = cell + gap, px = 64, top = 236, W = px * 2 + y.cols * P - gap, H = top + 7 * P + 150;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+  const bg = dark ? [0, 0, 0] : [242, 242, 247], card = dark ? [28, 28, 30] : [255, 255, 255], ink = dark ? '#f2f2f7' : '#1c1c1e', muted = dark ? '#98989f' : '#6e6e73', col = hexRgb(c.color);
+  const font = (w, s) => `${w} ${s}px -apple-system, "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif`;
+  const rr = (x, yy, w, h, r) => { g.beginPath(); g.moveTo(x + r, yy); g.arcTo(x + w, yy, x + w, yy + h, r); g.arcTo(x + w, yy + h, x, yy + h, r); g.arcTo(x, yy + h, x, yy, r); g.arcTo(x, yy, x + w, yy, r); g.closePath(); };
+  g.fillStyle = mixRgb(bg, bg, 1); g.fillRect(0, 0, W, H);
+  g.fillStyle = mixRgb(card, card, 1); rr(24, 24, W - 48, H - 48, 40); g.fill();
+  g.fillStyle = ink; g.font = font(700, 54); g.textBaseline = 'alphabetic'; g.fillText(`${c.emoji || '🔢'} ${c.name}`, px, 112);
+  g.fillStyle = muted; g.font = font(500, 28); g.fillText(t('yearImgSub', { a: fmtDate(y.from), b: fmtDate(y.today) }), px, 156);
+  g.fillText(t('yearImgTotal', { n: fmtVal(c, y.total), d: y.active }), px, 194);
+  const mf = new Intl.DateTimeFormat(intlLocale(), { month: 'short' }); g.font = font(500, 20);
+  for (let k = 0; k < y.days; k++) {
+    const d = y.dayAt(k), cx = px + Math.floor(k / 7) * P, cy = top + (k % 7) * P, l = y.lvl(y.vals[k]);
+    if (k % 7 === 0 && d.getDate() <= 7 && Math.floor(k / 7) < y.cols - 1) { g.fillStyle = muted; g.fillText(mf.format(d).replace('.', ''), cx, top - 12); }
+    g.fillStyle = l ? mixRgb(col, card, [0, .3, .55, .78, 1][l]) : y.limit && d >= y.created ? mixRgb([52, 199, 89], card, .28) : mixRgb(dark ? [242, 242, 247] : [28, 28, 30], card, .08);
+    rr(cx, cy, cell, cell, 5); g.fill();
+  }
+  const ly = top + 7 * P + 52; g.font = font(500, 24); g.fillStyle = muted; g.textAlign = 'right'; // Legende rechts: weniger ■■■■■ mehr
+  let lx = W - px; g.fillText(t('yearMore'), lx, ly); lx -= g.measureText(t('yearMore')).width + 12;
+  [4, 3, 2, 1, 0].forEach(l => { g.fillStyle = l ? mixRgb(col, card, [0, .3, .55, .78, 1][l]) : mixRgb(dark ? [242, 242, 247] : [28, 28, 30], card, .08); rr(lx - cell, ly - cell + 1, cell, cell, 5); g.fill(); lx -= P; });
+  g.fillStyle = muted; g.fillText(t('yearLess'), lx + gap - 8, ly); g.textAlign = 'left';
+  g.fillText(`🔢 ${t('appTitle')}`, px, ly);
+  return cv;
+}
+async function shareYear(c) {
+  const url = yearCanvas(c).toDataURL('image/png'), bin = atob(url.split(',')[1]), u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); // synchron → iOS behält die Tipp-Erlaubnis fürs Teilen
+  const name = `${(c.name || 'zaehler').normalize('NFKD').replace(/[^\w]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'zaehler'}-${t('yearFile')}-${new Date().getFullYear()}.png`;
+  const file = new File([u8], name, { type: 'image/png' }); window.__yearPng = url;
+  try { if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: `${c.emoji || ''} ${c.name}`.trim() }); return 'shared'; } }
+  catch (e) { if (e && e.name === 'AbortError') return 'abort'; }
+  const a = document.createElement('a'), u = URL.createObjectURL(file); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+  toast(t('yearSaved')); return 'download';
+}
+/* ---------- v11: Feier (Ziel erreicht, neuer Rekord, Limit gehalten) – je Anlass nur einmal ---------- */
+const FEIER_KEY = 'zaehler-feier';
+const feierSeen = () => { try { const a = JSON.parse(lsGet(FEIER_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+function feierOnce(key) { const a = feierSeen(); if (a.includes(key)) return false; a.push(key); lsSet(FEIER_KEY, JSON.stringify(a.slice(-300))); return true; }
+const feierLog = [];
+function celebrate(c, msg) {
+  feierLog.push(msg);
+  const w = $('ovRingW'); if (w && !$('detail').hidden && !w.hidden) { w.classList.remove('glow'); void w.offsetWidth; w.classList.add('glow'); setTimeout(() => w.classList.remove('glow'), 1700); }
+  if (!reducedMotion()) confetti(c.color);
+  return msg;
+}
+function feierAfterTap(c, gp0, sk0, es) {
+  const gp = goalProgress(c, es), sk = streaks(c, es); if (!gp || gp.limit) return null;
+  const ps = gp.period === 'total' ? 'total' : +PERIOD_START[gp.period](new Date());
+  if (sk && sk0 && sk.cur >= 2 && sk.cur > sk0.best && feierOnce(`r:${c.id}:${sk.period}:${sk.cur}`)) { if (gp.done) feierOnce(`g:${c.id}:${gp.period}:${ps}`); return celebrate(c, t('feierRecord', { name: c.name, s: streakText(sk).replace(/^🔥\s*/, '') })); }
+  if (gp.done && !(gp0 && gp0.done) && feierOnce(`g:${c.id}:${gp.period}:${ps}`)) return celebrate(c, t('feierGoal', { name: c.name }));
+  return null;
+}
+/** Limit: Feier, wenn der letzte abgeschlossene Zeitraum (gestern / letzte Woche / letzter Monat) im Limit blieb */
+function feierLimit(c) {
+  if (!isLimit(c) || currentId() !== c.id || c.archived) return;
+  const g = sanitizeGoal(c.goal); if (g.period === 'total') return;
+  const cur = PERIOD_START[g.period](new Date()), prev = g.period === 'day' ? new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() - 1)
+    : g.period === 'week' ? new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() - 7) : new Date(cur.getFullYear(), cur.getMonth() - 1, 1);
+  const cr = Date.parse(c.createdAt); if (isNaN(cr) || cr > +prev) return;
+  const es = entriesOf(c.id), L = ledger(es); let sum = 0;
+  es.forEach((e, i) => { const ts = new Date(e.timestamp); if (ts >= prev && ts < cur) sum += L.eff[i]; });
+  if (sum > goalTarget(c, g) || !feierOnce(`l:${c.id}:${+prev}`)) return;
+  const m = celebrate(c, t('feierLimit', { name: c.name, p: t({ day: 'prevDay', week: 'prevWeek', month: 'prevMonth' }[g.period]) }));
+  toast(`${c.emoji || ''} ${m}`.trim(), [], 4000);
+}
+function confetti(color) {
+  const old = document.getElementById('confetti'); if (old) old.remove();
+  const cv = document.createElement('canvas'), dpr = Math.min(2, window.devicePixelRatio || 1), W = innerWidth, H = innerHeight; cv.id = 'confetti'; cv.setAttribute('aria-hidden', 'true');
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); document.body.appendChild(cv); const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const cols = [color, '#ff3b30', '#ff9500', '#ffcc00', '#34c759', '#007aff', '#af52de', '#ff2d55'];
+  const P = Array.from({ length: 120 }, (_, i) => ({ x: W / 2 + (Math.random() - .5) * 80, y: H * .3, vx: (Math.random() - .5) * 11, vy: -5 - Math.random() * 9,
+    r: Math.random() * 6.3, vr: (Math.random() - .5) * .45, w: 6 + Math.random() * 6, h: 3 + Math.random() * 4, c: cols[i % cols.length] }));
+  let t0 = 0; const DUR = 2300;
+  const step = ts => { if (!t0) t0 = ts; const k = ts - t0; g.clearRect(0, 0, W, H); g.globalAlpha = Math.max(0, Math.min(1, (DUR - k) / 600));
+    for (const p of P) { p.vy += .3; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); g.restore(); }
+    if (k < DUR && cv.isConnected) requestAnimationFrame(step); else cv.remove(); };
+  requestAnimationFrame(step);
 }
 
 /* ---------- v7: Anordnen ---------- */
@@ -2634,25 +2904,23 @@ function bindDrag(handle, tile) {
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   });
 }
-/** Minus nur als Korrektur: nie mehr abziehen, als vorhanden ist. Ergebnis: Fehlermeldung oder null */
-function minusError(cid, n) {
-  const tot = ledger(entriesOf(cid)).total;
-  return tot <= 0 ? t('errMinusZero') : n > tot ? t('errMinus', { n: tot }) : null;
-}
 async function tapPlus(cid, tileEl, opts = {}) {
   const c = counter(cid); if (!c) return;
   if (isTime(c)) return toggleTimer(cid);
   if (c.archived) return;
-  const a = opts.amount ?? stepOf(c);
-  if (a < 0) { const m = minusError(cid, -a); if (m) { toast(m, [], 3500); return; } }
-  const e = addEntry(cid, a !== 1 ? { amount: a } : {}); buzz();
+  const a = stepOf(c); // v11: nur noch große Taste / Kachel-Taste (Schritt ≥ 1); Korrekturen über Historie, Rückgängig oder Nachtragen
+  const es0 = entriesOf(cid), gp0 = goalProgress(c, es0), sk0 = streaks(c, es0);
+  const e = addEntry(cid, { ...(a !== 1 ? { amount: a } : {}), ...(opts.text ? { note: opts.text } : {}) }); buzz();
   const es = entriesOf(cid), r = roundInfo(c, es), isLast = es[es.length - 1] === e;
   render();
+  const feier = feierAfterTap(c, gp0, sk0, es);
   const tl = document.querySelector(`.tile[data-id="${cid}"]`); if (tl) { tl.classList.remove('pulse'); void tl.offsetWidth; tl.classList.add('pulse'); }
-  const msg = a === 1
+  let msg = a === 1
     ? `${c.emoji || ''} ${t('toastNr', { name: c.name, n: r.round ? r.inRound : r.total })}${r.round && r.full && isLast ? t('toastRoundFull') : ''}`
     : `${c.emoji || ''} ${t('toastAmount', { name: c.name, a: fmtAmt(a), n: r.round ? `${r.inRound}/${r.n}` : r.total })}${a > 0 && r.round && r.full ? t('toastRoundFull') : ''}`;
   const undoBtn = [t('undo'), () => { removeEntry(e.id); render(); toast(t('entryRemoved')); }];
+  const gp1 = goalProgress(c, es), extra = (opts.text ? ` · 📝 ${opts.text}` : '') + (gp1 && gp1.over && !(gp0 && gp0.over) ? ` · ${t('limitOverToast')}` : '');
+  if (feier || extra) msg = (feier || msg) + extra;
   if (c.askNote || opts.note) { const ok = await noteFor(e.id); if (ok !== false) toast(t('toastLogged', { msg }), [undoBtn], 4000); return; }
   toast(msg, [[t('noteBtn'), () => noteFor(e.id)], undoBtn], 4000);
 }
@@ -2775,6 +3043,7 @@ async function editCounter(cid = null) {
       <div class="goal-row"><input type="number" id="fGoal" inputmode="numeric" min="1" max="9999" placeholder="${esc(t('goalPh'))}" value="${g0 ? g0.amount : ''}">
         <span>${esc(t('goalPer'))}</span><select id="fGoalPer" aria-label="${esc(t('fieldGoal'))}">${['day', 'week', 'month', 'total'].map(p =>
           `<option value="${p}" ${(g0 ? g0.period : 'day') === p ? 'selected' : ''}>${esc(t('per' + p[0].toUpperCase() + p.slice(1)))}</option>`).join('')}</select></div>
+      <div class="goal-type"><select id="fGoalType" aria-label="${esc(t('goalTypeLbl'))}"><option value="more">${esc(t('goalTypeMore'))}</option><option value="limit" ${cur && cur.goalType === 'limit' ? 'selected' : ''}>${esc(t('goalTypeLimit'))}</option></select></div>
       <p class="small">${esc(t('goalHelp'))}</p></div>
     <div class="field"><span class="lbl">${esc(t('fieldReminder'))}</span>
       <label class="check"><input type="checkbox" id="fRem" ${r0 ? 'checked' : ''}> ${esc(t('reminderOn'))}</label>
@@ -2854,7 +3123,7 @@ async function editCounter(cid = null) {
         const same = categories().find(k => k.localeCompare(cat, undefined, { sensitivity: 'base' }) === 0); if (cat && same) cat = same; // „sport“ -> „Sport“
         const rr = readReminder(); if (!rr.ok) { err(rr.msg); return; }
         closeSheet({ name, emoji, color, roundSize: n, askNote: box.querySelector('#fNote').checked,
-          goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, reminder: rr.value,
+          goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, goalType: ga && box.querySelector('#fGoalType').value === 'limit' ? 'limit' : null, reminder: rr.value,
           step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }) });
       };
       if (!c) setTimeout(() => box.querySelector('#fName').focus(), 50);
@@ -3009,6 +3278,8 @@ async function copyText(txt) {
 /* v9: Daten-Menü im iOS-26-Stil – Glas-Segmente, gruppierte Liste mit farbigen Symbolen */
 const mLbl = s => String(s).replace(/^[^\p{L}\p{N}]+\s+/u, ''); // führendes Emoji weg (Symbol kommt als Kachel)
 const MICO = {
+  haptic: ['#ff2d55', '<rect x="8" y="3.5" width="8" height="17" rx="2"/><path d="M4.5 8v8M19.5 8v8"/>'],
+  sound: ['#5856d6', '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'],
   review: ['#ff9500', '<rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>'],
   archive: ['#a2845e', '<rect x="3.5" y="4.5" width="17" height="4.5" rx="1.2"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>'],
   import: ['#34c759', '<path d="M12 4v10M8 10.5l4 4 4-4"/><path d="M4 14.5v3A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-3"/>'],
@@ -3021,6 +3292,8 @@ const M_CHEV = '<svg class="m-chev" viewBox="0 0 8 14" aria-hidden="true" focusa
 const mRow = (id, v, ic, label, o = {}) => `<button class="m-row${o.danger ? ' danger' : ''}" type="button" data-v="${v}" id="${id}"${o.val != null ? ` aria-label="${esc(label + ' (' + o.val + ')')}"` : ''}>`
   + `<span class="m-ic" style="--ic:${MICO[ic][0]}" aria-hidden="true">${mSvg(MICO[ic][1])}</span><span class="m-lb">${esc(label)}</span>`
   + (o.val != null ? `<span class="m-val" aria-hidden="true">${esc(o.val)}</span>` : '') + (o.nav ? M_CHEV : '') + '</button>';
+const mToggle = (id, ic, label, on) => `<label class="m-row m-tg" for="${id}"><span class="m-ic" style="--ic:${MICO[ic][0]}" aria-hidden="true">${mSvg(MICO[ic][1])}</span>`
+  + `<span class="m-lb">${esc(label)}</span><input type="checkbox" switch class="m-sw" id="${id}"${on ? ' checked' : ''}></label>`;
 const mSeg = (id, items, aria) => { const i = Math.max(0, items.findIndex(x => x.on));
   return `<div class="gseg${items.length > 3 ? ' many' : ''}" id="${id}" role="group" aria-label="${esc(aria)}" style="--n:${items.length};--i:${i}"><span class="gseg-th" aria-hidden="true"></span>`
     + items.map(x => `<button class="gseg-b${x.on ? ' on' : ''}" type="button"${x.v ? ` data-v="${x.v}"` : ''} ${x.attr} aria-pressed="${!!x.on}"${x.aria ? ` aria-label="${esc(x.aria)}"` : ''}>${esc(x.label)}</button>`).join('') + '</div>'; };
@@ -3041,6 +3314,9 @@ async function menu(st = 0, from = null) {
     <div class="m-h">${esc(t('appearance'))}</div>
     ${mSeg('mThemes', ['auto', 'light', 'dark'].map(m => ({ attr: `data-theme-v="${m}"`, label: t('theme' + m[0].toUpperCase() + m.slice(1)), on: m === themeMode() })), t('appearance'))}
     <p class="m-foot">${esc(t('themeHelp'))}</p>
+    <div class="m-h">${esc(t('feedback'))}</div>
+    <div class="m-group" id="mFeedback">${mToggle('mHaptic', 'haptic', t('hapticLbl'), hapticOn())}${mToggle('mSound', 'sound', t('soundLbl'), soundOn())}</div>
+    <p class="m-foot">${esc(t('feedbackHelp'))}</p>
     <div class="m-h">${esc(t('backupSection'))}</div>
     <div class="m-card" id="mBackup">
       <button class="m-cta" type="button" data-v="export" id="mExport" aria-label="${esc(mLbl(t('mExport')))}">${mSvg('<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8 10.5H6.5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H16"/>')}<span>${esc(t('backupNow'))}</span></button>
@@ -3054,6 +3330,8 @@ async function menu(st = 0, from = null) {
     <p class="m-foot" id="mVersion">${t('menuNoteHtml', { app: esc(t('appTitle')), v: APP_BUILD, d: esc(fmtDate(localDateNoon(APP_DATE))) })}<span id="mCache"></span></p>
     <button class="m-close" type="button" data-v="no">${esc(t('close'))}</button></div>`, box => {
       box.scrollTop = st; // Auswahl ändern: Menü bleibt an derselben Stelle
+      box.querySelector('#mHaptic').addEventListener('change', e => { lsSet(HAPTIC_KEY, e.target.checked ? 'on' : 'off'); syncHap(); });
+      box.querySelector('#mSound').addEventListener('change', e => { lsSet(SOUND_KEY, e.target.checked ? 'on' : 'off'); if (e.target.checked) clickSound(); });
       // Darstellung + Erinnerung: direkt im offenen Menü umschalten, der Daumen gleitet zur neuen Wahl
       box.querySelectorAll('#mThemes, #mIvs').forEach(sg => sg.querySelectorAll('.gseg-b').forEach((b, i) => b.addEventListener('click', () => {
         if (b.classList.contains('on')) return;
@@ -3223,17 +3501,14 @@ $('menuBtn').onclick = menu;
 $('langBtn').onclick = langMenu;
 $('backBtn').onclick = () => goHome();
 $('editBtn').onclick = () => editCounter(currentId());
-bindPlus($('dPlus'), null);
+bindPlus($('dPlus'), null, $('dPlus'), $('hapSw')); syncHap();
 $('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-filter]'); if (!b) return; lsSet(FILTER_KEY, b.dataset.filter); renderHome(); });
 $('chartWhat').addEventListener('click', e => { const b = e.target.closest('[data-what]'); if (!b) return; lsSet(CHART_WHAT_KEY, b.dataset.what); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
-$('dAmt').addEventListener('input', syncAmt);
-$('dAmt').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('dAmt').blur(); } });
-$('dAddN').onclick = () => amountAction(1);
-$('dMinus').onclick = () => amountAction(-1);
 $('chartSeg').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; lsSet(CHART_KEY, b.dataset.mode); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
 $('remIcsBtn').onclick = () => { const c = counter(currentId()); if (c) addToCalendar(c, c.reminder); };
 $('undoBtn').onclick = () => undoLast(currentId());
+$('yearShare').onclick = () => { const c = counter(currentId()); if (c) shareYear(c); };
 $('backdateBtn').onclick = () => editEntry(null, true, currentId());
 $('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { db = load(); render(); swUpdate(); } });
@@ -3252,7 +3527,7 @@ render();
 if (!db.settings.onboarded) onboarding();
 setupServiceWorker();
 setTimeout(() => { photoGc().then(preparePhotos); }, 1500); // v7c: verwaiste Fotos aufräumen, Backup vorbereiten
-window.__zaehler = { get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
+window.__zaehler = { fx, feierLog, yearData, yearCanvas, shareYear, topNotes, isLimit, goalProgress, get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
   fmtDur, fmtClock, norm, yearReview, photoAll, photoGet, photoGc, photoStats, compressImage, backupPhotosSync, preparePhotos }; // für Tests
 })();
 </script>
