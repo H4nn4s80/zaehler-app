@@ -392,6 +392,49 @@
   .tpl .tpl-e { font-size: 26px; line-height: 1.1; } .tpl b { font-size: 13px; font-weight: 600; line-height: 1.15; } .tpl small { font-size: 11px; color: var(--muted); line-height: 1.2; }
   .tpl.on { border-color: var(--c); box-shadow: 0 0 0 1.5px var(--c) inset, inset 0 1px 0 rgba(255,255,255,.45); background: color-mix(in srgb, var(--c) 16%, var(--card)); }
   .tpl:active { transform: scale(.97); }
+  /* Version 3.1: Versteck-Modus */
+  .priv-bar { display: flex; align-items: center; gap: 8px; margin: 2px 0 14px; padding: 8px 8px 8px 14px; border-radius: 22px; font-size: 14px; line-height: 1.3;
+    background: color-mix(in srgb, #5e5ce6 14%, var(--glass-bg, var(--card))); box-shadow: var(--glass-hl, none), var(--glass-shadow, var(--shadow)); }
+  .priv-bar > span { flex: 1; min-width: 0; }
+  .priv-bar .eo { width: 15px; height: 15px; vertical-align: -2px; color: #5e5ce6; margin-right: 2px; }
+  .priv-bar .btn { flex: none; min-height: 36px; padding: 0 12px; font-size: 14px; font-weight: 600; }
+  .tile.veil .veil-e { background: color-mix(in srgb, var(--c) 38%, var(--soft)); filter: blur(5px); }
+  .tile.veil .veil-t { display: grid; gap: 10px; align-content: center; padding: 4px 0; min-height: 118px; flex: 1; min-width: 0; width: 100%; }
+  .tile.veil .vb { display: block; height: 13px; border-radius: 8px; background: color-mix(in srgb, var(--ink) 30%, transparent); filter: blur(4.5px); }
+  .tile.veil .vb.big { background: color-mix(in srgb, var(--c) 55%, var(--ink) 15%); }
+  .tile.veil .vb.big { height: 30px; border-radius: 10px; }
+  .plus.veil-plus { background: color-mix(in srgb, var(--c) 26%, var(--soft)); background-image: none; color: color-mix(in srgb, var(--ink) 55%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.25); }
+  .plus.veil-plus svg.lk { width: 26px; height: 26px; }
+  .tile-hid { color: #5e5ce6; margin-right: 5px; } .tile-hid .eo { width: 17px; height: 17px; vertical-align: -2px; }
+  .state-card .st-veil .eo { width: 16px; height: 16px; vertical-align: -3px; color: #5e5ce6; }
+  .state-card .st-btns { display: flex; gap: 8px; } .state-card .st-btns .btn { min-height: 38px; font-size: 15px; font-weight: 600; }
+  .sw-col .btn .eo { width: 17px; height: 17px; vertical-align: -3px; }
+  .pin { display: grid; justify-items: center; text-align: center; padding: 4px 0 0; }
+  .pin-ic { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #8b89ff, #5e5ce6); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+  .pin-ic svg.lk { width: 24px; height: 24px; }
+  .pin h2 { margin: 12px 0 2px; }
+  .pin-sub { margin: 0; color: var(--muted); font-size: 15px; min-height: 20px; }
+  .pin-dots { display: flex; gap: 16px; margin: 18px 0 4px; }
+  .pin-dots i { width: 14px; height: 14px; border-radius: 50%; border: 1.8px solid var(--ink); opacity: .6; transition: background-color .1s; }
+  .pin-dots i.on { background: var(--ink); opacity: 1; }
+  .pin-dots i.opt:not(.on) { border-style: dashed; opacity: .3; }
+  .pin-err { min-height: 20px; margin: 4px 0 8px; color: var(--danger); font-size: 14px; font-weight: 600; }
+  .pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px 26px; }
+  .pk { width: 76px; height: 76px; border-radius: 50%; border: 0; padding: 0; font: inherit; font-size: 32px; font-weight: 400; color: var(--ink); cursor: pointer;
+    background: color-mix(in srgb, var(--ink) 9%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .pk:active { background: color-mix(in srgb, var(--ink) 24%, transparent); }
+  .pk.pk-fn { background: transparent; box-shadow: none; font-size: 26px; display: grid; place-items: center; }
+  .pk.pk-fn svg { width: 34px; height: 34px; }
+  .pk.off { visibility: hidden; pointer-events: none; }
+  .pin-foot { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 12px; }
+  .pin-link { border: 0; background: transparent; color: var(--accent); font: inherit; font-size: 16px; min-height: 44px; padding: 0 8px; cursor: pointer; }
+  .pin-link.strong { font-weight: 700; } .pin-link:disabled { opacity: .35; }
+  .pin.busy .pin-pad { opacity: .5; pointer-events: none; }
+  .pin.shake { animation: pinShake .38s ease; }
+  @keyframes pinShake { 20% { transform: translateX(-10px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(3px); } }
+  @media (prefers-reduced-motion: reduce) { .pin.shake { animation: none; } }
+  .pv-msg { margin: -2px 2px 10px; padding: 8px 12px; border-radius: 14px; font-weight: 600; font-size: 15px; background: color-mix(in srgb, #34c759 16%, transparent); }
+  .pv-intro { margin: -4px 2px 12px; color: var(--muted); font-size: 15px; }
   #sheet .sw-ask { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
   #sheet .sw-col { display: grid; gap: 10px; margin-top: 16px; }
   #sheet .sw-col .btn { width: 100%; }
@@ -772,6 +815,7 @@
     <button type="button" id="searchX" data-i18n-aria="searchClear" hidden>✕</button></div>
   <div class="chips" id="chips" role="group" hidden></div>
   <p id="arrangeHint" data-i18n="arrangeHint" hidden></p>
+  <div class="priv-bar" id="privBar" role="status" hidden></div>
   <section class="due-box" id="dueBox" hidden></section>
   <div id="list"></div>
   <div id="searchRes" hidden></div>
@@ -779,7 +823,6 @@
   <div class="home-actions">
     <button id="newBtn" type="button"><span class="nb-ic" aria-hidden="true"><svg viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M7 1.5v11M1.5 7h11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></span><span data-i18n="newBtn"></span></button>
     <div class="home-sub"><button id="arrangeBtn" type="button" hidden></button><button id="archiveBtn" type="button" hidden></button></div>
-    <button id="hiddenBtn" type="button" hidden></button>
   </div>
 </main>
 
@@ -1616,6 +1659,15 @@ const I18N_V3B = {
   fr: {"dueTitle": "À faire", "dueOpen": "{n} en attente", "dueLeftDay": "encore {n} aujourd’hui", "dueLeftWeek": "encore {n} cette semaine", "dueLeftMonth": "encore {n} ce mois-ci", "dueAllDone": "✓ Tout est fait – objectifs atteints pour l’instant", "dueAria": "Compteurs à faire", "duePlusAria": "{name} +{n}", "dueLockedAria": "{name} est verrouillé", "resetLbl": "Remise à zéro automatique", "resetOff": "Non – afficher le total", "resetDay": "Chaque jour (à minuit)", "resetWeek": "Chaque semaine (lundi)", "resetMonth": "Chaque mois (le 1er)", "resetHelp": "La valeur affichée repart de 0 à chaque nouvelle période. Toutes les entrées restent dans l’historique ; avec des tours, un nouveau tour commence automatiquement.", "resetSubDay": "depuis 0:00 aujourd’hui", "resetSubWeek": "depuis lundi", "resetSubMonth": "depuis le 1er", "detailResetDay": "Aujourd’hui {n}", "detailResetWeek": "Cette semaine {n}", "detailResetMonth": "Ce mois-ci {n}", "tplTitle": "Modèles", "tplEmpty": "Commencer vide", "tplEmptyH": "tout régler soi-même", "tplApplied": "Modèle « {name} » appliqué – tu peux tout modifier.", "tpl_water": "Boire de l’eau", "tplh_water": "8 par jour", "tpl_coffee": "Café", "tplh_coffee": "max. 3 par jour", "tpl_sport": "Sport", "tplh_sport": "3× par semaine", "tpl_steps": "Pas", "tplh_steps": "+1000 · 8000 par jour", "tpl_smoke": "Cigarettes", "tplh_smoke": "max. 5 par jour", "tpl_read": "Lecture", "tplh_read": "20 min par jour", "tpl_meds": "Médicaments", "tplh_meds": "1× par jour", "tpl_eggs": "Œufs", "tplh_eggs": "tours de 10", "strTitle": "Force de l’habitude", "strLvl0": "Tout juste commencé", "strLvl1": "En construction", "strLvl2": "Devient une habitude", "strLvl3": "Très régulier", "strHelp": "À quel point tu as atteint ton objectif régulièrement ces derniers temps – les {p} plus anciens comptent moins.", "strHelpLimit": "À quel point tu es resté sous la limite ces derniers temps – les {p} plus anciens comptent moins.", "strPDay": "jours", "strPWeek": "semaines", "strPMonth": "mois", "strAria": "Force de l’habitude {p} %", "lockField": "Protection et visibilité", "lockCheck": "Verrouiller – aucune modification avant déverrouillage", "hideCheck": "Masquer de l’écran d’accueil", "lockAct": "Verrouiller", "unlock": "Déverrouiller", "hideAct": "Masquer", "unhideAct": "Afficher", "lockedToast": "🔒 « {name} » est verrouillé", "lockedOn": "🔒 « {name} » verrouillé", "unlockQ": "Déverrouiller « {name} » ?\nTu pourras de nouveau compter, supprimer des entrées et modifier le compteur.", "unlockedToast": "🔓 « {name} » déverrouillé", "lockSheetTitle": "🔒 « {name} » est verrouillé", "lockSheetTxt": "Tant que le compteur est verrouillé, tu ne peux ni compter, ni modifier ou supprimer des entrées, ni modifier, archiver ou supprimer le compteur.", "lockedNote": "Verrouillé – comptage et modifications désactivés.", "lockedPlus": "Verrouillé", "hiddenNote": "Masqué – absent de l’écran d’accueil.", "hiddenOn": "« {name} » masqué", "hiddenOff": "« {name} » de nouveau visible", "hiddenBtn": "Afficher les masqués ({n})", "hiddenTitle": "Masqués", "hiddenHelp": "Ces compteurs n’apparaissent ni sur l’accueil ni dans « À faire ». Les données et entrées sont conservées.", "hiddenEmpty": "Aucun compteur masqué.", "hiddenBadge": "masqué", "tileMenuHelp": "Astuce : maintiens une tuile appuyée pour ouvrir ce menu."},
 };
 for (const l of Object.keys(I18N_V3B)) Object.assign(I18N[l], I18N_V3B[l]);
+/* Version 3.1: Versteck-Modus */
+const I18N_V31 = {
+  de: {"privSection": "Versteck-Modus", "privShow": "Versteckte Zähler anzeigen", "privRelock": "Wieder verstecken", "privSettings": "Code & Face ID", "privMenuFoot": "Versteckte Zähler erscheinen nirgends, bis du sie mit deinem Code oder Face ID anzeigst.", "privUnlockTitle": "Versteckte Zähler anzeigen", "privUnlockSub": "Code eingeben", "privUnlockSubFace": "Code eingeben oder Face ID verwenden", "privUnlocked": "🔓 Versteck-Modus entsperrt", "privLocked": "🔒 Wieder versteckt", "privBar": "Versteck-Modus entsperrt – versteckte Zähler sind sichtbar.", "privBarNoPin": "Versteckte Zähler sind sichtbar – noch kein Code festgelegt, also nicht geschützt.", "privNoPin": "Noch kein Code festgelegt – versteckte Zähler sind nicht geschützt.", "pinSetBtn": "Code festlegen", "pinNewTitle": "Neuen Code festlegen", "pinNewSub": "4 bis 6 Ziffern", "pinConfirmTitle": "Code wiederholen", "pinConfirmSub": "Zur Sicherheit noch einmal eingeben", "pinMismatch": "Die Codes stimmen nicht überein – noch einmal.", "pinWrong": "Falscher Code", "pinWait": "Zu viele Versuche – warte {s} s.", "pinOldTitle": "Aktuellen Code eingeben", "pinNext": "Weiter", "pinDel": "Ziffer löschen", "pinForgot": "Code vergessen?", "pinSaved": "🔒 Code festgelegt", "pinChanged": "🔒 Code geändert", "pinChange": "Code ändern", "pinNoCrypto": "Auf diesem Gerät nicht verfügbar (sichere Verbindung nötig).", "faceBtn": "Face ID", "faceLbl": "Mit Face ID entsperren", "faceOn": "Face ID eingerichtet", "faceOff": "Face ID ausgeschaltet", "faceFail": "Face ID hat nicht geklappt – gib den Code ein.", "faceSetupFail": "Face ID konnte nicht eingerichtet werden.", "faceNone": "Face ID ist in diesem Browser nicht verfügbar – der Code funktioniert immer.", "privIntro": "Versteckte Zähler sind entweder unsichtbar (nirgends zu sehen) oder unscharf (die Kachel bleibt, der Inhalt ist unlesbar). Anzeigen nur mit Code oder Face ID.", "privAutoHide": "Nach dem Entsperren wird automatisch wieder versteckt, sobald die App in den Hintergrund geht oder 5 Minuten lang nichts getippt wird.", "privNoteH": "Gut zu wissen", "privBackupNote": "Der Versteck-Modus schützt vor Blicken auf dein Handy – nicht vor jemandem mit deiner Backup-Datei. Backups und der Browser-Speicher enthalten auch versteckte Zähler lesbar. Darum fragt „Backup jetzt“ nach dem Code.", "pinIntroTitle": "🔒 Code für den Versteck-Modus", "pinIntroTxt": "Zum Verstecken brauchst du einmalig einen Code (4–6 Ziffern). Nur damit – oder mit Face ID – kannst du versteckte Zähler wieder anzeigen.", "veilNoPin": "Nicht versteckt – es wurde kein Code festgelegt.", "hideField": "Verstecken", "hideNone": "Nicht verstecken", "hideInv": "Unsichtbar – nirgends zu sehen", "hideBlur": "Unscharf – Kachel bleibt, Inhalt unlesbar", "hideHelp": "Verstecken geht ohne Code. Wieder anzeigen oder den Stil ändern nur nach dem Entsperren mit Code oder Face ID.", "tmHideInv": "Verstecken – unsichtbar", "tmHideBlur": "Verstecken – unscharf", "tmUnhide": "Nicht mehr verstecken", "tmToBlur": "Unscharf statt unsichtbar", "tmToInv": "Unsichtbar statt unscharf", "veilOn": "🔒 Versteckt – nur mit Code sichtbar", "veilOff": "„{name}“ ist nicht mehr versteckt", "veilAria": "Versteckter Zähler – tippen zum Entsperren", "veilNoteInv": "Versteckt (unsichtbar) – gerade sichtbar, weil entsperrt.", "veilNoteBlur": "Versteckt (unscharf) – gerade sichtbar, weil entsperrt.", "veilBadge": "versteckt", "forgotTitle": "Code vergessen?", "forgotFaceTxt": "Bestätige mit Face ID, dann legst du einen neuen Code fest.", "forgotFaceBtn": "Mit Face ID bestätigen", "forgotTxt": "Ohne Code lassen sich versteckte Zähler nicht anzeigen – genau dafür ist der Versteck-Modus da. Du kannst den Code zurücksetzen: Dabei werden alle versteckten Zähler samt Einträgen endgültig gelöscht, alle anderen bleiben. Aus einem früheren Backup kannst du sie wiederherstellen.", "forgotReset": "Versteckte löschen & Code zurücksetzen", "forgotQ": "Wirklich alle versteckten Zähler endgültig löschen und den Code zurücksetzen? Das lässt sich nicht rückgängig machen.", "forgotYes": "Endgültig löschen", "forgotDone": "Code zurückgesetzt – versteckte Zähler wurden gelöscht.", "exportLocked": "Für das Backup bitte mit Code oder Face ID bestätigen."},
+  en: {"privSection": "Privacy mode", "privShow": "Show hidden counters", "privRelock": "Hide again", "privSettings": "Passcode & Face ID", "privMenuFoot": "Hidden counters appear nowhere until you show them with your passcode or Face ID.", "privUnlockTitle": "Show hidden counters", "privUnlockSub": "Enter passcode", "privUnlockSubFace": "Enter passcode or use Face ID", "privUnlocked": "🔓 Privacy mode unlocked", "privLocked": "🔒 Hidden again", "privBar": "Privacy mode unlocked – hidden counters are visible.", "privBarNoPin": "Hidden counters are visible – no passcode set yet, so they are not protected.", "privNoPin": "No passcode set yet – hidden counters are not protected.", "pinSetBtn": "Set passcode", "pinNewTitle": "Set a new passcode", "pinNewSub": "4 to 6 digits", "pinConfirmTitle": "Repeat passcode", "pinConfirmSub": "Enter it once more to be sure", "pinMismatch": "The passcodes don’t match – try again.", "pinWrong": "Wrong passcode", "pinWait": "Too many attempts – wait {s} s.", "pinOldTitle": "Enter current passcode", "pinNext": "Next", "pinDel": "Delete digit", "pinForgot": "Forgot passcode?", "pinSaved": "🔒 Passcode set", "pinChanged": "🔒 Passcode changed", "pinChange": "Change passcode", "pinNoCrypto": "Not available on this device (secure connection required).", "faceBtn": "Face ID", "faceLbl": "Unlock with Face ID", "faceOn": "Face ID set up", "faceOff": "Face ID turned off", "faceFail": "Face ID didn’t work – enter the passcode.", "faceSetupFail": "Face ID could not be set up.", "faceNone": "Face ID is not available in this browser – the passcode always works.", "privIntro": "Hidden counters are either invisible (shown nowhere) or blurred (the tile stays, its content is unreadable). They can only be shown with the passcode or Face ID.", "privAutoHide": "After unlocking, everything is hidden again automatically as soon as the app goes to the background or nothing is tapped for 5 minutes.", "privNoteH": "Good to know", "privBackupNote": "Privacy mode protects against people looking at your phone – not against someone who has your backup file. Backups and the browser storage still contain hidden counters in readable form. That’s why “Back up now” asks for the passcode.", "pinIntroTitle": "🔒 Passcode for privacy mode", "pinIntroTxt": "To hide counters you need a passcode once (4–6 digits). Only with it – or with Face ID – can you show hidden counters again.", "veilNoPin": "Not hidden – no passcode was set.", "hideField": "Hide", "hideNone": "Don’t hide", "hideInv": "Invisible – shown nowhere", "hideBlur": "Blurred – tile stays, content unreadable", "hideHelp": "Hiding needs no passcode. Showing again or changing the style only after unlocking with the passcode or Face ID.", "tmHideInv": "Hide – invisible", "tmHideBlur": "Hide – blurred", "tmUnhide": "Stop hiding", "tmToBlur": "Blurred instead of invisible", "tmToInv": "Invisible instead of blurred", "veilOn": "🔒 Hidden – visible only with the passcode", "veilOff": "“{name}” is no longer hidden", "veilAria": "Hidden counter – tap to unlock", "veilNoteInv": "Hidden (invisible) – visible right now because unlocked.", "veilNoteBlur": "Hidden (blurred) – visible right now because unlocked.", "veilBadge": "hidden", "forgotTitle": "Forgot passcode?", "forgotFaceTxt": "Confirm with Face ID, then set a new passcode.", "forgotFaceBtn": "Confirm with Face ID", "forgotTxt": "Without the passcode hidden counters cannot be shown – that is the point of privacy mode. You can reset the passcode: this permanently deletes all hidden counters with their entries; all others stay. You can restore them from an earlier backup.", "forgotReset": "Delete hidden & reset passcode", "forgotQ": "Really delete all hidden counters permanently and reset the passcode? This cannot be undone.", "forgotYes": "Delete permanently", "forgotDone": "Passcode reset – hidden counters were deleted.", "exportLocked": "Please confirm the backup with your passcode or Face ID."},
+  it: {"privSection": "Modalità privata", "privShow": "Mostra contatori nascosti", "privRelock": "Nascondi di nuovo", "privSettings": "Codice e Face ID", "privMenuFoot": "I contatori nascosti non compaiono da nessuna parte finché non li mostri con il codice o Face ID.", "privUnlockTitle": "Mostra contatori nascosti", "privUnlockSub": "Inserisci il codice", "privUnlockSubFace": "Inserisci il codice o usa Face ID", "privUnlocked": "🔓 Modalità privata sbloccata", "privLocked": "🔒 Di nuovo nascosti", "privBar": "Modalità privata sbloccata – i contatori nascosti sono visibili.", "privBarNoPin": "I contatori nascosti sono visibili – nessun codice impostato, quindi non sono protetti.", "privNoPin": "Nessun codice impostato – i contatori nascosti non sono protetti.", "pinSetBtn": "Imposta codice", "pinNewTitle": "Imposta un nuovo codice", "pinNewSub": "Da 4 a 6 cifre", "pinConfirmTitle": "Ripeti il codice", "pinConfirmSub": "Inseriscilo ancora una volta", "pinMismatch": "I codici non coincidono – riprova.", "pinWrong": "Codice errato", "pinWait": "Troppi tentativi – attendi {s} s.", "pinOldTitle": "Inserisci il codice attuale", "pinNext": "Avanti", "pinDel": "Cancella cifra", "pinForgot": "Codice dimenticato?", "pinSaved": "🔒 Codice impostato", "pinChanged": "🔒 Codice modificato", "pinChange": "Cambia codice", "pinNoCrypto": "Non disponibile su questo dispositivo (serve una connessione sicura).", "faceBtn": "Face ID", "faceLbl": "Sblocca con Face ID", "faceOn": "Face ID configurato", "faceOff": "Face ID disattivato", "faceFail": "Face ID non ha funzionato – inserisci il codice.", "faceSetupFail": "Impossibile configurare Face ID.", "faceNone": "Face ID non è disponibile in questo browser – il codice funziona sempre.", "privIntro": "I contatori nascosti sono invisibili (non compaiono da nessuna parte) o sfocati (il riquadro resta, il contenuto è illeggibile). Si mostrano solo con codice o Face ID.", "privAutoHide": "Dopo lo sblocco tutto torna nascosto automaticamente quando l’app va in background o dopo 5 minuti senza tocchi.", "privNoteH": "Buono a sapersi", "privBackupNote": "La modalità privata protegge da chi guarda il tuo telefono – non da chi ha il tuo file di backup. I backup e la memoria del browser contengono anche i contatori nascosti in forma leggibile. Per questo «Backup ora» chiede il codice.", "pinIntroTitle": "🔒 Codice per la modalità privata", "pinIntroTxt": "Per nascondere serve una volta un codice (4–6 cifre). Solo con esso – o con Face ID – puoi mostrare di nuovo i contatori nascosti.", "veilNoPin": "Non nascosto – nessun codice impostato.", "hideField": "Nascondi", "hideNone": "Non nascondere", "hideInv": "Invisibile – non compare da nessuna parte", "hideBlur": "Sfocato – il riquadro resta, contenuto illeggibile", "hideHelp": "Nascondere non richiede codice. Mostrare di nuovo o cambiare stile solo dopo lo sblocco con codice o Face ID.", "tmHideInv": "Nascondi – invisibile", "tmHideBlur": "Nascondi – sfocato", "tmUnhide": "Non nascondere più", "tmToBlur": "Sfocato invece che invisibile", "tmToInv": "Invisibile invece che sfocato", "veilOn": "🔒 Nascosto – visibile solo con il codice", "veilOff": "«{name}» non è più nascosto", "veilAria": "Contatore nascosto – tocca per sbloccare", "veilNoteInv": "Nascosto (invisibile) – ora visibile perché sbloccato.", "veilNoteBlur": "Nascosto (sfocato) – ora visibile perché sbloccato.", "veilBadge": "nascosto", "forgotTitle": "Codice dimenticato?", "forgotFaceTxt": "Conferma con Face ID, poi imposta un nuovo codice.", "forgotFaceBtn": "Conferma con Face ID", "forgotTxt": "Senza codice i contatori nascosti non si possono mostrare – è proprio lo scopo della modalità privata. Puoi reimpostare il codice: così tutti i contatori nascosti e le loro voci vengono eliminati definitivamente, gli altri restano. Puoi ripristinarli da un backup precedente.", "forgotReset": "Elimina nascosti e reimposta codice", "forgotQ": "Eliminare davvero tutti i contatori nascosti e reimpostare il codice? Non si può annullare.", "forgotYes": "Elimina definitivamente", "forgotDone": "Codice reimpostato – i contatori nascosti sono stati eliminati.", "exportLocked": "Conferma il backup con il codice o Face ID."},
+  es: {"privSection": "Modo privado", "privShow": "Mostrar contadores ocultos", "privRelock": "Ocultar de nuevo", "privSettings": "Código y Face ID", "privMenuFoot": "Los contadores ocultos no aparecen en ningún sitio hasta que los muestres con tu código o Face ID.", "privUnlockTitle": "Mostrar contadores ocultos", "privUnlockSub": "Introduce el código", "privUnlockSubFace": "Introduce el código o usa Face ID", "privUnlocked": "🔓 Modo privado desbloqueado", "privLocked": "🔒 Ocultos de nuevo", "privBar": "Modo privado desbloqueado – los contadores ocultos están visibles.", "privBarNoPin": "Los contadores ocultos están visibles – aún no hay código, así que no están protegidos.", "privNoPin": "Aún no hay código – los contadores ocultos no están protegidos.", "pinSetBtn": "Crear código", "pinNewTitle": "Crea un código nuevo", "pinNewSub": "De 4 a 6 dígitos", "pinConfirmTitle": "Repite el código", "pinConfirmSub": "Introdúcelo otra vez para confirmar", "pinMismatch": "Los códigos no coinciden – inténtalo de nuevo.", "pinWrong": "Código incorrecto", "pinWait": "Demasiados intentos – espera {s} s.", "pinOldTitle": "Introduce el código actual", "pinNext": "Siguiente", "pinDel": "Borrar dígito", "pinForgot": "¿Olvidaste el código?", "pinSaved": "🔒 Código creado", "pinChanged": "🔒 Código cambiado", "pinChange": "Cambiar código", "pinNoCrypto": "No disponible en este dispositivo (se necesita conexión segura).", "faceBtn": "Face ID", "faceLbl": "Desbloquear con Face ID", "faceOn": "Face ID configurado", "faceOff": "Face ID desactivado", "faceFail": "Face ID no ha funcionado – introduce el código.", "faceSetupFail": "No se pudo configurar Face ID.", "faceNone": "Face ID no está disponible en este navegador – el código funciona siempre.", "privIntro": "Los contadores ocultos son invisibles (no aparecen en ningún sitio) o borrosos (la tarjeta queda, el contenido es ilegible). Solo se muestran con código o Face ID.", "privAutoHide": "Tras desbloquear, todo se oculta de nuevo automáticamente cuando la app pasa a segundo plano o tras 5 minutos sin tocar nada.", "privNoteH": "Conviene saber", "privBackupNote": "El modo privado protege de quien mira tu móvil, no de quien tenga tu archivo de copia. Las copias y la memoria del navegador contienen también los contadores ocultos de forma legible. Por eso «Copia ahora» pide el código.", "pinIntroTitle": "🔒 Código para el modo privado", "pinIntroTxt": "Para ocultar necesitas una vez un código (4–6 dígitos). Solo con él – o con Face ID – puedes volver a mostrar los contadores ocultos.", "veilNoPin": "No se ha ocultado – no se creó ningún código.", "hideField": "Ocultar", "hideNone": "No ocultar", "hideInv": "Invisible – no aparece en ningún sitio", "hideBlur": "Borroso – la tarjeta queda, contenido ilegible", "hideHelp": "Ocultar no necesita código. Volver a mostrar o cambiar el estilo solo tras desbloquear con código o Face ID.", "tmHideInv": "Ocultar – invisible", "tmHideBlur": "Ocultar – borroso", "tmUnhide": "Dejar de ocultar", "tmToBlur": "Borroso en vez de invisible", "tmToInv": "Invisible en vez de borroso", "veilOn": "🔒 Oculto – visible solo con el código", "veilOff": "«{name}» ya no está oculto", "veilAria": "Contador oculto – toca para desbloquear", "veilNoteInv": "Oculto (invisible) – visible ahora porque está desbloqueado.", "veilNoteBlur": "Oculto (borroso) – visible ahora porque está desbloqueado.", "veilBadge": "oculto", "forgotTitle": "¿Olvidaste el código?", "forgotFaceTxt": "Confirma con Face ID y después crea un código nuevo.", "forgotFaceBtn": "Confirmar con Face ID", "forgotTxt": "Sin código no se pueden mostrar los contadores ocultos – para eso existe el modo privado. Puedes restablecer el código: se eliminarán definitivamente todos los contadores ocultos con sus entradas; los demás se quedan. Puedes recuperarlos de una copia anterior.", "forgotReset": "Eliminar ocultos y restablecer código", "forgotQ": "¿Eliminar de verdad todos los contadores ocultos y restablecer el código? No se puede deshacer.", "forgotYes": "Eliminar definitivamente", "forgotDone": "Código restablecido – se eliminaron los contadores ocultos.", "exportLocked": "Confirma la copia con tu código o Face ID."},
+  fr: {"privSection": "Mode privé", "privShow": "Afficher les compteurs cachés", "privRelock": "Recacher", "privSettings": "Code et Face ID", "privMenuFoot": "Les compteurs cachés n’apparaissent nulle part tant que tu ne les affiches pas avec ton code ou Face ID.", "privUnlockTitle": "Afficher les compteurs cachés", "privUnlockSub": "Saisis le code", "privUnlockSubFace": "Saisis le code ou utilise Face ID", "privUnlocked": "🔓 Mode privé déverrouillé", "privLocked": "🔒 De nouveau cachés", "privBar": "Mode privé déverrouillé – les compteurs cachés sont visibles.", "privBarNoPin": "Les compteurs cachés sont visibles – aucun code défini, ils ne sont donc pas protégés.", "privNoPin": "Aucun code défini – les compteurs cachés ne sont pas protégés.", "pinSetBtn": "Définir un code", "pinNewTitle": "Définir un nouveau code", "pinNewSub": "4 à 6 chiffres", "pinConfirmTitle": "Répète le code", "pinConfirmSub": "Saisis-le encore une fois", "pinMismatch": "Les codes ne correspondent pas – réessaie.", "pinWrong": "Code incorrect", "pinWait": "Trop de tentatives – attends {s} s.", "pinOldTitle": "Saisis le code actuel", "pinNext": "Suivant", "pinDel": "Effacer le chiffre", "pinForgot": "Code oublié ?", "pinSaved": "🔒 Code défini", "pinChanged": "🔒 Code modifié", "pinChange": "Modifier le code", "pinNoCrypto": "Indisponible sur cet appareil (connexion sécurisée requise).", "faceBtn": "Face ID", "faceLbl": "Déverrouiller avec Face ID", "faceOn": "Face ID configuré", "faceOff": "Face ID désactivé", "faceFail": "Face ID n’a pas fonctionné – saisis le code.", "faceSetupFail": "Impossible de configurer Face ID.", "faceNone": "Face ID n’est pas disponible dans ce navigateur – le code fonctionne toujours.", "privIntro": "Les compteurs cachés sont invisibles (affichés nulle part) ou flous (la tuile reste, le contenu est illisible). Affichage uniquement avec le code ou Face ID.", "privAutoHide": "Après le déverrouillage, tout est recaché automatiquement dès que l’app passe en arrière-plan ou après 5 minutes sans toucher l’écran.", "privNoteH": "Bon à savoir", "privBackupNote": "Le mode privé protège des regards sur ton téléphone – pas de quelqu’un qui a ton fichier de sauvegarde. Les sauvegardes et la mémoire du navigateur contiennent aussi les compteurs cachés en clair. C’est pourquoi « Sauvegarder » demande le code.", "pinIntroTitle": "🔒 Code pour le mode privé", "pinIntroTxt": "Pour cacher, il te faut une fois un code (4 à 6 chiffres). Seul ce code – ou Face ID – permet de réafficher les compteurs cachés.", "veilNoPin": "Pas caché – aucun code n’a été défini.", "hideField": "Cacher", "hideNone": "Ne pas cacher", "hideInv": "Invisible – affiché nulle part", "hideBlur": "Flou – la tuile reste, contenu illisible", "hideHelp": "Cacher ne demande pas de code. Réafficher ou changer le style seulement après déverrouillage par code ou Face ID.", "tmHideInv": "Cacher – invisible", "tmHideBlur": "Cacher – flou", "tmUnhide": "Ne plus cacher", "tmToBlur": "Flou au lieu d’invisible", "tmToInv": "Invisible au lieu de flou", "veilOn": "🔒 Caché – visible uniquement avec le code", "veilOff": "« {name} » n’est plus caché", "veilAria": "Compteur caché – touche pour déverrouiller", "veilNoteInv": "Caché (invisible) – visible maintenant car déverrouillé.", "veilNoteBlur": "Caché (flou) – visible maintenant car déverrouillé.", "veilBadge": "caché", "forgotTitle": "Code oublié ?", "forgotFaceTxt": "Confirme avec Face ID, puis définis un nouveau code.", "forgotFaceBtn": "Confirmer avec Face ID", "forgotTxt": "Sans le code, les compteurs cachés ne peuvent pas être affichés – c’est le but du mode privé. Tu peux réinitialiser le code : tous les compteurs cachés et leurs entrées seront supprimés définitivement, les autres restent. Tu peux les restaurer depuis une sauvegarde antérieure.", "forgotReset": "Supprimer les cachés et réinitialiser", "forgotQ": "Vraiment supprimer définitivement tous les compteurs cachés et réinitialiser le code ? Impossible d’annuler.", "forgotYes": "Supprimer définitivement", "forgotDone": "Code réinitialisé – les compteurs cachés ont été supprimés.", "exportLocked": "Confirme la sauvegarde avec ton code ou Face ID."},
+};
+for (const l of Object.keys(I18N_V31)) Object.assign(I18N[l], I18N_V31[l]);
 </script>
 <script>
 (() => {
@@ -1631,7 +1683,7 @@ for (const l of Object.keys(I18N_V3B)) Object.assign(I18N[l], I18N_V3B[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 12, APP_VERSION = '3', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 13, APP_VERSION = '3.1', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -1771,7 +1823,12 @@ function isPrice(v) { return typeof v === 'number' && Number.isFinite(v) && v >=
 const RESETS = ['day', 'week', 'month'];
 const resetOf = c => (c && RESETS.includes(c.reset) ? c.reset : null);
 const isLocked = c => !!c && c.locked === true;
-const isHidden = c => !!c && c.hidden === true;
+/* Version 3.1: Versteck-Modus. hidden: true = unsichtbar (v3-„ausgeblendete“ Zähler sind damit automatisch unsichtbar), 'blur' = unscharf */
+const hideOf = c => (!c ? null : c.hidden === true ? 'invisible' : c.hidden === 'blur' ? 'blur' : null);
+const isHidden = c => !!hideOf(c);
+let privOpen = false, privAct = 0; // nur im Speicher: Versteck-Modus für diese Sitzung entsperrt
+const veiled = c => !!hideOf(c) && !privOpen; // gerade verborgen (unsichtbar oder unscharf)
+const gone = c => veiled(c) && hideOf(c) === 'invisible'; // komplett unsichtbar
 function validAmount(a) { return Number.isInteger(a) && a !== 0 && Math.abs(a) <= 9999; }
 /* v7c: Zeit-Zähler – Einträge tragen eine Dauer in Sekunden; sie ist ihre „Menge“ (Summen, Ziele, Diagramm, Serien) */
 const MAX_DUR = 720 * 3600; // 30 Tage
@@ -1793,7 +1850,7 @@ const activeCounters = () => sortedCounters().filter(c => !c.archived);
 const stepOf = c => (Number.isInteger(c.step) && c.step >= 1 && c.step <= 999 ? c.step : 1);
 const catOf = c => (typeof c.category === 'string' ? c.category.trim() : '');
 const fmtAmt = a => (a < 0 ? '−' + (-a) : '+' + a);
-const categories = () => [...new Set(db.counters.filter(c => !c.archived && !c.hidden).map(catOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, intlLocale(), { sensitivity: 'base' }));
+const categories = () => [...new Set(db.counters.filter(c => !c.archived && !veiled(c)).map(catOf).filter(Boolean))].sort((a, b) => a.localeCompare(b, intlLocale(), { sensitivity: 'base' }));
 /** Bestand chronologisch. Minus ist eine Korrektur und wirkt höchstens bis 0 – der Stand wird nie negativ.
     eff[i] = tatsächlich wirksame Menge, runs[i] = Stand danach, units = ein Platz pro Stück (nur für Runden) */
 function ledger(list, withUnits = false) {
@@ -1906,7 +1963,7 @@ function habitStrength(c, list, L = ledger(list)) {
 const strLevel = p => t(p >= 80 ? 'strLvl3' : p >= 50 ? 'strLvl2' : p >= 20 ? 'strLvl1' : 'strLvl0');
 /** Version 3b: Fällig = Ziel (mehr ist besser, Tag/Woche/Monat) im laufenden Zeitraum noch nicht erreicht; Limits und Zähler ohne Ziel nie */
 function dueInfo(c, es = entriesOf(c.id)) {
-  if (c.archived || c.hidden || c.goalType === 'limit') return null;
+  if (c.archived || veiled(c) || c.goalType === 'limit') return null;
   const g = sanitizeGoal(c.goal); if (!g || g.period === 'total') return null;
   const gp = goalProgress(c, es); if (!gp) return null;
   const need = goalTarget(c, g), left = Math.max(0, need - gp.count);
@@ -2063,7 +2120,7 @@ function normalizeDb(s) {
     if ('archived' in c && c.archived !== true) delete c.archived; // v7c
     if ('reset' in c && !['day', 'week', 'month'].includes(c.reset)) delete c.reset; // Version 3b: Auto-Reset day|week|month
     if ('locked' in c && c.locked !== true) delete c.locked; // Version 3b: gesperrt
-    if ('hidden' in c && c.hidden !== true) delete c.hidden; // Version 3b: ausgeblendet
+    if ('hidden' in c && c.hidden !== true && c.hidden !== 'blur') delete c.hidden; // Version 3.1: versteckt (true = unsichtbar, 'blur' = unscharf)
     if ('runningSince' in c && !(c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince)))) delete c.runningSince;
   });
   for (const e of s.entries) { // v7b: Menge/Preis pro Eintrag (fehlen bei alten Daten = 1 bzw. Zählerpreis)
@@ -2397,10 +2454,198 @@ function setLocked(cid, on) {
   c.locked = true; save(); render();
   toast(t('lockedOn', { name: c.name }), [[t('undo'), () => { delete c.locked; save(); render(); }]], 5000);
 }
-function setHidden(cid, on) {
+/* ---------- Version 3.1: Versteck-Modus (Code / Face ID) ----------
+   Code: nur als PBKDF2-Hash (SHA-256, zufälliges Salz) in localStorage „zaehler-privacy“ – Geräte-Einstellung, nicht im Backup.
+   Face ID: WebAuthn-Plattform-Authentifikator, nur lokal geprüft (eigene Zufalls-Challenge, gespeichert wird nur die Credential-ID).
+   Entsperrt gilt nur im Speicher (privOpen) – weg bei Hintergrund, nach 5 Min. ohne Tippen oder mit „Wieder verstecken“. */
+const PRIV_KEY = 'zaehler-privacy', PIN_ITER = 210000, PRIV_IDLE = 5 * 60 * 1000;
+const EYE_OFF = '<svg class="eo" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M1.8 8s2.3-4.6 6.2-4.6S14.2 8 14.2 8s-2.3 4.6-6.2 4.6S1.8 8 1.8 8z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="1.9" fill="currentColor"/><path d="M2.6 13.4 13.4 2.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const FACE_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 8V6A2.5 2.5 0 0 1 6 3.5h2M16 3.5h2A2.5 2.5 0 0 1 20.5 6v2M20.5 16v2a2.5 2.5 0 0 1-2.5 2.5h-2M8 20.5H6A2.5 2.5 0 0 1 3.5 18v-2M8.5 9v1.3M15.5 9v1.3M12 9v4h-1M9 15.6a4.2 4.2 0 0 0 6 0"/></svg>';
+function privGet() { try { const o = JSON.parse(lsGet(PRIV_KEY) || 'null'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+const privSet = o => lsSet(PRIV_KEY, JSON.stringify(o));
+const hasPin = () => { const p = privGet(); return typeof p.hash === 'string' && typeof p.salt === 'string'; };
+const b64 = u8 => btoa(String.fromCharCode(...u8)), unb64 = s => Uint8Array.from(atob(s), ch => ch.charCodeAt(0));
+const b64u = u8 => b64(u8).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), unb64u = s => unb64(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4));
+async function pinHash(pin, salt, iter) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+  return b64(new Uint8Array(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, k, 256)));
+}
+async function setPin(pin) {
+  const salt = crypto.getRandomValues(new Uint8Array(16)), p = privGet();
+  Object.assign(p, { v: 1, salt: b64(salt), iter: PIN_ITER, len: pin.length, hash: await pinHash(pin, salt, PIN_ITER) });
+  delete p.fails; delete p.until; privSet(p);
+}
+async function checkPin(pin) { const p = privGet(); if (!hasPin()) return false; return (await pinHash(pin, unb64(p.salt), p.iter || PIN_ITER)) === p.hash; }
+/** Code prüfen mit Bremse: ab 5 Fehlversuchen 30 s Pause, danach jeweils doppelt so lang (höchstens 15 Min.) */
+async function pinTry(pin) {
+  const p = privGet(), now = Date.now();
+  if (p.until && now < p.until) return t('pinWait', { s: Math.ceil((p.until - now) / 1000) });
+  if (await checkPin(pin)) { const q = privGet(); delete q.fails; delete q.until; privSet(q); return true; }
+  const q = privGet(); q.fails = (q.fails || 0) + 1;
+  if (q.fails >= 5) q.until = now + Math.min(15 * 60e3, 30e3 * 2 ** (q.fails - 5));
+  privSet(q); return q.until > now ? t('pinWait', { s: Math.ceil((q.until - now) / 1000) }) : t('pinWrong');
+}
+async function faceAvail() {
+  try { return !!(window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable && navigator.credentials
+    && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch (e) { return false; }
+}
+const rndBytes = n => crypto.getRandomValues(new Uint8Array(n));
+async function faceRegister() {
+  const cred = await navigator.credentials.create({ publicKey: { challenge: rndBytes(32), rp: { name: t('appTitle'), id: location.hostname },
+    user: { id: rndBytes(16), name: 'zaehler', displayName: `${t('appTitle')} – ${t('privSection')}` },
+    pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged', requireResidentKey: false },
+    timeout: 60000, attestation: 'none' } });
+  if (!cred || !cred.rawId) throw new Error('no credential');
+  const p = privGet(); p.cred = b64u(new Uint8Array(cred.rawId)); privSet(p);
+}
+/** true nur, wenn der Plattform-Authentifikator mit derselben Credential-ID antwortet und „Nutzer verifiziert“ (UV) meldet */
+async function faceVerify() {
+  const p = privGet(); if (!p.cred || !navigator.credentials) return false;
+  try {
+    const a = await navigator.credentials.get({ publicKey: { challenge: rndBytes(32), rpId: location.hostname, userVerification: 'required', timeout: 60000,
+      allowCredentials: [{ type: 'public-key', id: unb64u(p.cred), transports: ['internal'] }] } });
+    if (!a || !a.rawId || b64u(new Uint8Array(a.rawId)) !== p.cred) return false;
+    const ad = new Uint8Array(a.response.authenticatorData); return ad.length > 32 && (ad[32] & 0x05) === 0x05; // UP + UV
+  } catch (e) { return false; }
+}
+/** Ziffernblock im Blatt. o: { title, sub, len (feste Länge → prüft automatisch) | null (4–6, „Weiter“), face, forgot, check(pin) → true | Fehlertext }
+    Ergebnis: { pin } | 'face' | 'forgot' | null/'no' */
+function codePad(o) {
+  const max = o.len || 6; let pin = '', busy = false, kd = null;
+  return openSheet(`<div class="pin${o.len ? '' : ' free'}" id="pinBox">
+    <div class="pin-ic" aria-hidden="true">${LOCK_SVG}</div>
+    <h2 id="pinTitle">${esc(o.title)}</h2><p class="pin-sub" id="pinSub">${esc(o.sub || '')}</p>
+    <div class="pin-dots" id="pinDots" aria-hidden="true">${Array.from({ length: max }, (_, i) => `<i${!o.len && i >= 4 ? ' class="opt"' : ''}></i>`).join('')}</div>
+    <p class="pin-err" id="pinErr" role="alert"></p>
+    <div class="pin-pad" id="pinPad">${'123456789'.split('').map(d => `<button type="button" class="pk" data-k="${d}">${d}</button>`).join('')}
+      <button type="button" class="pk pk-fn off" id="pinFace" data-k="face" aria-hidden="true" tabindex="-1" aria-label="${esc(t('faceBtn'))}">${FACE_SVG}</button><button type="button" class="pk" data-k="0">0</button><button type="button" class="pk pk-fn" data-k="del" aria-label="${esc(t('pinDel'))}">⌫</button></div>
+    <div class="pin-foot">${o.forgot ? `<button type="button" class="pin-link" id="pinForgot">${esc(t('pinForgot'))}</button>` : '<span></span>'}
+      ${o.len ? '' : `<button type="button" class="pin-link strong" id="pinOk" disabled>${esc(t('pinNext'))}</button>`}<button type="button" class="pin-link" data-v="no" id="pinCancel">${esc(t('cancel'))}</button></div></div>`, box => {
+    const B = box.querySelector('#pinBox'), D = box.querySelector('#pinDots'), E = box.querySelector('#pinErr'), ok = box.querySelector('#pinOk');
+    const draw = () => { D.querySelectorAll('i').forEach((d, i) => d.classList.toggle('on', i < pin.length)); if (ok) ok.disabled = pin.length < 4; };
+    const submit = async () => {
+      if (busy || pin.length < 4) return; busy = true; B.classList.add('busy');
+      let r; try { r = o.check ? await o.check(pin) : true; } catch (e) { r = t('pinNoCrypto'); }
+      busy = false; B.classList.remove('busy'); if (!box.contains(B)) return;
+      if (r === true) { closeSheet({ pin }); return; }
+      E.textContent = r || ''; pin = ''; draw(); B.classList.remove('shake'); void B.offsetWidth; B.classList.add('shake');
+      try { if (hapticOn() && navigator.vibrate) navigator.vibrate([30, 40, 30]); } catch (e) {}
+    };
+    const key = k => {
+      if (busy) return;
+      if (k === 'face') { closeSheet('face'); return; }
+      if (k === 'del') pin = pin.slice(0, -1); else if (/^\d$/.test(k) && pin.length < max) { pin += k; E.textContent = ''; }
+      draw(); if (o.len && pin.length === o.len) submit();
+    };
+    box.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => key(b.dataset.k)));
+    if (ok) ok.onclick = submit;
+    const fg = box.querySelector('#pinForgot'); if (fg) fg.onclick = () => closeSheet('forgot');
+    kd = e => { if (!box.contains(B)) return;
+      if (/^\d$/.test(e.key)) { e.preventDefault(); key(e.key); } else if (e.key === 'Backspace') { e.preventDefault(); key('del'); } else if (e.key === 'Enter' && !o.len) { e.preventDefault(); submit(); } };
+    document.addEventListener('keydown', kd, true);
+    if (o.face) faceAvail().then(a => { const f = box.querySelector('#pinFace'); if (f && a && box.contains(B)) { f.classList.remove('off'); f.removeAttribute('aria-hidden'); f.removeAttribute('tabindex'); } });
+    draw();
+  }).then(v => { if (kd) document.removeEventListener('keydown', kd, true); return v; });
+}
+/** Neuen Code festlegen (zweimal eingeben). true = gespeichert */
+async function pinCreate() {
+  if (!(window.crypto && crypto.subtle)) { toast(t('pinNoCrypto')); return false; }
+  const a = await codePad({ title: t('pinNewTitle'), sub: t('pinNewSub'), len: null });
+  if (!a || !a.pin) return false;
+  const b = await codePad({ title: t('pinConfirmTitle'), sub: t('pinConfirmSub'), len: a.pin.length, check: async x => x === a.pin || t('pinMismatch') });
+  if (!b || !b.pin) return false;
+  await setPin(a.pin); toast(t('pinSaved')); return true;
+}
+const pinVerify = async (title = t('pinOldTitle')) => { const r = await codePad({ title, sub: '', len: privGet().len || null, check: pinTry }); return !!(r && r.pin); };
+function privOpenNow(noPin = false) {
+  privOpen = true; privAct = Date.now(); render();
+  if (noPin) toast(t('privNoPin'), [[t('pinSetBtn'), () => pinCreate().then(() => render())]], 6000);
+  else toast(t('privUnlocked'), [], 2500); // „Wieder verstecken“ steht in der Leiste oben / im Menü
+}
+/** Versteckte Zähler anzeigen. open=false: nur bestätigen (z. B. Backup), Sitzung bleibt verborgen */
+async function privUnlock(sub = null, open = true) {
+  if (privOpen) return true;
+  if (!hasPin()) { if (open) privOpenNow(true); return true; } // alte „ausgeblendete“ Zähler ohne Code: noch ungeschützt
+  if (!(window.crypto && crypto.subtle)) { toast(t('pinNoCrypto')); return false; }
+  const p = privGet(), face = !!p.cred;
+  for (let i = 0; i < 10; i++) {
+    const r = await codePad({ title: t('privUnlockTitle'), sub: sub || t(face ? 'privUnlockSubFace' : 'privUnlockSub'), len: p.len || null, face, forgot: true, check: pinTry });
+    if (r && r.pin) { if (open) privOpenNow(); return true; }
+    if (r === 'face') { if (await faceVerify()) { if (open) privOpenNow(); return true; } sub = t('faceFail'); continue; }
+    if (r === 'forgot') { await forgotPin(); return privOpen; }
+    return false;
+  }
+  return false;
+}
+function privLock(quiet = false) {
+  if (!privOpen) return; privOpen = false;
+  if ($('sheet').classList.contains('show')) closeSheet(null);
+  const id = currentId(), c = id && counter(id);
+  if (c && veiled(c)) history.replaceState(null, '', location.pathname + location.search);
+  render(); privScrub(); if (!quiet) toast(t('privLocked'));
+}
+/** Reste verborgener Zähler aus der Seite entfernen (zuletzt gezeigte Detailseite, geschlossenes Blatt) */
+function privScrub() {
+  if (!$('sheet').classList.contains('show')) $('sheetBox').innerHTML = '';
+  if ($('detail').hidden) { try { renderDetail({ id: '\u0000', name: '', emoji: ' ', color: '#8e8e93', roundSize: null, askNote: false, createdAt: isoNow() }); } catch (e) {} }
+}
+const privCheck = () => { if (privOpen && Date.now() - privAct >= PRIV_IDLE) privLock(); };
+async function forgotPin() {
+  const p = privGet();
+  if (p.cred && await faceAvail()) {
+    const v = await openSheet(`<h2>${esc(t('forgotTitle'))}</h2><p>${esc(t('forgotFaceTxt'))}</p><div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button>
+      <button class="btn primary" type="button" data-v="face" id="fgFace">${esc(t('forgotFaceBtn'))}</button></div>`);
+    if (v !== 'face') return false;
+    if (!(await faceVerify())) { toast(t('faceFail')); return false; }
+    if (await pinCreate()) { privOpenNow(); return true; }
+    return false;
+  }
+  const v = await openSheet(`<h2>${esc(t('forgotTitle'))}</h2><p>${esc(t('forgotTxt'))}</p><div class="sw-col">
+    <button class="btn danger" type="button" data-v="reset" id="fgReset">${esc(t('forgotReset'))}</button><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
+  if (v !== 'reset' || !(await confirmBox(t('forgotQ'), t('forgotYes'), true))) return false;
+  for (const c of db.counters.filter(isHidden)) { if (c.runningSince) stopTimerCore(c); deleteCounter(c.id); }
+  try { localStorage.removeItem(PRIV_KEY); } catch (e) {} privOpen = false; save();
+  const c = counter(currentId()); if (!c) history.replaceState(null, '', location.pathname + location.search);
+  render(); photoGc().catch(() => {}); toast(t('forgotDone'), [], 4000); return false;
+}
+async function pinIntro() {
+  const v = await openSheet(`<h2>${esc(t('pinIntroTitle'))}</h2><p>${esc(t('pinIntroTxt'))}</p><div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button>
+    <button class="btn primary" type="button" data-v="yes" id="piGo">${esc(t('pinSetBtn'))}</button></div>`);
+  return v === 'yes' && pinCreate();
+}
+/** Verstecken ('invisible' | 'blur') geht ohne Code (beim ersten Mal wird einer festgelegt); zurückholen / Stil ändern nur entsperrt */
+async function setHide(cid, style) {
   const c = counter(cid); if (!c) return;
-  if (on) c.hidden = true; else delete c.hidden; save(); render();
-  toast(t(on ? 'hiddenOn' : 'hiddenOff', { name: c.name }), on ? [[t('undo'), () => { delete c.hidden; save(); render(); }]] : [], 5000);
+  if (hideOf(c) && hasPin() && !privOpen && !(await privUnlock())) return;
+  if (style && !hasPin() && !(await pinIntro())) { toast(t('veilNoPin')); return; }
+  const prev = c.hidden;
+  if (style) c.hidden = style === 'blur' ? 'blur' : true; else delete c.hidden;
+  save(); if (style && currentId() === cid && veiled(c)) history.replaceState(null, '', location.pathname + location.search);
+  render();
+  const back = () => { if (prev === undefined) delete c.hidden; else c.hidden = prev; save(); render(); };
+  toast(style ? t('veilOn') : t('veilOff', { name: c.name }), style && !prev ? [[t('undo'), back]] : [], 5000);
+}
+async function privSettings(msg = '') {
+  const p = privGet(), has = hasPin(), fa = has && await faceAvail();
+  const v = await openSheet(`<div class="mx" id="privSet"><h2>${esc(t('privSection'))}</h2>${msg ? `<p class="pv-msg" id="pvMsg" role="status">${esc(msg)}</p>` : ''}<p class="pv-intro">${esc(t('privIntro'))}</p>
+    ${has ? `<div class="m-group">${mRow('pvChange', 'change', 'privset', t('pinChange'))}${fa ? mToggle('pvFace', 'face', t('faceLbl'), !!p.cred) : ''}${mRow('pvForgot', 'forgot', 'forgot', t('pinForgot'))}</div>
+      ${fa ? '' : `<p class="m-foot" id="pvNoFace">${esc(t('faceNone'))}</p>`}`
+      : `<div class="m-card"><button class="m-cta" type="button" data-v="create" id="pvCreate">${mSvg(MICO.priv[1])}<span>${esc(t('pinSetBtn'))}</span></button><p class="m-note">${esc(t('pinIntroTxt'))}</p></div>`}
+    <p class="m-foot">${esc(t('privAutoHide'))}</p>
+    <div class="m-h">${esc(t('privNoteH'))}</div><p class="m-foot pv-note" id="pvNote">${esc(t('privBackupNote'))}</p>
+    <button class="m-close" type="button" data-v="no">${esc(t('close'))}</button></div>`, box => {
+      const f = box.querySelector('#pvFace'); if (f) f.addEventListener('change', () => closeSheet(f.checked ? 'faceOn' : 'faceOff'));
+    });
+  // Rückmeldung als Zeile im wieder geöffneten Blatt (ein Toast verschwände beim Öffnen)
+  if (v === 'create') { const ok = await pinCreate(); if (ok) render(); return privSettings(ok ? t('pinSaved') : ''); }
+  if (v === 'change') { const ok = (await pinVerify()) && (await pinCreate()); return privSettings(ok ? t('pinChanged') : ''); }
+  if (v === 'faceOn') {
+    let m = ''; if (await pinVerify()) { try { await faceRegister(); m = '✓ ' + t('faceOn'); } catch (e) { m = t('faceSetupFail'); } }
+    return privSettings(m);
+  }
+  if (v === 'faceOff') { let m = ''; if (await pinVerify()) { const q = privGet(); delete q.cred; privSet(q); m = t('faceOff'); } return privSettings(m); }
+  if (v === 'forgot') { await forgotPin(); }
 }
 async function lockSheet(cid) {
   const c = counter(cid); if (!c) return;
@@ -2408,26 +2653,16 @@ async function lockSheet(cid) {
     <div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button><button class="btn primary" type="button" data-v="unlock" id="lsUnlock">${esc(t('unlock'))}</button></div>`);
   if (v === 'unlock') askUnlock(cid);
 }
-/** Gedrückt halten auf einer Kachel: Sperren/Entsperren und Ausblenden */
+/** Gedrückt halten auf einer Kachel: Sperren/Entsperren und Verstecken */
 async function tileMenu(cid) {
-  const c = counter(cid); if (!c) return; const lk = isLocked(c);
+  const c = counter(cid); if (!c) return; const lk = isLocked(c), hs = hideOf(c);
   const v = await openSheet(`<h2>${esc(c.emoji || '🔢')} ${esc(c.name)}</h2><p class="small" style="margin-top:-6px">${esc(t('tileMenuHelp'))}</p><div class="sw-col">
     <button class="btn" type="button" data-v="lock" id="tmLock">${LOCK_SVG} ${esc(t(lk ? 'unlock' : 'lockAct'))}</button>
-    <button class="btn" type="button" data-v="hide" id="tmHide">${esc(t('hideAct'))}</button>
+    ${hs ? `<button class="btn" type="button" data-v="unhide" id="tmUnhide">${EYE_OFF} ${esc(t('tmUnhide'))}</button><button class="btn" type="button" data-v="${hs === 'blur' ? 'hide' : 'blur'}" id="tmStyle">${esc(t(hs === 'blur' ? 'tmToInv' : 'tmToBlur'))}</button>`
+      : `<button class="btn" type="button" data-v="hide" id="tmHide">${EYE_OFF} ${esc(t('tmHideInv'))}</button><button class="btn" type="button" data-v="blur" id="tmBlur">${esc(t('tmHideBlur'))}</button>`}
     <button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button></div>`);
   if (v === 'lock') setLocked(cid, !lk);
-  else if (v === 'hide') setHidden(cid, true);
-}
-async function hiddenList() {
-  const hid = sortedCounters().filter(c => !c.archived && c.hidden);
-  const v = await openSheet(`<h2>${esc(t('hiddenTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('hiddenHelp'))}</p>
-    <div class="arch-list" id="hidList">${hid.length ? hid.map(c => `<div class="hit" data-id="${esc(c.id)}">
-      <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
-        <span class="hit-t"><b>${isLocked(c) ? LOCK_SVG + ' ' : ''}${esc(c.name)}</b><span>${esc(t('entriesCount', { n: entriesOf(c.id).length }))}${catOf(c) ? ' · ' + esc(catOf(c)) : ''}</span></span></button>
-      <button class="btn" type="button" data-v="show:${esc(c.id)}">${esc(t('unhideAct'))}</button></div>`).join('') : `<p>${esc(t('hiddenEmpty'))}</p>`}</div>
-    <div class="row"><button class="btn" type="button" data-v="no">${esc(t('close'))}</button></div>`);
-  if (v && v.startsWith('open:')) go(v.slice(5));
-  else if (v && v.startsWith('show:')) setHidden(v.slice(5), false);
+  else if (v === 'hide') setHide(cid, 'invisible'); else if (v === 'blur') setHide(cid, 'blur'); else if (v === 'unhide') setHide(cid, null);
 }
 function deleteCounterNow(cid) {
   const c = counter(cid); if (!c) return false;
@@ -2625,7 +2860,7 @@ const matchAll = (hay, toks) => { const h = norm(hay); return toks.every(k => h.
 let searchQ = '', searchOpen = false, focusEntryId = null;
 
 /* ---------- v7c: Jahresrückblick ---------- */
-const yearsWithData = () => [...new Set(db.entries.filter(e => counter(e.counterId)).map(e => new Date(e.timestamp).getFullYear()))].filter(Number.isFinite).sort((a, b) => b - a);
+const yearsWithData = () => [...new Set(db.entries.filter(e => { const c = counter(e.counterId); return c && !veiled(c); }).map(e => new Date(e.timestamp).getFullYear()))].filter(Number.isFinite).sort((a, b) => b - a);
 function yearStreak(c, list, L, y) {
   const g = sanitizeGoal(c.goal), goal = !!g && g.period !== 'total', period = goal ? g.period : 'day', start = PERIOD_START[period], need = goal ? goalTarget(c, g) : 1;
   const sums = new Map(); list.forEach((e, i) => { const k = +start(new Date(e.timestamp)); sums.set(k, (sums.get(k) || 0) + L.eff[i]); });
@@ -2637,7 +2872,7 @@ function yearStreak(c, list, L, y) {
 }
 function yearReview(y) {
   const y0 = new Date(y, 0, 1), y1 = new Date(y + 1, 0, 1), days = new Set(), R = { year: y, entries: 0, days: 0, costs: 0, hasCosts: false, months: Array(12).fill(0), counters: [] };
-  for (const c of sortedCounters()) {
+  for (const c of sortedCounters().filter(x => !veiled(x))) {
     const es = entriesOf(c.id), L = ledger(es), m = Array(12).fill(0); let n = 0, ct = 0;
     es.forEach((e, i) => { const d = new Date(e.timestamp); if (d < y0 || d >= y1) return;
       n++; m[d.getMonth()] += L.eff[i]; R.months[d.getMonth()]++; days.add(+startOfDay(d)); ct += cents(c, e, L.eff[i]); });
@@ -2757,7 +2992,9 @@ window.addEventListener('hashchange', () => { arranging = false; window.scrollTo
 /* ---------- Rendering ---------- */
 function render() {
   updateBanner();
-  const id = currentId(), c = id && counter(id), rv = location.hash.match(/^#y=(\d{4})$/);
+  const id = currentId(); let c = id && counter(id);
+  if (c && veiled(c)) { history.replaceState(null, '', location.pathname + location.search); c = null; } // Version 3.1: verborgene Zähler nie öffnen
+  const rv = location.hash.match(/^#y=(\d{4})$/);
   $('review').hidden = !rv || !!c;
   $('home').hidden = !!c || !!rv; $('detail').hidden = !c;
   if (c) renderDetail(c); else if (rv) renderReview(+rv[1]); else renderHome();
@@ -2767,22 +3004,25 @@ const FILTER_KEY = 'zaehler-filter';
 function renderHome() {
   swOpen = null;
   const list = $('list'); list.innerHTML = '';
-  const all = sortedCounters(), cs = all.filter(c => !c.archived && !c.hidden), arch = all.filter(c => c.archived), cats = categories();
-  const hid = all.filter(c => !c.archived && c.hidden); // Version 3b
+  // Version 3.1: unsichtbare Zähler fehlen ganz; unscharfe bleiben als Kachel (ohne Inhalt), aber nicht in Fällig/Suche/Kategorien
+  const all = sortedCounters().filter(c => !gone(c)), cs = all.filter(c => !c.archived), arch = all.filter(c => c.archived && !veiled(c)), cats = categories();
+  const vis = cs.filter(c => !veiled(c)), catV = c => (veiled(c) ? '' : catOf(c));
   // v7c: Suche – Feld ab 4 Zählern, sonst hinter 🔍
   const q = searchQ.trim(), searching = !!q, showSearch = all.length >= 4 || searchOpen || searching;
   $('searchWrap').hidden = !showSearch; $('searchBtn').hidden = showSearch || !all.length; $('searchX').hidden = !searchQ && !searchOpen;
   if (searching) arranging = false;
-  $('emptyState').hidden = cs.length > 0 || searching || hid.length > 0;
-  $('hiddenBtn').hidden = !hid.length || arranging || searching; $('hiddenBtn').textContent = t('hiddenBtn', { n: hid.length });
-  renderDue(cs, searching || arranging);
+  $('emptyState').hidden = cs.length > 0 || searching;
+  { const pb = $('privBar'), np = !hasPin(); pb.hidden = !privOpen || arranging || searching;
+    pb.innerHTML = privOpen ? `<span>${EYE_OFF} ${esc(t(np ? 'privBarNoPin' : 'privBar'))}</span>${np ? `<button class="btn" type="button" id="pbSet">${esc(t('pinSetBtn'))}</button>` : ''}<button class="btn primary" type="button" id="pbLock">${esc(t('privRelock'))}</button>` : '';
+    if (privOpen) { $('pbLock').onclick = () => privLock(); if (np) $('pbSet').onclick = () => pinCreate().then(() => render()); } }
+  renderDue(vis, searching || arranging);
   if (cs.length < 2) arranging = false;
   list.classList.toggle('arranging', arranging);
   $('arrangeBtn').hidden = cs.length < 2 || searching; $('arrangeBtn').innerHTML = (arranging ? '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10.5 8.2 14.5 16 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>' : '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 16.5V3.5M2.5 7 6 3.5 9.5 7M14 3.5v13M10.5 13l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>') + `<span>${esc(t(arranging ? 'arrangeDone' : 'arrangeBtn'))}</span>`; $('arrangeBtn').classList.toggle('done', arranging);
   $('arrangeHint').hidden = !arranging; $('newBtn').hidden = arranging || searching;
   $('archiveBtn').hidden = !arch.length || arranging || searching; $('archiveBtn').textContent = t('archiveBtn', { n: arch.length });
   list.hidden = searching; $('searchRes').hidden = !searching;
-  if (searching) { $('chips').hidden = true; renderSearch(q, cs, [...arch, ...hid]); return; }
+  if (searching) { $('chips').hidden = true; renderSearch(q, vis, arch); return; }
   $('searchRes').innerHTML = '';
   // v7b: Kategorien – Filter-Chips „Alle / …“ und Gruppen (ohne Kategorie zuletzt)
   let filter = lsGet(FILTER_KEY) || '';
@@ -2791,7 +3031,7 @@ function renderHome() {
   chips.innerHTML = cats.length ? [['', t('filterAll')], ...cats.map(k => [k, k])].map(([k, label]) =>
     `<button type="button" data-filter="${esc(k)}" class="${k === filter ? 'on' : ''}" aria-pressed="${k === filter}">${esc(label)}</button>`).join('') : '';
   const groups = !cats.length ? [{ k: null, items: cs }]
-    : [...cats.map(k => ({ k, items: cs.filter(c => catOf(c) === k) })), { k: '', items: cs.filter(c => !catOf(c)) }]
+    : [...cats.map(k => ({ k, items: cs.filter(c => catV(c) === k) })), { k: '', items: cs.filter(c => !catV(c)) }]
       .filter(g => g.items.length && (!filter || g.k === filter));
   for (const g of groups) {
     const sec = document.createElement('section'); sec.className = 'group'; if (g.k !== null) sec.dataset.cat = g.k;
@@ -2821,7 +3061,7 @@ function renderSearch(q, cs, arch) {
   const box = $('searchRes'), toks = norm(q).split(/\s+/).filter(Boolean); box.innerHTML = '';
   const hayC = c => `${c.name} ${c.emoji} ${catOf(c)}`;
   const mc = cs.filter(c => matchAll(hayC(c), toks)), ma = arch.filter(c => matchAll(hayC(c), toks));
-  const notes = db.entries.filter(e => e.note && counter(e.counterId) && matchAll(e.note, toks)).sort((a, b) => byTime(b, a));
+  const notes = db.entries.filter(e => e.note && counter(e.counterId) && !veiled(counter(e.counterId)) && matchAll(e.note, toks)).sort((a, b) => byTime(b, a));
   const section = (title, cls = '') => { const sec = document.createElement('section'); sec.className = 'group ' + cls;
     const h = document.createElement('h2'); h.className = 'cat-h'; h.textContent = title; sec.appendChild(h); box.appendChild(sec); return sec; };
   if (mc.length) { const sec = section(`${t('searchCounters')} (${mc.length})`, 'hits-counters'), gl = document.createElement('div'); gl.className = 'group-list'; sec.appendChild(gl);
@@ -2839,7 +3079,24 @@ function renderSearch(q, cs, arch) {
   if (!mc.length && !ma.length && !notes.length) box.innerHTML = `<p class="search-empty">${esc(t('searchNone', { q }))}</p>`;
   box.querySelectorAll('[data-open-c]').forEach(b => b.onclick = () => { focusEntryId = b.dataset.entry || null; go(b.dataset.openC); });
 }
+// Version 3.1: Der Klick beim Loslassen nach dem Gedrückthalten landet sonst auf einem Knopf des gerade geöffneten Menüs
+let lpSwallowUntil = 0;
+document.addEventListener('click', e => { if (performance.now() < lpSwallowUntil && e.target.closest && e.target.closest('#sheet')) { lpSwallowUntil = 0; e.stopPropagation(); e.preventDefault(); } }, true);
+const arrHtml = (idx, count) => `<span class="arr"><button type="button" data-up aria-label="${esc(t('moveUp'))}" ${idx === 0 ? 'disabled' : ''}>▲</button><button type="button" data-down aria-label="${esc(t('moveDown'))}" ${idx === count - 1 ? 'disabled' : ''}>▼</button><button type="button" class="handle" data-handle aria-label="${esc(t('dragHandle'))}">☰</button></span>`;
+/** Version 3.1: unscharfe Kachel – kein Name, kein Emoji, keine Zahlen im DOM; Tippen fragt nach Code / Face ID */
+function veilTile(c, idx, count) {
+  const w = document.createElement('div'); w.className = 'swipe'; w.dataset.id = c.id;
+  const el = document.createElement('div'); el.className = 'tile veil'; el.dataset.id = c.id; el.style.setProperty('--c', c.color);
+  el.innerHTML = `<button class="tile-main" type="button" data-open data-veil aria-label="${esc(t('veilAria'))}"><span class="emoji veil-e" aria-hidden="true"></span>
+      <span class="tile-text veil-t" aria-hidden="true"><span class="vb" style="width:54%"></span><span class="vb big" style="width:26%"></span><span class="vb" style="width:80%"></span><span class="vb" style="width:44%"></span></span></button>
+    <button class="plus veil-plus" type="button" data-veil tabindex="-1" aria-hidden="true">${LOCK_SVG}</button>${arrHtml(idx, count)}`;
+  el.querySelectorAll('[data-veil]').forEach(b => b.onclick = () => { if (!arranging) privUnlock().then(ok => { if (ok && counter(c.id)) go(c.id); }); });
+  el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
+  el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
+  w.appendChild(el); bindDrag(el.querySelector('[data-handle]'), w); return w;
+}
 function tileEl(c, idx, count, swipe = false) {
+  if (veiled(c)) return veilTile(c, idx, count);
   const es = entriesOf(c.id), L = ledger(es), lab = countLabel(c, es), last = es[es.length - 1], st = stats(es, L);
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
   const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null;
@@ -2847,7 +3104,7 @@ function tileEl(c, idx, count, swipe = false) {
   el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : ''); el.style.setProperty('--c', c.color); el.dataset.id = c.id;
   el.innerHTML = `<button class="tile-main" type="button" data-open>
       <span class="emoji">${esc(c.emoji || '🔢')}</span>
-      <span class="tile-text"><div class="tile-name">${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
+      <span class="tile-text"><div class="tile-name">${isHidden(c) ? `<span class="tile-hid" title="${esc(t('veilBadge'))}">${EYE_OFF}</span>` : ''}${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
         <div class="tile-count${tm ? ' dur' : ''}">${lab.big}</div>
         ${lab.r.round ? `<div class="bar"><i style="width:${lab.r.inRound / lab.r.n * 100}%"></i></div>` : ''}
         ${lab.sub ? `<div class="tile-sub">${esc(lab.sub)}</div>` : ''}
@@ -2860,7 +3117,7 @@ function tileEl(c, idx, count, swipe = false) {
       : tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
         ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}${HAP}</button>`
       : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}${HAP}</button>`}
-    <span class="arr"><button type="button" data-up aria-label="${esc(t('moveUp'))}" ${idx === 0 ? 'disabled' : ''}>▲</button><button type="button" data-down aria-label="${esc(t('moveDown'))}" ${idx === count - 1 ? 'disabled' : ''}>▼</button><button type="button" class="handle" data-handle aria-label="${esc(t('dragHandle'))}">☰</button></span>`;
+    ${arrHtml(idx, count)}`;
   // Version 3b: gedrückt halten (0,6 s, ohne Bewegung) → Menü Sperren/Ausblenden; der Klick danach öffnet nicht die Detailseite
   const main = el.querySelector('[data-open]'); let lpT = null, lpFired = false, lx = 0, ly = 0;
   const lpCancel = () => { clearTimeout(lpT); lpT = null; };
@@ -2868,6 +3125,7 @@ function tileEl(c, idx, count, swipe = false) {
     lpT = setTimeout(() => { lpT = null; lpFired = true; ignoreBackdrop = true; setTimeout(() => { ignoreBackdrop = false; }, 900); swClose(false); tileMenu(c.id); }, 600); });
   main.addEventListener('pointermove', e => { if (lpT && (Math.abs(e.clientX - lx) > 10 || Math.abs(e.clientY - ly) > 10)) lpCancel(); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => main.addEventListener(ev, lpCancel));
+  main.addEventListener('pointerup', () => { if (lpFired) lpSwallowUntil = performance.now() + 400; }); // nur der Klick dieses Loslassens
   main.addEventListener('contextmenu', e => e.preventDefault());
   main.onclick = () => { if (lpFired) { lpFired = false; return; } if (!arranging) go(c.id); };
   bindPlus(el.querySelector('[data-plus]'), c.id);
@@ -2897,12 +3155,13 @@ function renderDetail(c) {
   $('dSub').textContent = r.round ? t('detailRound', { i: r.inRound, n: r.n, r: r.round, next: r.next }) + (r.full ? t('detailNewRound') : '')
     : r.reset ? `${t('detailReset' + PKEY[r.reset], { n: fmtVal(c, r.cur) })} · ${t('entriesCount', { n: es.length })}` : t('entriesCount', { n: es.length });
   // Version 3b: gesperrt / ausgeblendet
-  { const lk = isLocked(c), hd = isHidden(c) && !c.archived, sc = $('stateCard');
+  { const lk = isLocked(c), hs = hideOf(c), hd = !!hs, sc = $('stateCard');
     sc.hidden = !lk && !hd;
     sc.innerHTML = (lk ? `<div class="st-row"><span>${LOCK_SVG} ${esc(t('lockedNote'))}</span><button class="btn" type="button" id="stUnlock">${esc(t('unlock'))}</button></div>` : '')
-      + (hd ? `<div class="st-row"><span>${esc(t('hiddenNote'))}</span><button class="btn" type="button" id="stShow">${esc(t('unhideAct'))}</button></div>` : '');
+      + (hd ? `<div class="st-row st-veil"><span>${EYE_OFF} ${esc(t(hs === 'blur' ? 'veilNoteBlur' : 'veilNoteInv'))}</span></div>
+        <div class="st-btns"><button class="btn" type="button" id="stShow">${esc(t('tmUnhide'))}</button><button class="btn primary" type="button" id="stRelock">${esc(t('privRelock'))}</button></div>` : '');
     if (lk) $('stUnlock').onclick = () => askUnlock(c.id);
-    if (hd) $('stShow').onclick = () => setHidden(c.id, false);
+    if (hd) { $('stShow').onclick = () => setHide(c.id, null); $('stRelock').onclick = () => privLock(); }
     $('dPlus').classList.toggle('locked', lk); $('detail').classList.toggle('is-locked', lk); }
   const tm = isTime(c), arch = !!c.archived;
   if (tm) { $('dPlusT').innerHTML = c.runningSince ? `■ ${esc(t('timerStop'))} · <span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `▶ ${esc(t('timerStart'))}`;
@@ -3378,7 +3637,8 @@ async function editCounter(cid = null) {
         `<option value="${k}" ${(resetOf(cur) || '') === k ? 'selected' : ''}>${esc(t(l))}</option>`).join('')}</select><p class="small">${esc(t('resetHelp'))}</p></div>
     <div class="field"><span class="lbl">${esc(t('lockField'))}</span>
       <label class="check"><input type="checkbox" id="fLock" ${isLocked(cur) ? 'checked' : ''}> <span>${esc(t('lockCheck'))}</span></label>
-      <label class="check"><input type="checkbox" id="fHide" ${isHidden(cur) ? 'checked' : ''}> <span>${esc(t('hideCheck'))}</span></label></div>
+      <label for="fHide" style="margin-top:12px">${esc(t('hideField'))}</label><select id="fHide">${[['', 'hideNone'], ['invisible', 'hideInv'], ['blur', 'hideBlur']].map(([k, l]) =>
+        `<option value="${k}" ${(hideOf(cur) || '') === k ? 'selected' : ''}>${esc(t(l))}</option>`).join('')}</select><p class="small">${esc(t('hideHelp'))}</p></div>
     <label class="check"><input type="checkbox" id="fNote" ${cur.askNote ? 'checked' : ''}> <span id="fNoteLbl">${esc(t('askNote'))}</span></label>
     <p class="small">${esc(t('askNoteHelp'))}</p>
     <p class="small" id="fErr" style="color:var(--danger)"></p>
@@ -3452,7 +3712,7 @@ async function editCounter(cid = null) {
           goal: ga ? { amount: ga, period: box.querySelector('#fGoalPer').value } : null, goalType: ga && box.querySelector('#fGoalType').value === 'limit' ? 'limit' : null, reminder: rr.value,
           step: sn > 1 ? sn : null, category: cat || null, price: pr.value, ...(c ? {} : { type: tmS ? 'time' : null }),
           reset: RESETS.includes(box.querySelector('#fReset').value) ? box.querySelector('#fReset').value : null,
-          locked: box.querySelector('#fLock').checked || null, hidden: box.querySelector('#fHide').checked || null });
+          locked: box.querySelector('#fLock').checked || null, hidden: ({ invisible: true, blur: 'blur' })[box.querySelector('#fHide').value] || null });
       };
       // Version 3b: Vorlagen füllen das Formular (alles bleibt änderbar); „Leer starten“ setzt zurück
       const tplBox = box.querySelector('#fTpl');
@@ -3477,8 +3737,13 @@ async function editCounter(cid = null) {
   }
   if (v === 'del') { deleteCounterNow(cid); return; } // v9: wie beim Wischen – sofort löschen, mit Rückgängig (inkl. Fotos)
   if (!v || typeof v !== 'object') return;
-  const saved = upsertCounter({ id: cur.id, ...v }); render();
-  toast(c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
+  // Version 3.1: zum ersten Verstecken einmalig einen Code festlegen (abgebrochen → nicht versteckt)
+  let noPin = false; const newly = !!v.hidden && !isHidden(c);
+  if (newly && !hasPin() && !(await pinIntro())) { v.hidden = c && c.hidden ? c.hidden : null; noPin = true; }
+  const saved = upsertCounter({ id: cur.id, ...v });
+  if (veiled(saved) && currentId() === saved.id) history.replaceState(null, '', location.pathname + location.search);
+  render();
+  toast(noPin ? t('veilNoPin') : newly ? t('veilOn') : c ? t('saved') : `${saved.emoji} ${t('created', { name: saved.name })}`);
 }
 /* ---------- Export / Import / Text ---------- */
 function backupObject(photos = []) {
@@ -3514,6 +3779,7 @@ function updateBanner() {
 const lastBackupText = () => { const d = lastBackup(); return d ? `${relDay(d)}, ${fmtTime(d)}` : t('never'); };
 /** Backup teilen (iPhone: „In Dateien sichern“ → iCloud Drive), sonst Download. Ergebnis: 'shared' | 'downloaded' | 'aborted' */
 async function exportJson() {
+  if (hasPin() && !privOpen && !(await privUnlock(t('exportLocked'), false))) return 'aborted'; // Version 3.1: Backup enthält alles – nur mit Code
   const refs = new Set(db.entries.map(e => e.photo).filter(Boolean));
   let photos = backupPhotosSync();
   if (photos.length < refs.size) { await preparePhotos(); photos = backupPhotosSync(); } // nur falls der Vorrat noch nicht bereit war
@@ -3544,7 +3810,7 @@ function validateBackup(o) {
       order: Number.isFinite(c.order) ? c.order : 0, createdAt: typeof c.createdAt === 'string' ? c.createdAt : isoNow() };
     for (const k of ['goal', 'reminder', 'step', 'category', 'price', 'archived', 'runningSince', 'reset', 'locked', 'hidden']) delete x[k];
     if (c.archived === true) x.archived = true;
-    if (RESETS.includes(c.reset)) x.reset = c.reset; if (c.locked === true) x.locked = true; if (c.hidden === true) x.hidden = true; // Version 3b
+    if (RESETS.includes(c.reset)) x.reset = c.reset; if (c.locked === true) x.locked = true; if (c.hidden === true || c.hidden === 'blur') x.hidden = c.hidden; // Version 3b/3.1
     if (c.type === 'time' && typeof c.runningSince === 'string' && !isNaN(new Date(c.runningSince))) x.runningSince = isoNow(new Date(c.runningSince));
     if (sanitizeGoal(c.goal)) x.goal = sanitizeGoal(c.goal);
     if (sanitizeReminder(c.reminder)) x.reminder = sanitizeReminder(c.reminder);
@@ -3627,6 +3893,10 @@ const MICO = {
   import: ['#34c759', '<path d="M12 4v10M8 10.5l4 4 4-4"/><path d="M4 14.5v3A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5v-3"/>'],
   copy: ['#5856d6', '<rect x="8.5" y="8.5" width="11" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H7A2.5 2.5 0 0 0 4.5 6v8A2.5 2.5 0 0 0 7 16.5h1.5"/>'],
   update: ['#32ade6', '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4v4.5H15"/>'],
+  priv: ['#5e5ce6', '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>'],
+  privset: ['#8e8e93', '<circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16.5 7l2.5 2.5M14 9.5l2 2"/>'],
+  face: ['#34c759', '<path d="M4 8V6.5A2.5 2.5 0 0 1 6.5 4H8M16 4h1.5A2.5 2.5 0 0 1 20 6.5V8M20 16v1.5a2.5 2.5 0 0 1-2.5 2.5H16M8 20H6.5A2.5 2.5 0 0 1 4 17.5V16M9 9.5v1M15 9.5v1M12 9.5v3.5h-1M9.5 15.5a3.5 3.5 0 0 0 5 0"/>'],
+  forgot: ['#ff9500', '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.3M12 16.8v.2"/>'],
   wipe: ['#ff3b30', '<path d="M4.5 7h15M9.5 7V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v2M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7M10.5 11v5M13.5 11v5"/>'],
 };
 const mSvg = (p, cls = '') => `<svg${cls ? ` class="${cls}"` : ''} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${p}</svg>`;
@@ -3649,7 +3919,7 @@ async function menu(st = 0, from = null) {
     preparePhotos();
   }, 0);
   setTimeout(async () => { try { const ks = (await caches.keys()).filter(k => k.startsWith('zaehler-')); const el = $('mCache'); if (el && ks.length) el.textContent = ` · Cache ${ks.join(', ')}`; } catch (e) {} }, 0);
-  const nArch = db.counters.filter(c => c.archived).length;
+  const nArch = db.counters.filter(c => c.archived && !veiled(c)).length;
   const v = await openSheet(`<div class="mx"><h2>${esc(t('menuTitle'))}</h2>
     <div class="m-h">${esc(t('language'))}</div>
     ${mSeg('mLangs', LANGS.map(l => ({ v: 'lang:' + l, attr: `data-lang="${l}"`, label: `${I18N[l].flag} ${l.toUpperCase()}`, aria: I18N[l].langName, on: l === lang })), t('language'))}
@@ -3659,6 +3929,9 @@ async function menu(st = 0, from = null) {
     <div class="m-h">${esc(t('feedback'))}</div>
     <div class="m-group" id="mFeedback">${mToggle('mHaptic', 'haptic', t('hapticLbl'), hapticOn())}${mToggle('mSound', 'sound', t('soundLbl'), soundOn())}</div>
     <p class="m-foot">${esc(t('feedbackHelp'))}</p>
+    <div class="m-h">${esc(t('privSection'))}</div>
+    <div class="m-group" id="mPriv">${mRow('mPrivShow', 'privshow', 'priv', t(privOpen ? 'privRelock' : 'privShow'))}${mRow('mPrivSet', 'privset', 'privset', t('privSettings'), { nav: true })}</div>
+    <p class="m-foot">${esc(t('privMenuFoot'))}</p>
     <div class="m-h">${esc(t('backupSection'))}</div>
     <div class="m-card" id="mBackup">
       <button class="m-cta" type="button" data-v="export" id="mExport" aria-label="${esc(mLbl(t('mExport')))}">${mSvg('<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8 10.5H6.5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H16"/>')}<span>${esc(t('backupNow'))}</span></button>
@@ -3694,15 +3967,17 @@ async function menu(st = 0, from = null) {
   else if (v === 'archive') archiveList();
   else if (v === 'export') exportJson();
   else if (v === 'import') { $('importFile').value = ''; $('importFile').click(); }
-  else if (v === 'copy') copyText(sortedCounters().map(counterText).join('\n\n') || t('txtNoCounters'));
+  else if (v === 'privshow') { if (privOpen) privLock(); else privUnlock(); }
+  else if (v === 'privset') privSettings();
+  else if (v === 'copy') copyText(sortedCounters().filter(c => !veiled(c)).map(counterText).join('\n\n') || t('txtNoCounters'));
   else if (v === 'wipe') {
     if (await confirmBox(t('wipeQ'), t('wipeAll'), true)) {
-      db = freshDb(); db.settings.onboarded = true; save(); photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); [...photoThumbs.keys()].forEach(forgetThumb); go(null); render(); toast(t('wiped'));
+      db = freshDb(); db.settings.onboarded = true; save(); try { localStorage.removeItem(PRIV_KEY); } catch (e) {} privOpen = false; photoClear().catch(() => {}); photoUrls.clear(); photoB64.clear(); [...photoThumbs.keys()].forEach(forgetThumb); go(null); render(); toast(t('wiped'));
     }
   }
 }
 async function archiveList() {
-  const arch = sortedCounters().filter(c => c.archived);
+  const arch = sortedCounters().filter(c => c.archived && !veiled(c));
   const v = await openSheet(`<h2>🗄 ${esc(t('archiveTitle'))}</h2><p class="small" style="margin-top:-6px">${esc(t('archiveHelp'))}</p>
     <div class="arch-list" id="archList">${arch.length ? arch.map(c => `<div class="swipe sw-row" data-row="${esc(c.id)}">${swActs([['sw-rest', 'restore', t('swRestore'), 'restore'], ['sw-del', 'trash', t('swDelete'), 'del']], c.name)}<div class="hit sw-front" data-id="${esc(c.id)}">
       <button type="button" class="hit-main" data-v="open:${esc(c.id)}"><span class="emoji" style="--c:${esc(c.color)}">${esc(c.emoji || '🔢')}</span>
@@ -3828,7 +4103,6 @@ if (/[?&]update=/.test(location.search)) history.replaceState(null, '', location
 
 /* ---------- Verdrahtung ---------- */
 $('newBtn').onclick = () => editCounter();
-$('hiddenBtn').onclick = () => hiddenList();
 // v7c
 $('archiveBtn').onclick = () => archiveList();
 $('unarchBtn').onclick = () => { const c = counter(currentId()); if (!c || lockBlock(c)) return; setArchived(c.id, false); render(); toast(t('toastRestored', { name: c.name })); };
@@ -3855,6 +4129,11 @@ $('yearShare').onclick = () => { const c = counter(currentId()); if (c) shareYea
 $('backdateBtn').onclick = () => editEntry(null, true, currentId());
 $('copyOneBtn').onclick = () => { const c = counter(currentId()); if (c) copyText(counterText(c)); };
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { db = load(); render(); swUpdate(); } });
+// Version 3.1: Versteck-Modus wieder zu, sobald die App in den Hintergrund geht oder 5 Min. nichts getippt wurde
+document.addEventListener('visibilitychange', () => { if (document.hidden) privLock(true); });
+window.addEventListener('pagehide', () => privLock(true));
+['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { privAct = Date.now(); }, { capture: true, passive: true }));
+setInterval(privCheck, 15000);
 // v10: Minuten-Aktualisierung nie mitten im Scrollen/Wischen – wartet, bis 1,5 s Ruhe ist
 function minuteRender() {
   if (document.hidden || $('sheet').classList.contains('show')) return;
@@ -3870,7 +4149,7 @@ render();
 if (!db.settings.onboarded) onboarding();
 setupServiceWorker();
 setTimeout(() => { photoGc().then(preparePhotos); }, 1500); // v7c: verwaiste Fotos aufräumen, Backup vorbereiten
-window.__zaehler = { fx, feierLog, yearData, yearCanvas, shareYear, topNotes, isLimit, goalProgress, get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, version: APP_VERSION, photoPut, deleteEntryNow, habitStrength, dueInfo, roundInfo, validateBackup, backupObject, TEMPLATES, render: () => render(), t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
+window.__zaehler = { fx, feierLog, yearData, yearCanvas, shareYear, topNotes, isLimit, goalProgress, get db() { return db; }, get lang() { return lang; }, setLang, I18N, LANGS, lastEmoji, lastEmojiRegex, build: APP_BUILD, version: APP_VERSION, photoPut, deleteEntryNow, habitStrength, dueInfo, roundInfo, validateBackup, backupObject, TEMPLATES, render: () => render(), hideOf, veiled, get privOpen() { return privOpen; }, privLock, privCheck, hasPin, PRIV_KEY, PIN_ITER, t, counter, entriesOf, stats, buildIcs, ledger, streaks, costStats, parsePrice, themeMode,
   fmtDur, fmtClock, norm, yearReview, photoAll, photoGet, photoGc, photoStats, compressImage, backupPhotosSync, preparePhotos }; // für Tests
 })();
 </script>
