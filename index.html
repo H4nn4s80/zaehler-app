@@ -200,6 +200,32 @@
   #chart { display: block; width: 100%; height: auto; margin-top: 6px; }
   #chart text { font: 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: var(--muted); }
   #chart .val { fill: var(--ink); font-weight: 600; }
+  /* Version 3.3: Balken antippbar – ganze Spalte, kurzes Aufleuchten beim Drücken, markiert solange das Tagesblatt offen ist */
+  #chart, #yearGrid { -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  #chart .bar-g { cursor: pointer; outline: none; }
+  #chart text, #chart line { pointer-events: none; } /* Ziel-Linie/Beschriftung dürfen den Tipp nicht abfangen */
+  #chart .bar-hit { fill: transparent; transition: fill .15s; }
+  #chart .bar-g:active .bar-hit, #chart .bar-g:focus-visible .bar-hit { fill: color-mix(in srgb, var(--c) 10%, transparent); }
+  #chart .bar-g.sel .bar-hit { fill: color-mix(in srgb, var(--c) 16%, transparent); }
+  #chart .cbar { transition: transform .12s; transform-box: fill-box; transform-origin: 50% 100%; }
+  #chart .bar-g:active .cbar { transform: scaleY(.96); }
+  #chart .bar-g.sel .cbar { opacity: 1 !important; }
+  #yearGrid { cursor: pointer; }
+  #yearGrid rect.ysel { stroke: var(--ink); stroke-width: 1.2px; }
+  .day-sheet .day-sub { margin: 0 0 2px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .day-sheet .day-sub .day-em { font-size: 15px; }
+  .day-sheet h2 { margin-top: 0; }
+  .day-sheet .day-sum { margin: -4px 0 6px; font-size: 16px; } .day-sheet .day-sum b { color: var(--c); }
+  .day-sheet .day-note { margin: 0 0 8px; }
+  .day-sheet .day-rows { margin: 0 -6px 12px; border-radius: 16px; overflow: hidden; background: color-mix(in srgb, var(--card) 55%, transparent); }
+  .day-sheet .day-row { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; min-height: 52px; padding: 6px 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+  .day-sheet button.day-row:active { opacity: .6; }
+  .day-sheet .dtime { font-weight: 600; }
+  .day-sheet .rchev { color: var(--muted); font-size: 20px; margin-right: 2px; }
+  .day-sheet .thumb { width: 44px; height: 44px; }
+  .day-sheet .day-grp h3 { display: flex; justify-content: space-between; margin: 14px 2px 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
+  .day-sheet .day-grp h3 span { color: var(--c); }
+  .day-sheet .day-empty { text-align: center; color: var(--muted); padding: 22px 8px 26px; margin: 0 0 8px; border-radius: 16px; background: color-mix(in srgb, var(--card) 45%, transparent); }
   .chart-foot { display: flex; justify-content: space-between; gap: 8px; padding: 2px 16px 0; font-size: 14px; color: var(--muted); }
   .chart-foot b { color: var(--ink); font-variant-numeric: tabular-nums; }
   .rem-card { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 15px; }
@@ -1670,6 +1696,15 @@ const I18N_V31 = {
   fr: {"privSection": "Mode privé", "privShow": "Afficher les compteurs cachés", "privRelock": "Recacher", "privSettings": "Code et Face ID", "privMenuFoot": "Les compteurs cachés n’apparaissent nulle part tant que tu ne les affiches pas avec ton code ou Face ID.", "privUnlockTitle": "Afficher les compteurs cachés", "privUnlockSub": "Saisis le code", "privUnlockSubFace": "Saisis le code ou utilise Face ID", "privUnlocked": "🔓 Mode privé déverrouillé", "privLocked": "🔒 De nouveau cachés", "privBar": "Mode privé déverrouillé – les compteurs cachés sont visibles.", "privBarNoPin": "Les compteurs cachés sont visibles – aucun code défini, ils ne sont donc pas protégés.", "privNoPin": "Aucun code défini – les compteurs cachés ne sont pas protégés.", "pinSetBtn": "Définir un code", "pinNewTitle": "Définir un nouveau code", "pinNewSub": "4 à 6 chiffres", "pinConfirmTitle": "Répète le code", "pinConfirmSub": "Saisis-le encore une fois", "pinMismatch": "Les codes ne correspondent pas – réessaie.", "pinWrong": "Code incorrect", "pinWait": "Trop de tentatives – attends {s} s.", "pinOldTitle": "Saisis le code actuel", "pinNext": "Suivant", "pinDel": "Effacer le chiffre", "pinForgot": "Code oublié ?", "pinSaved": "🔒 Code défini", "pinChanged": "🔒 Code modifié", "pinChange": "Modifier le code", "pinNoCrypto": "Indisponible sur cet appareil (connexion sécurisée requise).", "faceBtn": "Face ID", "faceLbl": "Déverrouiller avec Face ID", "faceOn": "Face ID configuré", "faceOff": "Face ID désactivé", "faceFail": "Face ID n’a pas fonctionné – saisis le code.", "faceSetupFail": "Impossible de configurer Face ID.", "faceNone": "Face ID n’est pas disponible dans ce navigateur – le code fonctionne toujours.", "privIntro": "Les compteurs cachés sont invisibles (affichés nulle part) ou flous (la tuile reste, le contenu est illisible). Affichage uniquement avec le code ou Face ID.", "privAutoHide": "Après le déverrouillage, tout est recaché automatiquement dès que l’app passe en arrière-plan ou après 5 minutes sans toucher l’écran.", "privNoteH": "Bon à savoir", "privBackupNote": "Le mode privé protège des regards sur ton téléphone – pas de quelqu’un qui a ton fichier de sauvegarde. Les sauvegardes et la mémoire du navigateur contiennent aussi les compteurs cachés en clair. C’est pourquoi « Sauvegarder » demande le code.", "pinIntroTitle": "🔒 Code pour le mode privé", "pinIntroTxt": "Pour cacher, il te faut une fois un code (4 à 6 chiffres). Seul ce code – ou Face ID – permet de réafficher les compteurs cachés.", "veilNoPin": "Pas caché – aucun code n’a été défini.", "hideField": "Cacher", "hideNone": "Ne pas cacher", "hideInv": "Invisible – affiché nulle part", "hideBlur": "Flou – la tuile reste, contenu illisible", "hideHelp": "Cacher ne demande pas de code. Réafficher ou changer le style seulement après déverrouillage par code ou Face ID.", "tmHideInv": "Cacher – invisible", "tmHideBlur": "Cacher – flou", "tmUnhide": "Ne plus cacher", "tmToBlur": "Flou au lieu d’invisible", "tmToInv": "Invisible au lieu de flou", "veilOn": "🔒 Caché – visible uniquement avec le code", "veilOff": "« {name} » n’est plus caché", "veilAria": "Compteur caché – touche pour déverrouiller", "veilNoteInv": "Caché (invisible) – visible maintenant car déverrouillé.", "veilNoteBlur": "Caché (flou) – visible maintenant car déverrouillé.", "veilBadge": "caché", "forgotTitle": "Code oublié ?", "forgotFaceTxt": "Confirme avec Face ID, puis définis un nouveau code.", "forgotFaceBtn": "Confirmer avec Face ID", "forgotTxt": "Sans le code, les compteurs cachés ne peuvent pas être affichés – c’est le but du mode privé. Tu peux réinitialiser le code : tous les compteurs cachés et leurs entrées seront supprimés définitivement, les autres restent. Tu peux les restaurer depuis une sauvegarde antérieure.", "forgotReset": "Supprimer les cachés et réinitialiser", "forgotQ": "Vraiment supprimer définitivement tous les compteurs cachés et réinitialiser le code ? Impossible d’annuler.", "forgotYes": "Supprimer définitivement", "forgotDone": "Code réinitialisé – les compteurs cachés ont été supprimés.", "exportLocked": "Confirme la sauvegarde avec ton code ou Face ID."},
 };
 for (const l of Object.keys(I18N_V31)) Object.assign(I18N[l], I18N_V31[l]);
+/* Version 3.3: Balken / Jahres-Raster antippen → Einträge des Tages */
+const I18N_V33 = {
+  de: {"dayTotal": "Summe: {v}", "dayEmpty": "Keine Einträge an diesem Tag", "periodEmpty": "Keine Einträge in diesem Zeitraum", "dayLocked": "🔒 Gesperrt – Einträge nur ansehen", "dayHint": "Tippen zum Bearbeiten · nach links wischen zum Löschen", "barAria": "{label}: Einträge anzeigen", "dayAllDay": "ganztägig", "dayEditAria": "Eintrag {d} bearbeiten"},
+  en: {"dayTotal": "Total: {v}", "dayEmpty": "No entries on this day", "periodEmpty": "No entries in this period", "dayLocked": "🔒 Locked – entries are view-only", "dayHint": "Tap to edit · swipe left to delete", "barAria": "{label}: show entries", "dayAllDay": "all day", "dayEditAria": "Edit entry {d}"},
+  it: {"dayTotal": "Totale: {v}", "dayEmpty": "Nessuna voce in questo giorno", "periodEmpty": "Nessuna voce in questo periodo", "dayLocked": "🔒 Bloccato – voci solo in lettura", "dayHint": "Tocca per modificare · scorri a sinistra per eliminare", "barAria": "{label}: mostra le voci", "dayAllDay": "tutto il giorno", "dayEditAria": "Modifica voce {d}"},
+  es: {"dayTotal": "Total: {v}", "dayEmpty": "No hay entradas este día", "periodEmpty": "No hay entradas en este periodo", "dayLocked": "🔒 Bloqueado – entradas solo de lectura", "dayHint": "Toca para editar · desliza a la izquierda para borrar", "barAria": "{label}: ver entradas", "dayAllDay": "todo el día", "dayEditAria": "Editar entrada {d}"},
+  fr: {"dayTotal": "Total : {v}", "dayEmpty": "Aucune entrée ce jour-là", "periodEmpty": "Aucune entrée sur cette période", "dayLocked": "🔒 Verrouillé – entrées en lecture seule", "dayHint": "Touche pour modifier · glisse à gauche pour supprimer", "barAria": "{label} : voir les entrées", "dayAllDay": "toute la journée", "dayEditAria": "Modifier l’entrée {d}"}
+};
+for (const l of Object.keys(I18N_V33)) Object.assign(I18N[l], I18N_V33[l]);
 </script>
 <script>
 (() => {
@@ -1685,7 +1720,7 @@ for (const l of Object.keys(I18N_V31)) Object.assign(I18N[l], I18N_V31[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 14, APP_VERSION = '3.2', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 15, APP_VERSION = '3.3', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -2098,8 +2133,11 @@ function renderChart(c, list) {
   b.forEach((x, i) => {
     const cx = Math.round(left + slot * i + slot / 2), h = Math.round(x.n / max * ph), cur = i === n - 1;
     const full = mode === 'day' ? fmtDate(x.s) : mode === 'week' ? `${fmtDate(x.s)} – ${fmtDate(new Date(x.e - 864e5))}` : new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' }).format(x.s);
-    svg += `<g class="bar-g"><title>${esc(money ? t('chartBarCost', { label: full, v: fmtMoney(x.n) }) : tm ? t('chartBarCost', { label: full, v: fmtDur(x.n) }) : t('chartBar', { label: full, n: x.n }))}</title>`;
-    if (x.n) svg += `<rect x="${cx - Math.floor(bw / 2)}" y="${top + ph - h}" width="${bw}" height="${h}" rx="3" style="fill:var(--c);opacity:${cur ? 1 : 0.6}"/>`
+    // Version 3.3: ganze Spalte antippbar (unsichtbares Rechteck über die volle Höhe) → Einträge dieses Tages / dieser Woche / dieses Monats
+    const sel = chartSel && chartSel.cid === c.id && chartSel.kind === mode && chartSel.s === +x.s;
+    svg += `<g class="bar-g${sel ? ' sel' : ''}" role="button" tabindex="0" data-s="${+x.s}" data-e="${+x.e}" data-i="${i}" aria-label="${esc(t('barAria', { label: full }))}"><title>${esc(money ? t('chartBarCost', { label: full, v: fmtMoney(x.n) }) : tm ? t('chartBarCost', { label: full, v: fmtDur(x.n) }) : t('chartBar', { label: full, n: x.n }))}</title>`
+      + `<rect class="bar-hit" x="${(left + slot * i).toFixed(1)}" y="0" width="${slot.toFixed(1)}" height="${H}" rx="6"/>`;
+    if (x.n) svg += `<rect class="cbar" x="${cx - Math.floor(bw / 2)}" y="${top + ph - h}" width="${bw}" height="${h}" rx="3" style="fill:var(--c);opacity:${cur || sel ? 1 : 0.6}"/>`
       + `<text class="val" x="${cx}" y="${top + ph - h - 4}" text-anchor="middle"${money || tm ? ' style="font-size:8.5px"' : ''}>${esc(fv(x.n))}</text>`;
     const showLabel = mode !== 'week' || i % 2 === (n - 1) % 2;
     if (showLabel) svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle"${cur ? ' style="fill:var(--ink);font-weight:600"' : ''}>${esc(lab.format(x.s))}</text>`;
@@ -3016,6 +3054,7 @@ function render() {
   $('home').hidden = !!c || !!rv; $('detail').hidden = !c;
   if (c) renderDetail(c); else if (rv) renderReview(+rv[1]); else renderHome();
   tickClocks();
+  if (dayView) dayView.refresh(); // Version 3.3: offenes Tagesblatt sofort mitaktualisieren (Löschen, Rückgängig, Bearbeiten)
 }
 const FILTER_KEY = 'zaehler-filter';
 function renderHome() {
@@ -3363,10 +3402,79 @@ function renderYear(c, es, L) {
     const d = y.dayAt(k), col = Math.floor(k / 7), row = k % 7, v = y.vals[k], l = y.lvl(v);
     if (row === 0 && d.getDate() <= 7 && col < y.cols - 1) out += `<text x="${col * P}" y="6">${esc(mf.format(d).replace('.', ''))}</text>`;
     const cls = !l && y.limit && d >= y.created ? 'ylg' : 'yl' + l;
-    out += `<rect x="${col * P}" y="${top + row * P}" width="6" height="6" rx="1.6" class="${cls}" data-d="${ymdOf(d)}" data-n="${v}"/>`;
+    const sel = chartSel && chartSel.cid === c.id && chartSel.kind === 'yday' && chartSel.s === +d; // Version 3.3: angetipptes Feld
+    out += `<rect x="${col * P}" y="${top + row * P}" width="6" height="6" rx="1.6" class="${cls}${sel ? ' ysel' : ''}" data-d="${ymdOf(d)}" data-n="${v}"/>`;
   }
   const g = $('yearGrid'); g.setAttribute('viewBox', `0 0 ${y.cols * P - 1.5} ${top + 7 * P - 1.5}`); g.innerHTML = out;
   g.setAttribute('aria-label', t('yearAria', { n: y.active }));
+}
+/* ---------- Version 3.3: Balken / Jahres-Raster antippen → Blatt mit den Einträgen dieses Tages (Woche/Monat: nach Tagen gruppiert) ---------- */
+let chartSel = null; // { cid, kind: 'day'|'week'|'month'|'yday', s } – markierter Balken / markiertes Feld, solange das Blatt offen ist
+let dayView = null;  // offenes Tagesblatt { refresh }
+const longDay = d => new Intl.DateTimeFormat(intlLocale(), { weekday: 'long', day: 'numeric', month: 'long', ...(d.getFullYear() !== new Date().getFullYear() ? { year: 'numeric' } : {}) }).format(d);
+function periodTitle(s, e, kind) {
+  if (kind === 'week') return `${fmtDate(s)} – ${fmtDate(new Date(e - 864e5))}`;
+  if (kind === 'month') return new Intl.DateTimeFormat(intlLocale(), { month: 'long', year: 'numeric' }).format(s);
+  return longDay(s);
+}
+function dayInner(c, s, e, kind) {
+  const all = entriesOf(c.id), L = ledger(all), r = countLabel(c, all).r, tm = isTime(c), lk = isLocked(c), co = costsOn(c, all);
+  const hits = []; all.forEach((x, i) => { const ts = new Date(x.timestamp); if (ts >= s && ts < e) hits.push({ x, i }); }); // älteste zuerst
+  const sum = Math.max(0, hits.reduce((a, h) => a + L.eff[h.i], 0)), money = co ? hits.reduce((a, h) => a + cents(c, h.x, L.eff[h.i]), 0) : 0;
+  const row = ({ x, i }) => {
+    const run = L.runs[i], a = amt(x), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run, d = new Date(x.timestamp);
+    const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
+    const cost = co && unitPrice(c, x) ? `<span class="cost">${esc(fmtMoney(cents(c, x, a)))}</span>` : '';
+    const inner = `<span class="nr">${nr}</span><span class="when"><b class="dtime">${esc(x.dateOnly ? t('dayAllDay') : fmtTime(d))}</b>${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}`
+      + `${amtTxt || cost ? `<span class="meta">${amtTxt}${cost}</span>` : ''}${x.note ? `<span class="note">📝 ${esc(x.note)}</span>` : ''}</span>`
+      + `${x.photo ? `<span class="thumb"><img data-photo="${esc(x.photo)}" alt="" decoding="async"></span>` : ''}${lk ? '' : '<span class="rchev" aria-hidden="true">›</span>'}`;
+    return `<li class="filled swipe sw-entry" data-eid="${esc(x.id)}"><div class="sw-front">${lk ? `<div class="day-row">${inner}</div>`
+      : `<button type="button" class="day-row" data-act="edit:${esc(x.id)}" aria-label="${esc(t('dayEditAria', { d: fmtEntry(x) }))}">${inner}</button>`}</div></li>`;
+  };
+  let list = '';
+  if (kind === 'day' || kind === 'yday') list = hits.length ? `<ol class="rows day-rows" id="dayList">${hits.map(row).join('')}</ol>` : '';
+  else { const groups = []; hits.forEach(h => { const k = ymdOf(new Date(h.x.timestamp)); const g = groups[groups.length - 1]; if (g && g.k === k) g.items.push(h); else groups.push({ k, d: startOfDay(new Date(h.x.timestamp)), items: [h] }); });
+    list = groups.length ? `<div id="dayList">${groups.map(g => { const gs = Math.max(0, g.items.reduce((a, h) => a + L.eff[h.i], 0));
+      return `<section class="day-grp" data-day="${g.k}"><h3>${esc(longDay(g.d))}<span>${esc(fmtVal(c, gs))}</span></h3><ol class="rows day-rows">${g.items.map(row).join('')}</ol></section>`; }).join('')}</div>` : ''; }
+  const one = kind === 'day' || kind === 'yday';
+  return `<p class="day-sub"><span class="day-em">${esc(c.emoji || '🔢')}</span> ${esc(c.name)}</p><h2 id="dayTitle">${esc(periodTitle(s, e, kind))}</h2>
+    <p class="day-sum" id="daySum"><b>${esc(t('dayTotal', { v: fmtVal(c, sum) }))}</b>${co ? ` · ${esc(fmtMoney(money))}` : ''} · ${esc(t('entriesCount', { n: hits.length }))}</p>
+    ${lk ? `<p class="small day-note" id="dayLock">${esc(t('dayLocked'))}</p>` : hits.length ? `<p class="small day-note">${esc(t('dayHint'))}</p>` : ''}
+    ${list || `<p class="day-empty" id="dayEmpty">${esc(t(one ? 'dayEmpty' : 'periodEmpty'))}</p>`}
+    <div class="row">${one && !lk ? `<button class="btn" type="button" data-act="add" id="dayAdd">${esc(t('backdateBtn'))}</button>` : ''}<button class="btn primary" type="button" data-act="no" id="dayClose">${esc(t('close'))}</button></div>`;
+}
+function repaintCharts() {
+  const c = counter(currentId()); if (!c || $('detail').hidden || veiled(c)) return;
+  const es = entriesOf(c.id); renderChart(c, es); renderYear(c, es, ledger(es));
+}
+async function openPeriod(cid, s, e, kind) {
+  if (!counter(cid) || veiled(counter(cid))) return; // Versteck-Modus: verborgene Daten nie zeigen
+  const view = {}; chartSel = { cid, kind, s: +s }; repaintCharts();
+  view.refresh = () => { const el = $('daySheet'); if (!el) return; const c = counter(cid);
+    if (!c || veiled(c)) { closeSheet(null); return; } swOpen = null; el.innerHTML = dayInner(c, s, e, kind); hydratePhotos(el); };
+  try {
+    for (;;) {
+      const c = counter(cid); if (!c || veiled(c)) break;
+      dayView = view;
+      const v = await openSheet(`<div class="day-sheet" id="daySheet" style="--c:${esc(c.color)}">${dayInner(c, s, e, kind)}</div>`, box => {
+        const el = box.querySelector('#daySheet'); hydratePhotos(el);
+        el.addEventListener('click', ev => { const b = ev.target.closest('[data-act]'); if (b && el.contains(b)) closeSheet(b.dataset.act); }); });
+      dayView = null;
+      if (typeof v === 'string' && v.startsWith('edit:')) { await editEntry(v.slice(5)); continue; } // danach zurück zum Tag
+      if (v === 'add') { const today = startOfDay(new Date()); await editEntry(null, true, cid, +s === +today ? new Date() : new Date(s.getFullYear(), s.getMonth(), s.getDate(), 12)); continue; }
+      break;
+    }
+  } finally { if (dayView === view) dayView = null; chartSel = null; repaintCharts(); }
+}
+function openBar(g) {
+  const c = counter(currentId()); if (!c || !g) return;
+  const mode = $('chart').dataset.mode || 'day';
+  openPeriod(c.id, new Date(+g.dataset.s), new Date(+g.dataset.e), mode);
+}
+function openYearCell(r) {
+  const c = counter(currentId()); if (!c || !r || !r.dataset.d) return;
+  const [yy, mm, dd] = r.dataset.d.split('-').map(Number), s = new Date(yy, mm - 1, dd), e = new Date(yy, mm - 1, dd + 1);
+  openPeriod(c.id, s, e, 'yday');
 }
 const isDarkNow = () => { const m = themeMode(); return m === 'dark' || (m === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); };
 function hexRgb(h) { const m = /^#?([0-9a-f]{6})$/i.exec(String(h || '').trim()); const n = m ? parseInt(m[1], 16) : 0x007aff; return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
@@ -3539,8 +3647,8 @@ async function noteFor(eid) {
   const ok = await applyPhoto(e, v.photo);
   save(); render(); return ok;
 }
-async function editEntry(eid, isNew = false, cid = null) {
-  const e = isNew ? { timestamp: isoNow(), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
+async function editEntry(eid, isNew = false, cid = null, at = null) {
+  const e = isNew ? { timestamp: isoNow(at || new Date()), note: '' } : db.entries.find(x => x.id === eid); if (!e) return;
   const c = counter(isNew ? cid : e.counterId); if (!c) return;
   if (lockBlock(c)) return; // Version 3b
   const tm = isTime(c), d = new Date(e.timestamp), a0 = isNew ? (tm ? 0 : stepOf(c)) : amt(e);
@@ -4143,6 +4251,17 @@ bindPlus($('dPlus'), null); syncHap();
 $('arrangeBtn').onclick = () => { arranging = !arranging; render(); };
 $('chips').addEventListener('click', e => { const b = e.target.closest('[data-filter]'); if (!b) return; lsSet(FILTER_KEY, b.dataset.filter); renderHome(); });
 $('chartWhat').addEventListener('click', e => { const b = e.target.closest('[data-what]'); if (!b) return; lsSet(CHART_WHAT_KEY, b.dataset.what); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
+// Version 3.3: Balken antippen (ganze Spalte) / per Tastatur; Jahres-Raster: nächstes Feld zum Fingerpunkt (Felder sind sehr klein)
+$('chart').addEventListener('click', e => { const g = e.target.closest && e.target.closest('.bar-g'); if (g) openBar(g); });
+$('chart').addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const g = e.target.closest && e.target.closest('.bar-g'); if (g) { e.preventDefault(); openBar(g); } });
+$('yearGrid').addEventListener('click', e => {
+  const svg = $('yearGrid'), m = svg.getScreenCTM && svg.getScreenCTM(); let best = null, bd = Infinity;
+  if (e.target && e.target.dataset && e.target.dataset.d) best = e.target;
+  else if (m) { const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const p = pt.matrixTransform(m.inverse());
+    svg.querySelectorAll('rect[data-d]').forEach(r => { const dx = +r.getAttribute('x') + 3 - p.x, dy = +r.getAttribute('y') + 3 - p.y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = r; } });
+    if (bd > 64) best = null; }
+  if (best) openYearCell(best);
+});
 $('chartSeg').addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (!b) return; lsSet(CHART_KEY, b.dataset.mode); const c = counter(currentId()); if (c) renderChart(c, entriesOf(c.id)); });
 $('remIcsBtn').onclick = () => { const c = counter(currentId()); if (c) addToCalendar(c, c.reminder); };
 $('undoBtn').onclick = () => undoLast(currentId());
