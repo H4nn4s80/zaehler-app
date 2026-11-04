@@ -777,7 +777,16 @@
   .plus-pair .plus.sz { margin: 0; width: 100%; flex: 1 1 0; min-height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
     font-size: 17px; font-weight: 800; letter-spacing: 0; line-height: 1.05; border-radius: 16px; }
   .plus.sz b { font-weight: 800; } .plus.sz small, .dsz small { font-size: 12px; font-weight: 600; opacity: .88; }
-  .plus.sz-s, .dsz-s { background-color: color-mix(in srgb, var(--c) 78%, #fff); }
+  /* Version 3.9: feste Farben je Größe (nicht je Zähler) – Klein = Himmelblau, Groß = Amber, als getöntes Liquid Glass mit dunkler (hell: heller) Schrift */
+  :root { --sz-s: #4cc2ff; --sz-l: #ff9f43; --szi-s: #04466e; --szi-l: #7a3300; --sz-base: rgba(255,255,255,.55); --sz-mix: 46%; --sz-edge: rgba(255,255,255,.75); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --szi-s: #b3e6ff; --szi-l: #ffd2a3; --sz-base: rgba(28,28,32,.55); --sz-mix: 40%; --sz-edge: rgba(255,255,255,.30); } }
+  :root[data-theme="dark"] { --szi-s: #b3e6ff; --szi-l: #ffd2a3; --sz-base: rgba(28,28,32,.55); --sz-mix: 40%; --sz-edge: rgba(255,255,255,.30); }
+  .plus.sz-s, .dsz-s, .due-plus.sz[data-size="s"], .szt.szt-s, .sz-seg button[data-sz="s"] { --c: var(--sz-s); }
+  .plus.sz-l, .dsz-l, .due-plus.sz[data-size="l"], .szt.szt-l, .sz-seg button[data-sz="l"] { --c: var(--sz-l); }
+  .plus-pair .plus.sz-l { flex-grow: 1.25; }
+  .plus.sz b::before, .dsz b::before { content: ''; display: inline-block; vertical-align: -.1em; margin-right: .28em; width: .5em; height: .72em; border: 2px solid currentColor; border-top: 0;
+    border-radius: 0 0 .16em .16em; clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%); opacity: .9; }
+  .plus.sz-l b::before, .dsz-l b::before { width: .62em; height: .95em; }
   .d-sizes { display: flex; gap: 10px; } .d-sizes[hidden] { display: none; }
   .dsz { position: relative; flex: 1 1 0; min-width: 0; min-height: 86px; border: 0; border-radius: 30px; color: #fff; background-color: var(--c);
     background-image: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 50%, rgba(0,0,0,.05));
@@ -787,11 +796,11 @@
   .dsz small { font-size: 14px; }
   .dsz:active { transform: scale(.97); }
   .due-plus.sz { min-width: 0; padding: 0 12px; font-size: 14px; } .due-plus.sz + .due-plus.sz { margin-left: -4px; }
-  .due-plus.sz[data-size="s"] { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 55%, #fff), color-mix(in srgb, var(--c) 82%, #fff)); }
   .chip-sz { font-size: 12px; font-weight: 600; opacity: .75; }
   .stat .lit { display: block; margin-top: 2px; font-size: 13px; font-weight: 700; color: var(--c); font-variant-numeric: tabular-nums; }
   .stat .lit[hidden] { display: none; }
   .szt { color: var(--c); font-weight: 600; font-size: 14px; margin-right: 8px; }
+  .szt.szt-s, .szt.szt-l { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 13px; line-height: 1.45; }
   .tile-sub.tile-lit { color: var(--c); font-weight: 600; }
   .size-hint { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; padding: 10px 12px; border-radius: 16px; background: color-mix(in srgb, var(--c, #007aff) 12%, transparent); font-size: 14px; }
   .size-hint span { flex: 1; } .size-hint .btn { flex: none; min-height: 36px; padding: 0 14px; font-size: 14px; }
@@ -802,6 +811,7 @@
   .recent-more[hidden] { display: none; }
   .recent-more:active { background: var(--soft); }
   .sz-seg { display: flex; } .sz-seg button { flex: 1; min-height: 40px; font-size: 15px; }
+  .sz-seg button.on[data-sz] { font-weight: 700; }
   .ov { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px 16px; border-radius: 24px; background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
   .ov.noring { padding: 12px 18px; }
   .ring-w { position: relative; flex: none; width: 64px; height: 64px; border-radius: 50%; }
@@ -828,6 +838,21 @@
   .recent button:active { background: color-mix(in srgb, var(--ink) 8%, transparent); }
   .recent .rt { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .recent .rn { color: var(--muted); font-size: 14px; }
+  .recent .rn.szt { font-size: 13px; margin-right: 0; }
+  /* Version 3.9: Liquid Glass für alle Größen-Elemente – getönte Glasscheibe (Farbe + Weiß/Dunkel gemischt, halbtransparent), Unschärfe + Sättigung dahinter,
+     Glanzverlauf oben, helle Innenkante, weicher farbiger Schatten. Ohne backdrop-filter: kräftigere, fast deckende Tönung. */
+  :is(.plus.sz-s, .plus.sz-l, .dsz-s, .dsz-l, .due-plus.sz[data-size], .szt.szt-s, .szt.szt-l, .sz-seg button.on[data-sz]) {
+    background-color: color-mix(in srgb, var(--c) var(--sz-mix), var(--sz-base));
+    background-image: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.10) 45%, rgba(255,255,255,0) 60%, rgba(255,255,255,.08));
+    -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+    border: .5px solid var(--sz-edge); text-shadow: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 1px rgba(255,255,255,.12), 0 8px 20px -10px color-mix(in srgb, var(--c) 80%, transparent); }
+  :is(.plus.sz-s, .dsz-s, .due-plus.sz[data-size="s"], .szt.szt-s, .sz-seg button.on[data-sz="s"]) { color: var(--szi-s); }
+  :is(.plus.sz-l, .dsz-l, .due-plus.sz[data-size="l"], .szt.szt-l, .sz-seg button.on[data-sz="l"]) { color: var(--szi-l); }
+  :is(.plus.sz small, .dsz small) { opacity: .8; }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :is(.plus.sz-s, .plus.sz-l, .dsz-s, .dsz-l, .due-plus.sz[data-size], .szt.szt-s, .szt.szt-l, .sz-seg button.on[data-sz]) { background-color: color-mix(in srgb, var(--c) calc(var(--sz-mix) + 14%), var(--bg)); }
+  }
   .recent .ra { font-weight: 700; font-variant-numeric: tabular-nums; } .recent .ra.neg { color: var(--danger); }
   .recent .rchev { color: var(--muted); font-size: 18px; }
   .note-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 4px; }
@@ -1782,7 +1807,7 @@ for (const l of Object.keys(I18N_V38)) Object.assign(I18N[l], I18N_V38[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 20, APP_VERSION = '3.8', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 21, APP_VERSION = '3.9', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -3330,7 +3355,7 @@ function renderDetail(c) {
       li.className = e ? 'filled swipe sw-entry' : 'emptyrow';
       if (e && i === r.current.length) li.classList.add('latest');
       if (!e && !r.full && i === r.next) li.classList.add('next');
-      const inner = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (sizeTxt(e) ? ` <span class="rel">· ${esc(sizeTxt(e))}</span>` : '') + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
+      const inner = `<span class="nr">${i}</span><span class="when">${e ? esc(fmtEntry(e)) + (sizeTxt(e) ? ` <span class="szt szt-${e.size}">${esc(sizeTxt(e))}</span>` : '') + (e.note ? `<span class="note">${esc(e.note)}</span>` : '') : '—'}</span>`;
       if (e) { li.dataset.eid = e.id; li.innerHTML = `<div class="sw-front">${inner}</div>`; } else li.innerHTML = inner;
       ol.appendChild(li);
     }
@@ -3373,7 +3398,7 @@ function renderDetail(c) {
     const li = document.createElement('li'); li.className = 'filled swipe sw-entry'; li.dataset.id = li.dataset.eid = e.id;
     const run = L.runs[i], a = amt(e), nr = tm ? i + 1 : r.round ? (run ? ((run - 1) % r.n) + 1 : 0) : run;
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
-    li.innerHTML = `<div class="sw-front"><span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || sizeTxt(e) || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${sizeTxt(e) ? `<span class="szt">${esc(sizeTxt(e))}</span>` : ''}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
+    li.innerHTML = `<div class="sw-front"><span class="nr">${nr}</span><span class="when">${esc(fmtEntry(e))}${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}${amtTxt || sizeTxt(e) || (co && unitPrice(c, e)) ? `<span class="meta">${amtTxt}${sizeTxt(e) ? `<span class="szt szt-${e.size}">${esc(sizeTxt(e))}</span>` : ''}${co && unitPrice(c, e) ? `<span class="cost">${esc(fmtMoney(cents(c, e, a)))}</span>` : ''}</span>` : ''}${e.note ? `<span class="note">📝 ${esc(e.note)}</span>` : ''}${e.photo ? `<button class="thumb" type="button" data-photo-open aria-label="${esc(t('photoOpenAria'))}"><img data-photo="${esc(e.photo)}" alt="" decoding="async"></button>` : ''}</span>
       <button class="rowbtn" type="button" data-edit aria-label="${esc(t('editAria'))}">✎</button>
       <button class="rowbtn del" type="button" data-del aria-label="${esc(t('deleteAria'))}">🗑</button></div>`;
     li.querySelector('[data-edit]').onclick = () => editEntry(e.id);
@@ -3463,7 +3488,7 @@ function renderRecent(c, es) {
   more.onclick = () => { recentOpen = open ? null : c.id; render(); if (open) $('recentCard').scrollIntoView({ block: 'nearest' }); };
   $('recentList').classList.toggle('open', open);
   $('recentList').innerHTML = (open ? es.slice() : es.slice(-3)).reverse().map(e => { const a = amt(e);
-    return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${sizeTxt(e) ? ` <span class="rn rsz">${esc(sizeTxt(e))}</span>` : ''}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
+    return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${sizeTxt(e) ? ` <span class="rn rsz szt szt-${e.size}">${esc(sizeTxt(e))}</span>` : ''}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
       + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></div></li>`; }).join('');
   $('recentList').querySelectorAll('[data-rid]').forEach(b => { b.onclick = () => editEntry(b.dataset.rid); });
   const ch = $('noteChips'); ch.hidden = !notes.length;
@@ -3515,7 +3540,7 @@ function dayInner(c, s, e, kind) {
     const amtTxt = tm ? `<span class="amt">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="amt${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : '';
     const cost = co && unitPrice(c, x) ? `<span class="cost">${esc(fmtMoney(cents(c, x, a)))}</span>` : '';
     const inner = `<span class="nr">${nr}</span><span class="when"><b class="dtime">${esc(x.dateOnly ? t('dayAllDay') : fmtTime(d))}</b>${r.round && run ? ` <span class="rel">· ${esc(t('roundAbbr', { r: Math.floor((run - 1) / r.n) + 1 }))}</span>` : ''}`
-      + `${amtTxt || cost || sizeTxt(x) ? `<span class="meta">${amtTxt}${sizeTxt(x) ? `<span class="szt">${esc(sizeTxt(x))}</span>` : ''}${cost}</span>` : ''}${x.note ? `<span class="note">📝 ${esc(x.note)}</span>` : ''}</span>`
+      + `${amtTxt || cost || sizeTxt(x) ? `<span class="meta">${amtTxt}${sizeTxt(x) ? `<span class="szt szt-${x.size}">${esc(sizeTxt(x))}</span>` : ''}${cost}</span>` : ''}${x.note ? `<span class="note">📝 ${esc(x.note)}</span>` : ''}</span>`
       + `${x.photo ? `<span class="thumb"><img data-photo="${esc(x.photo)}" alt="" decoding="async"></span>` : ''}${lk ? '' : '<span class="rchev" aria-hidden="true">›</span>'}`;
     return `<li class="filled swipe sw-entry" data-eid="${esc(x.id)}"><div class="sw-front">${lk ? `<div class="day-row">${inner}</div>`
       : `<button type="button" class="day-row" data-act="edit:${esc(x.id)}" aria-label="${esc(t('dayEditAria', { d: fmtEntry(x) }))}">${inner}</button>`}</div></li>`;
@@ -4178,17 +4203,18 @@ async function menu(st = 0, from = null) {
     <div class="m-h">${esc(t('appearance'))}</div>
     ${mSeg('mThemes', ['auto', 'light', 'dark'].map(m => ({ attr: `data-theme-v="${m}"`, label: t('theme' + m[0].toUpperCase() + m.slice(1)), on: m === themeMode() })), t('appearance'))}
     <p class="m-foot">${esc(t('themeHelp'))}</p>
+    <!-- Version 3.9: Backup direkt unter Darstellung (Hannes) -->
+    <div class="m-h">${esc(t('backupSection'))}</div>
+    <div class="m-card" id="mBackup">
+      <button class="m-cta" type="button" data-v="export" id="mExport" aria-label="${esc(mLbl(t('mExport')))}">${mSvg('<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8 10.5H6.5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H16"/>')}<span>${esc(t('backupNow'))}</span></button>
+      <p class="m-note" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p>
+      <p class="m-note" id="mPhotos"></p><p class="m-note" id="mBackupSize"></p></div>
     <div class="m-h">${esc(t('feedback'))}</div>
     <div class="m-group" id="mFeedback">${mToggle('mHaptic', 'haptic', t('hapticLbl'), hapticOn())}${mToggle('mSound', 'sound', t('soundLbl'), soundOn())}</div>
     <p class="m-foot">${esc(t('feedbackHelp'))}</p>
     <div class="m-h">${esc(t('privSection'))}</div>
     <div class="m-group" id="mPriv">${mRow('mPrivShow', 'privshow', 'priv', t(privOpen ? 'privRelock' : 'privShow'))}${mRow('mPrivSet', 'privset', 'privset', t('privSettings'), { nav: true })}</div>
     <p class="m-foot">${esc(t('privMenuFoot'))}</p>
-    <div class="m-h">${esc(t('backupSection'))}</div>
-    <div class="m-card" id="mBackup">
-      <button class="m-cta" type="button" data-v="export" id="mExport" aria-label="${esc(mLbl(t('mExport')))}">${mSvg('<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M8 10.5H6.5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H16"/>')}<span>${esc(t('backupNow'))}</span></button>
-      <p class="m-note" id="mBackupHint">${esc(t('backupHint'))}<br><b id="mLastBackup">${esc(t('lastBackup', { t: lastBackupText() }))}</b></p>
-      <p class="m-note" id="mPhotos"></p><p class="m-note" id="mBackupSize"></p></div>
     <div class="m-h">${esc(t('reminder'))}</div>
     ${mSeg('mIvs', Object.keys(IVS).map(k => ({ attr: `data-iv="${k}"`, label: t('iv' + k[0].toUpperCase() + k.slice(1)), on: k === backupInterval() })), t('reminder'))}
     <div class="m-group">${mRow('mReview', 'review', 'review', mLbl(t('reviewMenu')), { nav: true })}${nArch ? mRow('mArchive', 'archive', 'archive', t('archiveTitle'), { nav: true, val: nArch }) : ''}</div>
