@@ -1782,7 +1782,7 @@ for (const l of Object.keys(I18N_V36)) Object.assign(I18N[l], I18N_V36[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 18, APP_VERSION = '3.6', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 19, APP_VERSION = '3.7', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -2650,17 +2650,18 @@ async function faceRegister() {
     user: { id: rndBytes(16), name: `zaehler@${faceRp()}`, displayName: `${t('appTitle')} – ${t('privSection')}` },
     pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
     authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred', requireResidentKey: false },
-    timeout: 60000, attestation: 'none' } });
+    hints: ['client-device'], timeout: 60000, attestation: 'none' } }); // Version 3.7: hints → iOS bietet eher Passwörter/iCloud-Schlüsselbund an
   if (!cred || !cred.rawId) throw new Error('no credential');
   let tr = []; try { tr = cred.response && cred.response.getTransports ? cred.response.getTransports().filter(x => typeof x === 'string').slice(0, 6) : []; } catch (e) {}
   const p = privGet(); p.cred = b64u(new Uint8Array(cred.rawId)); p.credRp = faceRp(); if (tr.length) p.credTr = tr; else delete p.credTr; privSet(p);
 }
 /** true nur, wenn der Authentifikator mit derselben Credential-ID antwortet und „Nutzer verifiziert“ (UV) meldet. Alte Passkeys werden nicht abgefragt. */
-async function faceVerify() {
-  const p = privGet(); if (!faceOk(p) || !navigator.credentials) return false;
+async function faceVerify(signal = null) { // Version 3.7: signal = AbortController-Signal (Blatt zu → Abfrage abbrechen)
+  const p = privGet(); if (!faceOk(p) || !navigator.credentials || (signal && signal.aborted)) return false;
   try {
-    const allow = { type: 'public-key', id: unb64u(p.cred) }; if (Array.isArray(p.credTr) && p.credTr.length) allow.transports = p.credTr;
-    const a = await navigator.credentials.get({ publicKey: { challenge: rndBytes(32), rpId: faceRp(), userVerification: 'required', timeout: 60000, allowCredentials: [allow] } });
+    // Version 3.7: ohne transports-Hinweis (lenkte iOS evtl. zum falschen Anbieter) und UV „preferred“ – geprüft wird UP+UV unten selbst.
+    const allow = { type: 'public-key', id: unb64u(p.cred) };
+    const a = await navigator.credentials.get({ publicKey: { challenge: rndBytes(32), rpId: faceRp(), userVerification: 'preferred', timeout: 60000, allowCredentials: [allow] }, ...(signal ? { signal } : {}) });
     if (!a || !a.rawId || b64u(new Uint8Array(a.rawId)) !== p.cred) return false;
     const ad = new Uint8Array(a.response.authenticatorData); return ad.length > 32 && (ad[32] & 0x05) === 0x05; // UP + UV
   } catch (e) { return false; }
@@ -2673,7 +2674,7 @@ async function faceRedo(pinDone = false) {
 /** Ziffernblock im Blatt. o: { title, sub, len (feste Länge → prüft automatisch) | null (4–6, „Weiter“), face, forgot, check(pin) → true | Fehlertext }
     Ergebnis: { pin } | 'face' | 'forgot' | null/'no' */
 function codePad(o) {
-  const max = o.len || 6; let pin = '', busy = false, kd = null;
+  const max = o.len || 6; let pin = '', busy = false, kd = null, ac = null; // Version 3.7: ac = laufende Face-ID-Abfrage
   return openSheet(`<div class="pin${o.len ? '' : ' free'}" id="pinBox">
     <div class="pin-ic" aria-hidden="true">${LOCK_SVG}</div>
     <h2 id="pinTitle">${esc(o.title)}</h2><p class="pin-sub" id="pinSub">${esc(o.sub || '')}</p>
@@ -2695,7 +2696,13 @@ function codePad(o) {
     };
     const key = k => {
       if (busy) return;
-      if (k === 'face') { closeSheet('face'); return; }
+      if (k === 'face') { // Version 3.7: nur nach ausdrücklichem Tipp auf die Face-ID-Taste; Code-Feld bleibt dahinter offen, kein Wiederholen
+        if (!o.faceRun) { closeSheet('face'); return; }
+        busy = true; B.classList.add('busy'); E.textContent = ''; ac = new AbortController(); const sig = ac.signal;
+        faceVerify(sig).then(ok => { if (sig.aborted || !box.contains(B)) return; ac = null; busy = false; B.classList.remove('busy');
+          if (ok) { closeSheet({ face: true }); return; }
+          box.querySelector('#pinSub').textContent = t('faceFail'); if (o.onFaceFail) o.onFaceFail(); });
+        return; }
       if (k === 'del') pin = pin.slice(0, -1); else if (/^\d$/.test(k) && pin.length < max) { pin += k; E.textContent = ''; }
       draw(); if (o.len && pin.length === o.len) submit();
     };
@@ -2707,7 +2714,7 @@ function codePad(o) {
     document.addEventListener('keydown', kd, true);
     if (o.face) faceAvail().then(a => { const f = box.querySelector('#pinFace'); if (f && a && box.contains(B)) { f.classList.remove('off'); f.removeAttribute('aria-hidden'); f.removeAttribute('tabindex'); } });
     draw();
-  }).then(v => { if (kd) document.removeEventListener('keydown', kd, true); return v; });
+  }).then(v => { if (kd) document.removeEventListener('keydown', kd, true); if (ac) { try { ac.abort(); } catch (e) {} ac = null; } return v; }); // Version 3.7: Blatt zu → Face ID abbrechen
 }
 /** Neuen Code festlegen (zweimal eingeben). true = gespeichert */
 async function pinCreate() {
@@ -2732,9 +2739,9 @@ async function privUnlock(sub = null, open = true) {
   const p = privGet(), face = faceOk(p); let bad = faceLegacy(p);
   if (bad && !sub) sub = t('faceLegacy'); // Version 3.6: alter Passkey → nicht abfragen, Code + danach „neu einrichten“ anbieten
   for (let i = 0; i < 10; i++) {
-    const r = await codePad({ title: t('privUnlockTitle'), sub: sub || t(face ? 'privUnlockSubFace' : 'privUnlockSub'), len: p.len || null, face, forgot: true, check: pinTry }); // nach einem Fehlschlag darf man Face ID nochmal versuchen
+    const r = await codePad({ title: t('privUnlockTitle'), sub: sub || t(face ? 'privUnlockSubFace' : 'privUnlockSub'), len: p.len || null, face, faceRun: true, onFaceFail: () => { bad = true; }, forgot: true, check: pinTry });
+    if (r && r.face) { if (open) privOpenNow(); return true; } // Version 3.7 // nach einem Fehlschlag darf man Face ID nochmal versuchen
     if (r && r.pin) { if (open) privOpenNow(); if (bad) faceRedoOffer(); return true; }
-    if (r === 'face') { if (await faceVerify()) { if (open) privOpenNow(); return true; } sub = t('faceFail'); bad = true; continue; } // Rückfall auf den Code
     if (r === 'forgot') { await forgotPin(); return privOpen; }
     return false;
   }
