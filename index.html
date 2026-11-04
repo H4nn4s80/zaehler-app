@@ -1758,6 +1758,15 @@ const I18N_V35 = {
   fr: {"recentAll": "Voir les {n} entrées", "recentLess": "Voir moins", "sizesField": "Boisson – petite / grande"},
 };
 for (const l of Object.keys(I18N_V35)) Object.assign(I18N[l], I18N_V35[l]);
+/* Version 3.6: Face ID robust – neu einrichten, Rückfall auf den Code */
+const I18N_V36 = {
+  de: {"faceRedo": "Face ID neu einrichten", "faceRedone": "✓ Face ID neu eingerichtet", "faceRedoAsk": "Face ID neu einrichten, damit das Entsperren wieder klappt?", "faceLegacy": "Face ID muss einmal neu eingerichtet werden – gib deinen Code ein.", "faceLegacyNote": "Face ID wurde mit einer älteren Version eingerichtet und funktioniert so nicht mehr. Einmal „Face ID neu einrichten“ – der Code funktioniert immer."},
+  en: {"faceRedo": "Set up Face ID again", "faceRedone": "✓ Face ID set up again", "faceRedoAsk": "Set up Face ID again so unlocking works?", "faceLegacy": "Face ID needs to be set up again once – enter your passcode.", "faceLegacyNote": "Face ID was set up with an older version and no longer works that way. Tap “Set up Face ID again” once – the passcode always works."},
+  it: {"faceRedo": "Configura di nuovo Face ID", "faceRedone": "✓ Face ID configurato di nuovo", "faceRedoAsk": "Configurare di nuovo Face ID per sbloccare?", "faceLegacy": "Face ID va configurato di nuovo una volta – inserisci il codice.", "faceLegacyNote": "Face ID è stato configurato con una versione precedente e così non funziona più. Tocca una volta “Configura di nuovo Face ID” – il codice funziona sempre."},
+  es: {"faceRedo": "Configurar Face ID de nuevo", "faceRedone": "✓ Face ID configurado de nuevo", "faceRedoAsk": "¿Configurar Face ID de nuevo para desbloquear?", "faceLegacy": "Face ID debe configurarse de nuevo una vez – introduce tu código.", "faceLegacyNote": "Face ID se configuró con una versión anterior y así ya no funciona. Toca una vez “Configurar Face ID de nuevo” – el código funciona siempre."},
+  fr: {"faceRedo": "Reconfigurer Face ID", "faceRedone": "✓ Face ID reconfiguré", "faceRedoAsk": "Reconfigurer Face ID pour déverrouiller ?", "faceLegacy": "Face ID doit être reconfiguré une fois – saisis ton code.", "faceLegacyNote": "Face ID a été configuré avec une ancienne version et ne fonctionne plus ainsi. Touche une fois « Reconfigurer Face ID » – le code fonctionne toujours."},
+};
+for (const l of Object.keys(I18N_V36)) Object.assign(I18N[l], I18N_V36[l]);
 </script>
 <script>
 (() => {
@@ -1773,7 +1782,7 @@ for (const l of Object.keys(I18N_V35)) Object.assign(I18N[l], I18N_V35[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 17, APP_VERSION = '3.5', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 18, APP_VERSION = '3.6', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -2630,24 +2639,36 @@ async function faceAvail() {
     && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); } catch (e) { return false; }
 }
 const rndBytes = n => crypto.getRandomValues(new Uint8Array(n));
+/* Version 3.6: Passkey robust. rpId = genau dieser Host (h4nn4s80.github.io – nie „github.io“, das steht auf der Public-Suffix-Liste).
+   Gespeichert wird { cred, credRp, credTr }; ein Passkey ohne credRp (vor 3.6 eingerichtet) gilt als „alt“: er wird nicht mehr abgefragt,
+   stattdessen Code + Angebot „Face ID neu einrichten“. Der Code funktioniert immer. */
+const faceRp = () => location.hostname;
+const faceOk = (p = privGet()) => typeof p.cred === 'string' && !!p.cred && p.credRp === faceRp();
+const faceLegacy = (p = privGet()) => typeof p.cred === 'string' && !!p.cred && p.credRp !== faceRp();
 async function faceRegister() {
-  const cred = await navigator.credentials.create({ publicKey: { challenge: rndBytes(32), rp: { name: t('appTitle'), id: location.hostname },
-    user: { id: rndBytes(16), name: 'zaehler', displayName: `${t('appTitle')} – ${t('privSection')}` },
+  const cred = await navigator.credentials.create({ publicKey: { challenge: rndBytes(32), rp: { name: t('appTitle'), id: faceRp() },
+    user: { id: rndBytes(16), name: `zaehler@${faceRp()}`, displayName: `${t('appTitle')} – ${t('privSection')}` },
     pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged', requireResidentKey: false },
+    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred', requireResidentKey: false },
     timeout: 60000, attestation: 'none' } });
   if (!cred || !cred.rawId) throw new Error('no credential');
-  const p = privGet(); p.cred = b64u(new Uint8Array(cred.rawId)); privSet(p);
+  let tr = []; try { tr = cred.response && cred.response.getTransports ? cred.response.getTransports().filter(x => typeof x === 'string').slice(0, 6) : []; } catch (e) {}
+  const p = privGet(); p.cred = b64u(new Uint8Array(cred.rawId)); p.credRp = faceRp(); if (tr.length) p.credTr = tr; else delete p.credTr; privSet(p);
 }
-/** true nur, wenn der Plattform-Authentifikator mit derselben Credential-ID antwortet und „Nutzer verifiziert“ (UV) meldet */
+/** true nur, wenn der Authentifikator mit derselben Credential-ID antwortet und „Nutzer verifiziert“ (UV) meldet. Alte Passkeys werden nicht abgefragt. */
 async function faceVerify() {
-  const p = privGet(); if (!p.cred || !navigator.credentials) return false;
+  const p = privGet(); if (!faceOk(p) || !navigator.credentials) return false;
   try {
-    const a = await navigator.credentials.get({ publicKey: { challenge: rndBytes(32), rpId: location.hostname, userVerification: 'required', timeout: 60000,
-      allowCredentials: [{ type: 'public-key', id: unb64u(p.cred), transports: ['internal'] }] } });
+    const allow = { type: 'public-key', id: unb64u(p.cred) }; if (Array.isArray(p.credTr) && p.credTr.length) allow.transports = p.credTr;
+    const a = await navigator.credentials.get({ publicKey: { challenge: rndBytes(32), rpId: faceRp(), userVerification: 'required', timeout: 60000, allowCredentials: [allow] } });
     if (!a || !a.rawId || b64u(new Uint8Array(a.rawId)) !== p.cred) return false;
     const ad = new Uint8Array(a.response.authenticatorData); return ad.length > 32 && (ad[32] & 0x05) === 0x05; // UP + UV
   } catch (e) { return false; }
+}
+/** Face ID (neu) einrichten. pinDone = Code wurde gerade schon eingegeben. Ergebnis: Meldungstext */
+async function faceRedo(pinDone = false) {
+  if (!pinDone && !(await pinVerify())) return '';
+  try { await faceRegister(); return t('faceRedone'); } catch (e) { return t('faceSetupFail'); }
 }
 /** Ziffernblock im Blatt. o: { title, sub, len (feste Länge → prüft automatisch) | null (4–6, „Weiter“), face, forgot, check(pin) → true | Fehlertext }
     Ergebnis: { pin } | 'face' | 'forgot' | null/'no' */
@@ -2708,15 +2729,20 @@ async function privUnlock(sub = null, open = true) {
   if (privOpen) return true;
   if (!hasPin()) { if (open) privOpenNow(true); return true; } // alte „ausgeblendete“ Zähler ohne Code: noch ungeschützt
   if (!(window.crypto && crypto.subtle)) { toast(t('pinNoCrypto')); return false; }
-  const p = privGet(), face = !!p.cred;
+  const p = privGet(), face = faceOk(p); let bad = faceLegacy(p);
+  if (bad && !sub) sub = t('faceLegacy'); // Version 3.6: alter Passkey → nicht abfragen, Code + danach „neu einrichten“ anbieten
   for (let i = 0; i < 10; i++) {
-    const r = await codePad({ title: t('privUnlockTitle'), sub: sub || t(face ? 'privUnlockSubFace' : 'privUnlockSub'), len: p.len || null, face, forgot: true, check: pinTry });
-    if (r && r.pin) { if (open) privOpenNow(); return true; }
-    if (r === 'face') { if (await faceVerify()) { if (open) privOpenNow(); return true; } sub = t('faceFail'); continue; }
+    const r = await codePad({ title: t('privUnlockTitle'), sub: sub || t(face ? 'privUnlockSubFace' : 'privUnlockSub'), len: p.len || null, face, forgot: true, check: pinTry }); // nach einem Fehlschlag darf man Face ID nochmal versuchen
+    if (r && r.pin) { if (open) privOpenNow(); if (bad) faceRedoOffer(); return true; }
+    if (r === 'face') { if (await faceVerify()) { if (open) privOpenNow(); return true; } sub = t('faceFail'); bad = true; continue; } // Rückfall auf den Code
     if (r === 'forgot') { await forgotPin(); return privOpen; }
     return false;
   }
   return false;
+}
+/** Version 3.6: nach dem Code-Entsperren mit altem/fehlgeschlagenem Passkey: „Face ID neu einrichten?“ (Code ist schon eingegeben) */
+function faceRedoOffer() {
+  faceAvail().then(a => { if (a) setTimeout(() => toast(t('faceRedoAsk'), [[t('faceRedo'), async () => { const m = await faceRedo(true); toast(m, [], 3500); }]], 9000), 2700); });
 }
 function privLock(quiet = false) {
   if (!privOpen) return; privOpen = false;
@@ -2733,7 +2759,7 @@ function privScrub() {
 const privCheck = () => { if (privOpen && Date.now() - privAct >= PRIV_IDLE) privLock(); };
 async function forgotPin() {
   const p = privGet();
-  if (p.cred && await faceAvail()) {
+  if (faceOk(p) && await faceAvail()) {
     const v = await openSheet(`<h2>${esc(t('forgotTitle'))}</h2><p>${esc(t('forgotFaceTxt'))}</p><div class="row"><button class="btn" type="button" data-v="no">${esc(t('cancel'))}</button>
       <button class="btn primary" type="button" data-v="face" id="fgFace">${esc(t('forgotFaceBtn'))}</button></div>`);
     if (v !== 'face') return false;
@@ -2775,7 +2801,8 @@ function veilNow() {
 async function privSettings(msg = '') {
   const p = privGet(), has = hasPin(), fa = has && await faceAvail();
   const v = await openSheet(`<div class="mx" id="privSet"><h2>${esc(t('privSection'))}</h2>${msg ? `<p class="pv-msg" id="pvMsg" role="status">${esc(msg)}</p>` : ''}<p class="pv-intro">${esc(t('privIntro'))}</p>
-    ${has ? `<div class="m-group">${mRow('pvChange', 'change', 'privset', t('pinChange'))}${fa ? mToggle('pvFace', 'face', t('faceLbl'), !!p.cred) : ''}${mRow('pvForgot', 'forgot', 'forgot', t('pinForgot'))}</div>
+    ${has ? `<div class="m-group">${mRow('pvChange', 'change', 'privset', t('pinChange'))}${fa ? mToggle('pvFace', 'face', t('faceLbl'), faceOk(p)) : ''}${fa && p.cred ? mRow('pvRedo', 'redo', 'face', t('faceRedo')) : ''}${mRow('pvForgot', 'forgot', 'forgot', t('pinForgot'))}</div>
+      ${fa && faceLegacy(p) ? `<p class="m-foot pv-legacy" id="pvLegacy">⚠️ ${esc(t('faceLegacyNote'))}</p>` : ''}
       ${fa ? '' : `<p class="m-foot" id="pvNoFace">${esc(t('faceNone'))}</p>`}`
       : `<div class="m-card"><button class="m-cta" type="button" data-v="create" id="pvCreate">${mSvg(MICO.priv[1])}<span>${esc(t('pinSetBtn'))}</span></button><p class="m-note">${esc(t('pinIntroTxt'))}</p></div>`}
     <p class="m-foot">${esc(t('privAutoHide'))}</p>
@@ -2790,7 +2817,8 @@ async function privSettings(msg = '') {
     let m = ''; if (await pinVerify()) { try { await faceRegister(); m = '✓ ' + t('faceOn'); } catch (e) { m = t('faceSetupFail'); } }
     return privSettings(m);
   }
-  if (v === 'faceOff') { let m = ''; if (await pinVerify()) { const q = privGet(); delete q.cred; privSet(q); m = t('faceOff'); } return privSettings(m); }
+  if (v === 'faceOff') { let m = ''; if (await pinVerify()) { const q = privGet(); delete q.cred; delete q.credRp; delete q.credTr; privSet(q); m = t('faceOff'); } return privSettings(m); }
+  if (v === 'redo') return privSettings(await faceRedo()); // Version 3.6
   if (v === 'forgot') { await forgotPin(); }
 }
 async function lockSheet(cid) {
@@ -3241,7 +3269,9 @@ function veilTile(c, idx, count) {
   el.innerHTML = `<button class="tile-main" type="button" data-open data-veil aria-label="${esc(t('veilAria'))}"><span class="emoji veil-e" aria-hidden="true"></span>
       <span class="tile-text veil-t" aria-hidden="true"><span class="vb" style="width:54%"></span><span class="vb big" style="width:26%"></span><span class="vb" style="width:80%"></span><span class="vb" style="width:44%"></span></span></button>
     <button class="plus veil-plus" type="button" data-veil tabindex="-1" aria-hidden="true">${LOCK_SVG}</button>${arrHtml(idx, count)}`;
-  el.querySelectorAll('[data-veil]').forEach(b => b.onclick = () => { if (!arranging) privUnlock().then(ok => { if (ok && counter(c.id)) go(c.id); }); });
+  // Version 3.6: nur ein echter Tipp auf diese Kachel fragt nach dem Code – kein „Geister-Klick“ vom Menü, das gerade unscharf gemacht hat
+  el.querySelectorAll('[data-veil]').forEach(b => { let pd = 0; b.addEventListener('pointerdown', () => { pd = performance.now(); });
+    b.onclick = e => { if (arranging || (e.detail !== 0 && (!pd || performance.now() - pd > 1500))) return; /* Berührung muss auf dieser Kachel begonnen haben; detail 0 = Tastatur */ privUnlock().then(ok => { if (ok && counter(c.id)) go(c.id); }); }; });
   el.querySelector('[data-up]').onclick = () => moveCounter(c.id, -1);
   el.querySelector('[data-down]').onclick = () => moveCounter(c.id, 1);
   w.appendChild(el); bindDrag(el.querySelector('[data-handle]'), w); return w;
