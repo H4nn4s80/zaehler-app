@@ -2,7 +2,7 @@
    - Seite/Navigation (index.html): network-first ohne HTTP-Cache, 3 s Timeout, offline aus dem Cache.
    - Statische Assets (Icons, Manifest): cache-first mit Hintergrund-Aktualisierung.
    - Löscht nur eigene alte Caches (zaehler-*), nie die anderer Apps auf derselben Domain. */
-const CACHE = 'zaehler-v3-8'; // Version 3.8 (intern Build 20); 3.7 hieß zaehler-v3-7, 3.6 zaehler-v3-6, 3.5 zaehler-v3-5, 3.4 zaehler-v3-4, 3.3 zaehler-v3-3, 3.2 zaehler-v3-2, 3.1 zaehler-v3-1, Version 3 hieß zaehler-v3-0 (nicht das alte „zaehler-v3“)
+const CACHE = 'zaehler-v3-9'; // Version 3.9 (intern Build 21); 3.8 hieß zaehler-v3-8, 3.7 zaehler-v3-7, 3.6 zaehler-v3-6, 3.5 zaehler-v3-5, 3.4 zaehler-v3-4, 3.3 zaehler-v3-3, 3.2 zaehler-v3-2, 3.1 zaehler-v3-1, Version 3 hieß zaehler-v3-0 (nicht das alte „zaehler-v3“)
 const FILES = ['./', './index.html', './manifest.webmanifest', './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 const NAV_TIMEOUT = 3000;
 
