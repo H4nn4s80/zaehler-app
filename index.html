@@ -795,6 +795,12 @@
   .tile-sub.tile-lit { color: var(--c); font-weight: 600; }
   .size-hint { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; padding: 10px 12px; border-radius: 16px; background: color-mix(in srgb, var(--c, #007aff) 12%, transparent); font-size: 14px; }
   .size-hint span { flex: 1; } .size-hint .btn { flex: none; min-height: 36px; padding: 0 14px; font-size: 14px; }
+  /* Version 3.5 */
+  .size-box { padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--c, #007aff) 9%, transparent); box-shadow: inset 0 0 0 .5px color-mix(in srgb, var(--c, #007aff) 30%, transparent); }
+  .size-box > .lbl { color: var(--ink); font-weight: 700; }
+  .recent-more { display: block; width: 100%; margin-top: 6px; min-height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--accent); font: inherit; font-size: 15px; font-weight: 600; }
+  .recent-more[hidden] { display: none; }
+  .recent-more:active { background: var(--soft); }
   .sz-seg { display: flex; } .sz-seg button { flex: 1; min-height: 40px; font-size: 15px; }
   .ov { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 12px 16px; border-radius: 24px; background: var(--glass-bg); box-shadow: var(--glass-hl), var(--glass-shadow); }
   .ov.noring { padding: 12px 18px; }
@@ -917,6 +923,7 @@
   <section class="card recent-card" id="recentCard" hidden>
     <h2 data-i18n="recentTitle"></h2>
     <ol class="recent" id="recentList"></ol>
+    <button class="recent-more" id="recentMore" type="button" hidden></button>
     <div class="note-chips" id="noteChips" hidden></div>
   </section>
   <div class="stats" id="statsBox">
@@ -1742,6 +1749,15 @@ const I18N_V34 = {
   fr: {"sizeS": "petit", "sizeL": "grand", "sizeBtnS": "Petit", "sizeBtnL": "Grand", "sizeAria": "{name} : compter {s} ({v})", "sizesField": "Boisson", "sizesCheck": "Boisson avec tailles (petit / grand)", "sizesHelp": "En comptant, tu choisis petit ou grand. Le volume est enregistré dans l’entrée – le modifier ici plus tard ne change pas les anciennes entrées.", "sizesHint": "On dirait une boisson – choisir petit ou grand en comptant ?", "sizesHintBtn": "Activer", "volS": "Petit (litres)", "volL": "Grand (litres)", "errVol": "Indique des volumes entre 0,01 et 10 litres (ex. 0,33).", "sizeLbl": "Taille", "litToday": "aujourd’hui {v}", "tpl_beer": "Bière", "tplh_beer": "petite 0,33 l · grande 0,5 l"}
 };
 for (const l of Object.keys(I18N_V34)) Object.assign(I18N[l], I18N_V34[l]);
+/* Version 3.5: „Letzte Einträge“ aufklappen; Größen-Abschnitt klarer benannt */
+const I18N_V35 = {
+  de: {"recentAll": "Alle {n} Einträge anzeigen", "recentLess": "Weniger anzeigen", "sizesField": "Getränk – klein / groß"},
+  en: {"recentAll": "Show all {n} entries", "recentLess": "Show less", "sizesField": "Drink – small / large"},
+  it: {"recentAll": "Mostra tutte le {n} voci", "recentLess": "Mostra meno", "sizesField": "Bevanda – piccola / grande"},
+  es: {"recentAll": "Ver las {n} entradas", "recentLess": "Ver menos", "sizesField": "Bebida – pequeña / grande"},
+  fr: {"recentAll": "Voir les {n} entrées", "recentLess": "Voir moins", "sizesField": "Boisson – petite / grande"},
+};
+for (const l of Object.keys(I18N_V35)) Object.assign(I18N[l], I18N_V35[l]);
 </script>
 <script>
 (() => {
@@ -1757,7 +1773,7 @@ for (const l of Object.keys(I18N_V34)) Object.assign(I18N[l], I18N_V34[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 16, APP_VERSION = '3.4', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 17, APP_VERSION = '3.5', APP_DATE = '2026-11-03'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -1873,7 +1889,7 @@ const toLocalInput = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.g
 const localDateNoon = ymd => { const [y, m, d] = ymd.split('-').map(Number); return new Date(y, m - 1, d, 12, 0, 0); };
 
 /* ---------- Speicher ---------- */
-const freshDb = () => ({ version: VERSION, counters: [], entries: [], settings: { onboarded: false } });
+const freshDb = () => ({ version: VERSION, counters: [], entries: [], settings: { onboarded: false, sizesAuto: true } }); // Version 3.5: sizesAuto = Getränke-Umstellung erledigt
 // Version 3.2: dbRaw = zuletzt gelesener/geschriebener Speicherstand. Beim Zurückkehren in die App wird db nur neu geladen,
 // wenn sich der Speicher wirklich geändert hat (z. B. anderer Tab) – sonst bleibt es dasselbe Objekt.
 let dbRaw = null;
@@ -1910,8 +1926,8 @@ const isLocked = c => !!c && c.locked === true;
 function isVol(v) { return typeof v === 'number' && Number.isFinite(v) && v >= 0.01 && v <= 10; }
 function sanitizeSizes(z) { return z && typeof z === 'object' && isVol(z.s) && isVol(z.l) ? { s: Math.round(z.s * 1000) / 1000, l: Math.round(z.l * 1000) / 1000 } : null; }
 const sizesOf = c => (c && c.type !== 'time' ? sanitizeSizes(c.sizes) : null);
-const DRINK_RX = /bier|beer|birra|cerveza|bi[eè]re|wasser|water|acqua|agua|\beau\b|kaffee|coffee|caff|caf[eé]|espresso|cappuccino|latte|saft|juice|succo|zumo|\bjus\b|wein|wine|vino|\bvin\b|cola|limo|schorle|\btee\b|\btea\b|\bt[èéh]+[eé]?\b|milch|milk|getränk|drink|bevand|bebida|boisson/i;
-const isDrinkLike = (name, cat) => DRINK_RX.test(String(name || '')) || /getränk|drink|bevand|bebida|boisson/i.test(String(cat || ''));
+/* Version 3.5: Funktion statt const – wird schon beim Laden (normalizeDb, Getränke-Umstellung) gebraucht */
+function isDrinkLike(name, cat) { return /bier|beer|birra|cerveza|bi[eè]re|wasser|water|acqua|agua|\beau\b|kaffee|coffee|caff|caf[eé]|espresso|cappuccino|latte|saft|juice|succo|zumo|\bjus\b|wein|wine|vino|\bvin\b|cola|limo|schorle|\btee\b|\btea\b|\bt[èéh]+[eé]?\b|milch|milk|getränk|drink|bevand|bebida|boisson/i.test(String(name || '')) || /getränk|drink|bevand|bebida|boisson/i.test(String(cat || '')); }
 function drinkDefaults(name) {
   const n = String(name || '').toLowerCase();
   if (/kaffee|coffee|caff|caf[eé]|espresso|cappuccino|\btee\b|\btea\b|\bt[èé]\b|thé/.test(n)) return { s: 0.2, l: 0.3 };
@@ -2244,6 +2260,13 @@ function normalizeDb(s) {
     if (e && 'photo' in e && !(typeof e.photo === 'string' && e.photo && e.photo.length <= 80)) delete e.photo;
     if (e && 'size' in e && e.size !== 's' && e.size !== 'l') delete e.size; // Version 3.4
     if (e && 'vol' in e && !isVol(e.vol)) delete e.vol;
+  }
+  // Version 3.5: einmalige Umstellung – bestehende Getränke-Zähler (Bier, Wasser, Kaffee, Wein, Saft, Cola, Tee …) bekommen Klein / Groß.
+  // Merker settings.sizesAuto: danach wird nie wieder automatisch eingeschaltet (selbst ausgeschaltet bleibt aus). Alte Einträge bleiben ohne Größe.
+  // Läuft nur im Speicher; dauerhaft wird es mit dem nächsten Speichern (bis dahin bei jedem Start gleich – idempotent).
+  if (s.settings.sizesAuto !== true) {
+    s.counters.forEach(c => { if (c && c.type !== 'time' && !('sizes' in c) && isDrinkLike(c.name, c.category)) c.sizes = drinkDefaults(c.name); });
+    s.settings.sizesAuto = true;
   }
   return s;
 }
@@ -3111,7 +3134,7 @@ const syncHap = () => document.documentElement.classList.toggle('no-hap', !hapti
 /* ---------- Routing ---------- */
 const currentId = () => { const m = location.hash.match(/^#c=(.+)$/); return m ? decodeURIComponent(m[1]) : null; };
 const go = id => { if (id) navTo('c=' + encodeURIComponent(id)); else location.hash = ''; };
-window.addEventListener('hashchange', () => { arranging = false; window.scrollTo(0, 0); render(); });
+window.addEventListener('hashchange', () => { arranging = false; recentOpen = null; window.scrollTo(0, 0); render(); });
 
 /* ---------- Rendering ---------- */
 function render() {
@@ -3126,7 +3149,6 @@ function render() {
   if (dayView) dayView.refresh(); // Version 3.3: offenes Tagesblatt sofort mitaktualisieren (Löschen, Rückgängig, Bearbeiten)
 }
 const FILTER_KEY = 'zaehler-filter';
-const SIZE_HINT_KEY = 'zaehler-size-hint'; // Version 3.4: Geräte-Einstellung – Zähler-ids, bei denen der Getränke-Hinweis schon kam
 function renderHome() {
   swOpen = null;
   const list = $('list'); list.innerHTML = '';
@@ -3306,8 +3328,8 @@ function renderDetail(c) {
   { const sz = sizesOf(c), on = !!sz && !arch && !isLocked(c); $('dSizes').hidden = !on; if (on) $('dPlus').hidden = true; // Version 3.4: Klein / Groß statt +1
     if (on) for (const k of ['s', 'l']) { const K = k.toUpperCase(); $('dPlus' + K + 'T').textContent = t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'); $('dPlus' + K + 'V').textContent = fmtL(sz[k]);
       $('dPlus' + K).setAttribute('aria-label', t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) })); }
-    const lit = !!sz || hasVols(es), now = new Date();
-    [['Today', startOfDay(now)], ['Week', startOfWeek(now)], ['Month', startOfMonth(now)], ['Total', null]].forEach(([k, from]) => { const el = $('l' + k); el.hidden = !lit; el.textContent = lit ? fmtL(litersIn(es, from)) : ''; }); }
+    const now = new Date(); // Version 3.5: Liter nur, wenn im Zeitraum Einträge mit Größe sind (alte ohne Größe zählen 0 l)
+    [['Today', startOfDay(now)], ['Week', startOfWeek(now)], ['Month', startOfMonth(now)], ['Total', null]].forEach(([k, from]) => { const el = $('l' + k), v = litersIn(es, from), on = es.some(e => isVol(e.vol) && (!from || new Date(e.timestamp) >= from)); el.hidden = !on; el.textContent = on ? fmtL(v) : ''; }); }
   const fv = v => fmtVal(c, v);
   $('statsBox').classList.toggle('dur', tm);
   $('sToday').textContent = fv(st.today); $('sWeek').textContent = fv(st.week); $('sMonth').textContent = fv(st.month); $('sTotal').textContent = fv(st.total);
@@ -3450,10 +3472,16 @@ function topNotes(es, k = 4) {
   es.forEach((e, i) => { const n = (e.note || '').trim(); if (!n || n.length > 60) return; const key = n.toLocaleLowerCase(); const x = m.get(key) || { t: n, n: 0, last: 0 }; x.n++; x.last = i; x.t = n; m.set(key, x); });
   return [...m.values()].sort((a, b) => b.n - a.n || b.last - a.last).slice(0, k).map(x => x.t);
 }
+let recentOpen = null; // Version 3.5: Zähler-id, deren „Letzte Einträge“ aufgeklappt sind
 function renderRecent(c, es) {
   const tm = isTime(c), step = stepOf(c), notes = tm || c.archived || isLocked(c) ? [] : topNotes(es);
   $('recentCard').hidden = !es.length;
-  $('recentList').innerHTML = es.slice(-3).reverse().map(e => { const a = amt(e);
+  // Version 3.5: neueste zuerst (nach Zeitpunkt), 3 sichtbar + „Alle n Einträge anzeigen“ klappt die ganze Liste hier auf
+  const open = recentOpen === c.id && es.length > 3, more = $('recentMore');
+  more.hidden = es.length <= 3; more.textContent = t(open ? 'recentLess' : 'recentAll', { n: es.length }); more.setAttribute('aria-expanded', String(open));
+  more.onclick = () => { recentOpen = open ? null : c.id; render(); if (open) $('recentCard').scrollIntoView({ block: 'nearest' }); };
+  $('recentList').classList.toggle('open', open);
+  $('recentList').innerHTML = (open ? es.slice() : es.slice(-3)).reverse().map(e => { const a = amt(e);
     return `<li class="swipe sw-entry" data-eid="${esc(e.id)}"><div class="sw-front"><button type="button" data-rid="${esc(e.id)}" aria-label="${esc(t('recentAria', { d: fmtEntry(e) }))}"><span class="rt">${esc(fmtEntry(e))}${sizeTxt(e) ? ` <span class="rn rsz">${esc(sizeTxt(e))}</span>` : ''}${e.note ? ` <span class="rn">📝 ${esc(e.note)}</span>` : ''}${e.photo ? ' <span class="rn">📷</span>' : ''}</span>`
       + `${tm ? `<span class="ra">${esc(fmtDur(a))}</span>` : a !== 1 ? `<span class="ra${a < 0 ? ' neg' : ''}">${esc(fmtAmt(a))}</span>` : ''}<span class="rchev" aria-hidden="true">›</span></button></div></li>`; }).join('');
   $('recentList').querySelectorAll('[data-rid]').forEach(b => { b.onclick = () => editEntry(b.dataset.rid); });
@@ -3515,11 +3543,11 @@ function dayInner(c, s, e, kind) {
   if (kind === 'day' || kind === 'yday') list = hits.length ? `<ol class="rows day-rows" id="dayList">${hits.map(row).join('')}</ol>` : '';
   else { const groups = []; hits.forEach(h => { const k = ymdOf(new Date(h.x.timestamp)); const g = groups[groups.length - 1]; if (g && g.k === k) g.items.push(h); else groups.push({ k, d: startOfDay(new Date(h.x.timestamp)), items: [h] }); });
     list = groups.length ? `<div id="dayList">${groups.map(g => { const gs = Math.max(0, g.items.reduce((a, h) => a + L.eff[h.i], 0));
-      const gl = sizesOf(c) || hasVols(all) ? ` · ${fmtL(litersIn(g.items.map(h => h.x)))}` : '';
+      const gl = hasVols(g.items.map(h => h.x)) ? ` · ${fmtL(litersIn(g.items.map(h => h.x)))}` : '';
       return `<section class="day-grp" data-day="${g.k}"><h3>${esc(longDay(g.d))}<span>${esc(fmtVal(c, gs) + gl)}</span></h3><ol class="rows day-rows">${g.items.map(row).join('')}</ol></section>`; }).join('')}</div>` : ''; }
   const one = kind === 'day' || kind === 'yday';
   return `<p class="day-sub"><span class="day-em">${esc(c.emoji || '🔢')}</span> ${esc(c.name)}</p><h2 id="dayTitle">${esc(periodTitle(s, e, kind))}</h2>
-    <p class="day-sum" id="daySum"><b>${esc(t('dayTotal', { v: fmtVal(c, sum) }))}</b>${sizesOf(c) || hasVols(all) ? ` · <b class="day-lit" id="dayLit">${esc(fmtL(litersIn(hits.map(h => h.x))))}</b>` : ''}${co ? ` · ${esc(fmtMoney(money))}` : ''} · ${esc(t('entriesCount', { n: hits.length }))}</p>
+    <p class="day-sum" id="daySum"><b>${esc(t('dayTotal', { v: fmtVal(c, sum) }))}</b>${hasVols(hits.map(h => h.x)) ? ` · <b class="day-lit" id="dayLit">${esc(fmtL(litersIn(hits.map(h => h.x))))}</b>` : ''}${co ? ` · ${esc(fmtMoney(money))}` : ''} · ${esc(t('entriesCount', { n: hits.length }))}</p>
     ${lk ? `<p class="small day-note" id="dayLock">${esc(t('dayLocked'))}</p>` : hits.length ? `<p class="small day-note">${esc(t('dayHint'))}</p>` : ''}
     ${list || `<p class="day-empty" id="dayEmpty">${esc(t(one ? 'dayEmpty' : 'periodEmpty'))}</p>`}
     <div class="row">${one && !lk ? `<button class="btn" type="button" data-act="add" id="dayAdd">${esc(t('backdateBtn'))}</button>` : ''}<button class="btn primary" type="button" data-act="no" id="dayClose">${esc(t('close'))}</button></div>`;
@@ -3812,9 +3840,6 @@ async function editCounter(cid = null) {
   const remDays = new Set(r0 ? r0.days : [1, 2, 3, 4, 5, 6, 7]);
   // Version 3.4: Getränk mit Größen. Bestehende Zähler ändern sich nie von selbst – einmaliger Hinweis bei getränkeartigen Namen
   const sz0 = sanitizeSizes(cur.sizes), szDef = sz0 || drinkDefaults(cur.name);
-  const hintSeen = (() => { try { return JSON.parse(lsGet(SIZE_HINT_KEY) || '[]'); } catch (e) { return []; } })();
-  const szHint = !!c && !sz0 && !isTime(c) && isDrinkLike(c.name, catOf(c)) && !hintSeen.includes(c.id);
-  if (szHint) lsSet(SIZE_HINT_KEY, JSON.stringify([...hintSeen, c.id].slice(-200)));
   const v = await openSheet(`<h2>${esc(t(c ? 'editCounterTitle' : 'newCounterTitle'))}</h2>
     ${c ? '' : `<div class="field"><span class="lbl">${esc(t('tplTitle'))}</span><div class="tpl-grid" id="fTpl">
       <button type="button" class="tpl on" data-tpl=""><span class="tpl-e">✨</span><b>${esc(t('tplEmpty'))}</b><small>${esc(t('tplEmptyH'))}</small></button>
@@ -3835,6 +3860,12 @@ async function editCounter(cid = null) {
       <datalist id="fCatList">${categories().map(k => `<option value="${esc(k)}">`).join('')}</datalist>
       ${categories().length ? `<div class="cat-sugg">${categories().map(k => `<button type="button" data-cat="${esc(k)}">${esc(k)}</button>`).join('')}</div>` : ''}
       <p class="small">${esc(t('categoryHelp'))}</p></div>
+    <div class="field size-box" id="fSizeWrap"><span class="lbl">${esc(t('sizesField'))}</span>
+      <label class="check"><input type="checkbox" id="fSizes" ${sz0 ? 'checked' : ''}> <span>${esc(t('sizesCheck'))}</span></label>
+      <div class="two sz-vols" id="fSizeVols" ${sz0 ? '' : 'hidden'}>
+        <div class="field"><label for="fVolS">${esc(t('volS'))}</label><input type="text" id="fVolS" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.s))}"></div>
+        <div class="field"><label for="fVolL">${esc(t('volL'))}</label><input type="text" id="fVolL" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.l))}"></div></div>
+      <p class="small">${esc(t('sizesHelp'))}</p></div>
     <div class="field" id="fRoundWrap"><label for="fRound">${esc(t('fieldRound'))}</label><input type="number" id="fRound" inputmode="numeric" min="2" max="999" placeholder="${esc(t('roundPh'))}" value="${cur.roundSize || ''}">
       <p class="small">${esc(t('roundHelp'))}</p></div>
     <div class="two" id="fTwo">
@@ -3858,13 +3889,6 @@ async function editCounter(cid = null) {
         <p class="small">${esc(t('reminderHelp'))}</p></div></div>
     <div class="field"><label for="fReset">${esc(t('resetLbl'))}</label><select id="fReset">${[['', 'resetOff'], ['day', 'resetDay'], ['week', 'resetWeek'], ['month', 'resetMonth']].map(([k, l]) =>
         `<option value="${k}" ${(resetOf(cur) || '') === k ? 'selected' : ''}>${esc(t(l))}</option>`).join('')}</select><p class="small">${esc(t('resetHelp'))}</p></div>
-    <div class="field" id="fSizeWrap"><span class="lbl">${esc(t('sizesField'))}</span>
-      ${szHint ? `<div class="size-hint" id="fSizeHint"><span>🥤 ${esc(t('sizesHint'))}</span><button class="btn" type="button" id="fSizeOn">${esc(t('sizesHintBtn'))}</button></div>` : ''}
-      <label class="check"><input type="checkbox" id="fSizes" ${sz0 ? 'checked' : ''}> <span>${esc(t('sizesCheck'))}</span></label>
-      <div class="two sz-vols" id="fSizeVols" ${sz0 ? '' : 'hidden'}>
-        <div class="field"><label for="fVolS">${esc(t('volS'))}</label><input type="text" id="fVolS" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.s))}"></div>
-        <div class="field"><label for="fVolL">${esc(t('volL'))}</label><input type="text" id="fVolL" inputmode="decimal" autocomplete="off" value="${esc(volInput(szDef.l))}"></div></div>
-      <p class="small">${esc(t('sizesHelp'))}</p></div>
     <div class="field"><span class="lbl">${esc(t('lockField'))}</span>
       <label class="check"><input type="checkbox" id="fLock" ${isLocked(cur) ? 'checked' : ''}> <span>${esc(t('lockCheck'))}</span></label>
       <label for="fHide" style="margin-top:12px">${esc(t('hideField'))}</label><select id="fHide">${[['', 'hideNone'], ['invisible', 'hideInv'], ['blur', 'hideBlur']].map(([k, l]) =>
@@ -3908,7 +3932,6 @@ async function editCounter(cid = null) {
       [vS, vL].forEach(x => x.addEventListener('input', () => { volTouched = true; }));
       const autoSz = () => { if (szTouched) return; const n = box.querySelector('#fName').value, cat = box.querySelector('#fCat').value; setSz(isDrinkLike(n, cat), drinkDefaults(n)); };
       box.querySelector('#fName').addEventListener('input', autoSz); box.querySelector('#fCat').addEventListener('input', autoSz);
-      const hb = box.querySelector('#fSizeOn'); if (hb) hb.onclick = () => { szTouched = true; setSz(true, drinkDefaults(box.querySelector('#fName').value)); box.querySelector('#fSizeHint').remove(); };
       box.__setSz = (x) => { szTouched = !!x; volTouched = false; setSz(!!(x && x.sizes), x && x.sizes ? x.sizes : drinkDefaults('')); volTouched = false; };
       box.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { box.querySelector('#fCat').value = b.dataset.cat; box.querySelector('#fErr').textContent = ''; });
       box.querySelectorAll('[data-color]').forEach(b => b.onclick = () => { color = b.dataset.color; box.querySelectorAll('[data-color]').forEach(x => x.classList.toggle('on', x === b)); });
