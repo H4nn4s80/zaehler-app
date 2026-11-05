@@ -784,9 +784,10 @@
   .plus.sz-s, .dsz-s, .due-plus.sz[data-size="s"], .szt.szt-s, .sz-seg button[data-sz="s"] { --c: var(--sz-s); }
   .plus.sz-l, .dsz-l, .due-plus.sz[data-size="l"], .szt.szt-l, .sz-seg button[data-sz="l"] { --c: var(--sz-l); }
   .plus-pair .plus.sz-l { flex-grow: 1.25; }
-  .plus.sz b::before, .dsz b::before { content: ''; display: inline-block; vertical-align: -.1em; margin-right: .28em; width: .5em; height: .72em; border: 2px solid currentColor; border-top: 0;
-    border-radius: 0 0 .16em .16em; clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%); opacity: .9; }
-  .plus.sz-l b::before, .dsz-l b::before { width: .62em; height: .95em; }
+  .szl { display: flex; align-items: flex-end; justify-content: center; gap: .3em; height: 1.45em; line-height: 1; }
+  .szl b { display: block; padding-bottom: .02em; }
+  .glass { flex: none; display: block; overflow: visible; }
+  .glass-s { width: .5em; height: .72em; } .glass-l { width: .8em; height: 1.45em; }
   .d-sizes { display: flex; gap: 10px; } .d-sizes[hidden] { display: none; }
   .dsz { position: relative; flex: 1 1 0; min-width: 0; min-height: 86px; border: 0; border-radius: 30px; color: #fff; background-color: var(--c);
     background-image: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.06) 50%, rgba(0,0,0,.05));
@@ -839,6 +840,13 @@
   .recent .rt { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .recent .rn { color: var(--muted); font-size: 14px; }
   .recent .rn.szt { font-size: 13px; margin-right: 0; }
+  /* Version 3.10: Klein / Groß auf der Kachel als eigene Zeile über die volle Breite, nebeneinander, gleich groß (≈ Höhe der +1-Taste) */
+  .tile.has-sz { flex-wrap: wrap; }
+  .tile.has-sz > .tile-main { flex: 1 1 0; }
+  .tile.has-sz > .plus-pair { flex: 0 0 calc(100% - 24px); flex-direction: row; width: auto; height: 82px; gap: 10px; margin: 0 12px 12px; }
+  .tile.has-sz > .plus-pair .plus.sz { flex: 1 1 0; min-height: 0; height: 100%; font-size: 22px; gap: 2px; border-radius: 24px; }
+  .tile.has-sz > .plus-pair .plus.sz small { font-size: 14px; }
+  .dsz { min-height: 82px; }
   /* Version 3.9: Liquid Glass für alle Größen-Elemente – getönte Glasscheibe (Farbe + Weiß/Dunkel gemischt, halbtransparent), Unschärfe + Sättigung dahinter,
      Glanzverlauf oben, helle Innenkante, weicher farbiger Schatten. Ohne backdrop-filter: kräftigere, fast deckende Tönung. */
   :is(.plus.sz-s, .plus.sz-l, .dsz-s, .dsz-l, .due-plus.sz[data-size], .szt.szt-s, .szt.szt-l, .sz-seg button.on[data-sz]) {
@@ -937,8 +945,8 @@
   <section class="card state-card" id="stateCard" hidden></section>
   <button id="dPlus" type="button"><span id="dPlusT">+1</span><label class="hap" id="hapLbl" aria-hidden="true"><input type="checkbox" switch class="hap-sw" id="hapSw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
   <div class="d-sizes" id="dSizes" hidden>
-    <button class="dsz dsz-s" id="dPlusS" type="button" data-size="s"><b id="dPlusST"></b><small id="dPlusSV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
-    <button class="dsz dsz-l" id="dPlusL" type="button" data-size="l"><b id="dPlusLT"></b><small id="dPlusLV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
+    <button class="dsz dsz-l" id="dPlusL" type="button" data-size="l"><span class="szl" id="dGlassL"></span><small id="dPlusLV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
+    <button class="dsz dsz-s" id="dPlusS" type="button" data-size="s"><span class="szl" id="dGlassS"></span><small id="dPlusSV"></small><label class="hap" aria-hidden="true"><input type="checkbox" switch class="hap-sw" tabindex="-1" onclick="event.stopPropagation()"></label></button>
   </div>
   <p class="lp-hint" id="timerHint" data-i18n="timerHint" hidden></p>
   <section class="ov" id="ovBox">
@@ -1807,7 +1815,7 @@ for (const l of Object.keys(I18N_V38)) Object.assign(I18N[l], I18N_V38[l]);
    ========================================================================= */
 const KEY = 'zaehler-v1';
 const VERSION = 1;               // Datenformat (Backup) – bleibt 1
-const APP_BUILD = 21, APP_VERSION = '3.9', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
+const APP_BUILD = 22, APP_VERSION = '3.10', APP_DATE = '2026-11-04'; // APP_VERSION = sichtbare Version (Daten-Menü, Hannes' Zählung 3, 3.1, …); APP_BUILD = interne fortlaufende Build-Nummer
 const COLORS = ['#ff9500', '#ff3b30', '#ff2d55', '#af52de', '#5856d6', '#007aff', '#32ade6', '#00c7be', '#34c759', '#a2845e', '#8e8e93'];
 /* Version 3b: Vorlagen für neue Zähler (Name/Hinweis übersetzt über tpl_<k> / tplh_<k>) */
 const TEMPLATES = [
@@ -1971,6 +1979,8 @@ function drinkDefaults(name) {
 }
 const fmtL = v => `${new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 2 }).format(v)} l`;
 const sizeName = k => t(k === 'l' ? 'sizeL' : 'sizeS');
+/** Version 3.10: Trinkglas-Symbol – Groß doppelt so hoch und breiter als Klein, beide stehen auf derselben Linie */
+const glassSvg = k => `<svg class="glass glass-${k}" viewBox="0 0 20 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M4.6 10.5h10.8l-.9 16.6a1.4 1.4 0 0 1-1.4 1.3H6.9a1.4 1.4 0 0 1-1.4-1.3z" fill="currentColor" opacity=".32"/><path d="M2.5 2.5h15l-1.6 25.6a1.6 1.6 0 0 1-1.6 1.4H5.7a1.6 1.6 0 0 1-1.6-1.4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><path d="M4.5 7.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".7" vector-effect="non-scaling-stroke"/></svg>`;
 const sizeTxt = e => (e && (e.size === 's' || e.size === 'l') ? `${sizeName(e.size)}${isVol(e.vol) ? ' ' + fmtL(e.vol) : ''}` : '');
 const hasVols = list => list.some(e => isVol(e.vol));
 /** Liter (Menge × festgehaltene Größe) der Einträge im Zeitraum [from, to) */
@@ -3204,7 +3214,7 @@ function renderDue(cs, off) {
       return `<div class="due-row" role="listitem" data-id="${esc(c.id)}" style="--c:${esc(c.color)}"><button type="button" class="due-open" data-due-open>
         <span class="emoji">${esc(c.emoji || '🔢')}</span><span class="due-t"><b>${lk ? LOCK_SVG + ' ' : ''}${esc(c.name)}</b><span>${esc(t('dueLeft' + PKEY[x.period], { n: fmtVal(c, x.left) }))}</span>
         <span class="due-bar"><i style="width:${x.gp.pct}%"></i></span></span></button>
-        ${!lk && sizesOf(c) ? ['s', 'l'].map(k => `<button type="button" class="due-plus sz" data-due-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sizesOf(c)[k]) }))}">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}${HAP}</button>`).join('') :
+        ${!lk && sizesOf(c) ? ['l', 's'].map(k => `<button type="button" class="due-plus sz" data-due-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sizesOf(c)[k]) }))}">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}${HAP}</button>`).join('') :
         `<button type="button" class="due-plus${lk ? ' locked' : ''}${tm ? ' timer' : ''}" data-due-plus aria-label="${esc(lk ? t('dueLockedAria', { name: c.name }) : tm ? t('timerAria', { name: c.name }) : t('duePlusAria', { name: c.name, n: step }))}">${lk ? LOCK_SVG : tm ? (c.runningSince ? '■' : '▶') : '+' + step}${HAP}</button>`}</div>`; }).join('')}</div>`
       : `<p class="due-done">${esc(t('dueAllDone'))}</p>`);
   box.querySelectorAll('.due-row').forEach(r => { const id = r.dataset.id;
@@ -3258,7 +3268,7 @@ function tileEl(c, idx, count, swipe = false) {
   const gp = goalProgress(c, es, st), due = reminderDue(c, es), sk = streaks(c, es, L), step = stepOf(c), tm = isTime(c), run = tm && c.runningSince;
   const lk = isLocked(c), hs = gp ? habitStrength(c, es, L) : null, sz = sizesOf(c), litT = sz || hasVols(es) ? litersIn(es, startOfDay(new Date())) : 0;
   const el = document.createElement('div');
-  el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : '') + (isHidden(c) ? ' is-hid' : ''); /* 3.2: versteckt (entsperrt) deutlich markiert */ el.style.setProperty('--c', c.color); el.dataset.id = c.id;
+  el.className = 'tile' + (gp && gp.done ? ' goal-done' : '') + (lk ? ' locked' : '') + (isHidden(c) ? ' is-hid' : '') + (sz && !lk && !tm ? ' has-sz' : ''); /* 3.10: Klein/Groß nebeneinander unter dem Namen */ /* 3.2: versteckt (entsperrt) deutlich markiert */ el.style.setProperty('--c', c.color); el.dataset.id = c.id;
   el.innerHTML = `<button class="tile-main" type="button" data-open>
       <span class="emoji">${esc(c.emoji || '🔢')}</span>
       <span class="tile-text"><div class="tile-name">${isHidden(c) ? `<span class="tile-hid" title="${esc(t('veilBadge'))}">${EYE_OFF}<small>${esc(t('veilBadge'))}</small></span>` : ''}${lk ? `<span class="tile-lock" title="${esc(t('lockedPlus'))}">${LOCK_SVG}</span>` : ''}${esc(c.name)}</div>
@@ -3274,7 +3284,7 @@ function tileEl(c, idx, count, swipe = false) {
     ${lk ? `<button class="plus locked" type="button" data-plus aria-label="${esc(t('dueLockedAria', { name: c.name }))}">${LOCK_SVG}${HAP}</button>`
       : tm ? `<button class="plus timer${run ? ' running' : ''}" type="button" data-plus aria-label="${esc(t('timerAria', { name: c.name }))}">${run
         ? `<span class="ic">■</span><span class="clock" data-clock="${esc(c.runningSince)}">0:00</span>` : `<span class="ic">▶</span><span>${esc(t('timerStart'))}</span>`}${HAP}</button>`
-      : sz ? `<div class="plus-pair">${['s', 'l'].map(k => `<button class="plus sz sz-${k}" type="button" data-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) }))}"><b>${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}</b><small>${esc(fmtL(sz[k]))}</small>${HAP}</button>`).join('')}</div>` // Version 3.4
+      : sz ? `<div class="plus-pair">${['l', 's'].map(k => `<button class="plus sz sz-${k}" type="button" data-plus data-size="${k}" aria-label="${esc(t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) }))}"><span class="szl">${glassSvg(k)}<b>${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}</b></span><small>${esc(fmtL(sz[k]))}</small>${HAP}</button>`).join('')}</div>` // Version 3.4
       : `<button class="plus" type="button" data-plus aria-label="${esc(c.name)} +${step}">+${step}${HAP}</button>`}
     ${arrHtml(idx, count)}`;
   // Version 3b: gedrückt halten (0,6 s, ohne Bewegung) → Menü Sperren/Ausblenden; der Klick danach öffnet nicht die Detailseite
@@ -3332,7 +3342,7 @@ function renderDetail(c) {
   // v7c: archiviert = nur ansehen/bearbeiten; Zeit-Zähler ohne −/+n
   $('archCard').hidden = !arch; $('dPlus').hidden = arch; $('timerHint').hidden = arch || !tm;
   { const sz = sizesOf(c), on = !!sz && !arch && !isLocked(c); $('dSizes').hidden = !on; if (on) $('dPlus').hidden = true; // Version 3.4: Klein / Groß statt +1
-    if (on) for (const k of ['s', 'l']) { const K = k.toUpperCase(); $('dPlus' + K + 'T').textContent = t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'); $('dPlus' + K + 'V').textContent = fmtL(sz[k]);
+    if (on) for (const k of ['s', 'l']) { const K = k.toUpperCase(); $('dGlass' + K).innerHTML = glassSvg(k) + `<b id="dPlus${K}T">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))}</b>`; $('dPlus' + K + 'V').textContent = fmtL(sz[k]);
       $('dPlus' + K).setAttribute('aria-label', t('sizeAria', { name: c.name, s: sizeName(k), v: fmtL(sz[k]) })); }
     const now = new Date(); // Version 3.5: Liter nur, wenn im Zeitraum Einträge mit Größe sind (alte ohne Größe zählen 0 l)
     [['Today', startOfDay(now)], ['Week', startOfWeek(now)], ['Month', startOfMonth(now)], ['Total', null]].forEach(([k, from]) => { const el = $('l' + k), v = litersIn(es, from), on = es.some(e => isVol(e.vol) && (!from || new Date(e.timestamp) >= from)); el.hidden = !on; el.textContent = on ? fmtL(v) : ''; }); }
@@ -3778,7 +3788,7 @@ async function editEntry(eid, isNew = false, cid = null, at = null) {
         <input type="number" id="eDurH" inputmode="numeric" min="0" max="720" step="1" value="${isNew ? '' : oh}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durHoursLbl'))}"><span>${esc(t('durHoursLbl'))}</span>
         <input type="number" id="eDurM" inputmode="numeric" min="0" max="59" step="1" value="${isNew ? '' : om}" placeholder="0" aria-label="${esc(t('fieldDuration'))} ${esc(t('durMinLbl'))}"><span>${esc(t('durMinLbl'))}</span></div></div>`
       : `<div class="field"><label for="eAmt">${esc(t('fieldAmount'))}</label><input type="number" id="eAmt" min="-9999" max="9999" step="1" value="${a0}"></div>`}
-    ${sz ? `<div class="field"><span class="lbl">${esc(t('sizeLbl'))}</span><div class="seg sz-seg" id="eSize" role="group">${['s', 'l'].map(k =>
+    ${sz ? `<div class="field"><span class="lbl">${esc(t('sizeLbl'))}</span><div class="seg sz-seg" id="eSize" role="group">${['l', 's'].map(k =>
       `<button type="button" data-sz="${k}" class="${size0 === k ? 'on' : ''}" aria-pressed="${size0 === k}">${esc(t(k === 'l' ? 'sizeBtnL' : 'sizeBtnS'))} · ${esc(fmtL(volFor(k)))}</button>`).join('')}</div></div>` : ''}
     ${priceField('ePrice', e.price, c)}
     <div class="field"><label for="eNote">${esc(t('noteOptional'))}</label><textarea id="eNote">${esc(e.note || '')}</textarea></div>
